@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: {{ url('/sitemap.xml') }}
+
+# Disallow admin and portal areas
+Disallow: /dashboard/
+Disallow: /portal/
+Disallow: /admin/
+Disallow: /api/
+Disallow: /login
+Disallow: /register
+

@@ -1,0 +1,83 @@
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: real-independent-db
+    environment:
+      POSTGRES_DB: real_independent_central
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d
+    networks:
+      - real-independent-network
+
+  # Redis for caching and sessions
+  redis:
+    image: redis:7-alpine
+    container_name: real-independent-redis
+    ports:
+      - "6381:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - real-independent-network
+
+  # Laravel Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: real-independent-app
+    environment:
+      APP_ENV: local
+      APP_DEBUG: true
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: real_independent_central
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres123
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      ASAAS_API_KEY: ${ASAAS_API_KEY}
+      WUZAPI_API_KEY: ${WUZAPI_API_KEY}
+    ports:
+      - "8001:8001"
+    volumes:
+      - .:/var/www/html
+      - /var/www/html/vendor
+      - ./storage:/var/www/html/storage
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - real-independent-network
+    command: php artisan serve --host=0.0.0.0 --port=8001
+
+  # Nginx Web Server
+  nginx:
+    image: nginx:alpine
+    container_name: real-independent-nginx
+    ports:
+      - "8090:80"
+      - "8443:443"
+    volumes:
+      - .:/var/www/html
+      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+    networks:
+      - real-independent-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  real-independent-network:
+    driver: bridge

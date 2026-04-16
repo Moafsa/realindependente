@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Independent - Sistema Completo de Demonstração</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" />
+    <style>
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .glass-effect {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-xl">RI</span>
+                    </div>
+                    <h1 class="ml-3 text-2xl font-bold text-gray-900">Real Independent</h1>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="#dashboard" class="text-gray-600 hover:text-blue-600 transition-colors">Dashboard</a>
+                    <a href="#athletes" class="text-gray-600 hover:text-blue-600 transition-colors">Atletas</a>
+                    <a href="#teams" class="text-gray-600 hover:text-blue-600 transition-colors">Equipes</a>
+                    <a href="#ai" class="text-gray-600 hover:text-blue-600 transition-colors">IA</a>
+                    <a href="#store" class="text-gray-600 hover:text-blue-600 transition-colors">Loja</a>
+                    <a href="#site" class="text-gray-600 hover:text-blue-600 transition-colors">Site Público</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                        Entrar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="gradient-bg text-white py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-5xl md:text-7xl font-bold mb-6 fade-in-up">
+                Sistema Completo
+            </h1>
+            <h2 class="text-2xl md:text-3xl mb-8 fade-in-up">
+                Gestão de Clubes de Futebol
+            </h2>
+            <p class="text-xl mb-12 max-w-3xl mx-auto fade-in-up">
+                Explore todas as funcionalidades do sistema: Dashboard Administrativo, Portal do Atleta, 
+                Inteligência Artificial, Site Público Automático e muito mais!
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center fade-in-up">
+                <button class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+                    Explorar Sistema
+                </button>
+                <button class="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors">
+                    Ver Demonstração
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dashboard Admin Section -->
+    <section id="dashboard" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">Dashboard Administrativo</h2>
+                <p class="text-xl text-gray-600">Controle total do seu clube com interface moderna e intuitiva</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Stats Cards -->
+                <div class="lg:col-span-2">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-lg shadow-lg">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-600 text-sm font-medium">Total de Atletas</p>
+                                    <p class="text-3xl font-bold text-blue-600">247</p>
+                                    <p class="text-green-600 text-sm mt-1">+12% este mês</p>
+                                </div>
+                                <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-lg shadow-lg">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-600 text-sm font-medium">Equipes Ativas</p>
+                                    <p class="text-3xl font-bold text-green-600">8</p>
+                                    <p class="text-blue-600 text-sm mt-1">Todas ativas</p>
+                                </div>
+                                <div class="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-lg shadow-lg">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-600 text-sm font-medium">Receita Mensal</p>
+                                    <p class="text-3xl font-bold text-purple-600">R$ 45.230</p>
+                                    <p class="text-green-600 text-sm mt-1">+8% este mês</p>
+                                </div>
+                                <div class="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-orange-50 to-orange-100 p-6 rounded-lg shadow-lg">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-gray-600 text-sm font-medium">Planos IA</p>
+                                    <p class="text-3xl font-bold text-orange-600">156</p>
+                                    <p class="text-purple-600 text-sm mt-1">Este mês</p>
+                                </div>
+                                <div class="w-12 h-12 bg-orange-500 rounded-lg flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Athletes -->
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-6">Atletas Recentes</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
+                                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&h=50&fit=crop&crop=face" 
+                                     alt="João Silva" class="w-12 h-12 rounded-full object-cover">
+                                <div class="flex-1">
+                                    <h4 class="font-semibold text-gray-900">João Silva</h4>
+                                    <p class="text-gray-600 text-sm">Sub-15 • Atacante</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-sm text-gray-600">Cadastrado há</p>
+                                    <p class="font-semibold text-gray-900">2 dias</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
+                                <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=50&h=50&fit=crop&crop=face" 
+                                     alt="Pedro Santos" class="w-12 h-12 rounded-full object-cover">
+                                <div class="flex-1">
+                                    <h4 class="font-semibold text-gray-900">Pedro Santos</h4>
+                                    <p class="text-gray-600 text-sm">Sub-17 • Meio-campo</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-sm text-gray-600">Cadastrado há</p>
+                                    <p class="font-semibold text-gray-900">5 dias</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="space-y-6">
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Ações Rápidas</h3>
+                        <div class="space-y-3">
+                            <button class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                                Cadastrar Atleta
+                            </button>
+                            <button class="w-full bg-green-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-green-700 transition-colors">
+                                Gerar Relatório
+                            </button>
+                            <button class="w-full bg-purple-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-purple-700 transition-colors">
+                                Criar Plano IA
+                            </button>
+                            <button class="w-full bg-orange-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-orange-700 transition-colors">
+                                Cobrança Mensal
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Performance da IA</h3>
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Planos de Treino</span>
+                                <span class="font-semibold">89 gerados</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Planos Nutricionais</span>
+                                <span class="font-semibold">67 gerados</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Taxa de Aprovação</span>
+                                <span class="font-semibold text-green-600">94%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Athletes Section -->
+    <section id="athletes" class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">Portal do Atleta</h2>
+                <p class="text-xl text-gray-600">Interface personalizada para cada atleta com planos de treino e nutrição</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Athlete Dashboard -->
+                <div class="bg-white rounded-lg shadow-lg p-8">
+                    <div class="flex items-center mb-6">
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&fit=crop&crop=face" 
+                             alt="João Silva" class="w-16 h-16 rounded-full object-cover">
+                        <div class="ml-4">
+                            <h3 class="text-xl font-bold text-gray-900">João Silva</h3>
+                            <p class="text-gray-600">Sub-15 • Atacante</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-4 mb-6">
+                        <div class="text-center bg-blue-50 p-4 rounded-lg">
+                            <div class="text-2xl font-bold text-blue-600">3</div>
+                            <div class="text-sm text-gray-600">Planos Ativos</div>
+                        </div>
+                        <div class="text-center bg-green-50 p-4 rounded-lg">
+                            <div class="text-2xl font-bold text-green-600">2</div>
+                            <div class="text-sm text-gray-600">Treinos Hoje</div>
+                        </div>
+                        <div class="text-center bg-purple-50 p-4 rounded-lg">
+                            <div class="text-2xl font-bold text-purple-600">94%</div>
+                            <div class="text-sm text-gray-600">Performance</div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <h4 class="font-semibold text-gray-900">Próximos Treinos</h4>
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <span class="text-gray-700">Treino de Força</span>
+                                <span class="text-sm text-gray-500">15:00</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                <span class="text-gray-700">Treino Técnico</span>
+                                <span class="text-sm text-gray-500">17:30</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Plans -->
+                <div class="bg-white rounded-lg shadow-lg p-8">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-6">Planos de IA</h3>
+                    
+                    <div class="space-y-4">
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="font-semibold text-gray-900">Plano de Treino Semanal</h4>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm">Ativo</span>
+                            </div>
+                            <p class="text-gray-600 text-sm mb-3">Gerado pela IA em 15/01/2025</p>
+                            <div class="flex space-x-2">
+                                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">Força</span>
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">Resistência</span>
+                                <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs">Técnica</span>
+                            </div>
+                        </div>
+
+                        <div class="border border-gray-200 rounded-lg p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="font-semibold text-gray-900">Plano Nutricional</h4>
+                                <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-sm">Pendente</span>
+                            </div>
+                            <p class="text-gray-600 text-sm mb-3">Aguardando dados do atleta</p>
+                            <div class="flex space-x-2">
+                                <span class="bg-orange-100 text-orange-800 px-2 py-1 rounded text-xs">Proteínas</span>
+                                <span class="bg-red-100 text-red-800 px-2 py-1 rounded text-xs">Carboidratos</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- AI Section -->
+    <section id="ai" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">Inteligência Artificial</h2>
+                <p class="text-xl text-gray-600">Planos personalizados com OpenAI GPT-4 e Google Gemini</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <!-- AI Features -->
+                <div class="space-y-8">
+                    <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-8 rounded-lg">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center mr-4">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-xl font-semibold text-gray-900">Planos de Treino Personalizados</h3>
+                        </div>
+                        <p class="text-gray-600">Criação automática de planos de treino baseados no perfil, objetivos e histórico do atleta.</p>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-8 rounded-lg">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center mr-4">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-xl font-semibold text-gray-900">Planos Nutricionais</h3>
+                        </div>
+                        <p class="text-gray-600">Sugestões alimentares personalizadas considerando restrições, objetivos e preferências.</p>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-blue-50 to-cyan-50 p-8 rounded-lg">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center mr-4">
+                                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-xl font-semibold text-gray-900">Análise de Performance</h3>
+                        </div>
+                        <p class="text-gray-600">Monitoramento inteligente do progresso com sugestões de ajustes automáticos.</p>
+                    </div>
+                </div>
+
+                <!-- AI Stats -->
+                <div class="bg-white rounded-lg shadow-lg p-8">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-6">Estatísticas da IA</h3>
+                    
+                    <div class="space-y-6">
+                        <div class="flex items-center justify-between">
+                            <span class="text-gray-600">Planos Gerados (Mês)</span>
+                            <span class="text-2xl font-bold text-purple-600">156</span>
+                        </div>
+                        
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full" style="width: 85%"></div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-green-600">94%</div>
+                                <div class="text-sm text-gray-600">Taxa de Aprovação</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-2xl font-bold text-blue-600">2.3s</div>
+                                <div class="text-sm text-gray-600">Tempo Médio</div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Planos de Treino</span>
+                                <span class="font-semibold">89</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Planos Nutricionais</span>
+                                <span class="font-semibold">67</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Análises de Performance</span>
+                                <span class="font-semibold">45</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Store Section -->
+    <section id="store" class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">Loja Online</h2>
+                <p class="text-xl text-gray-600">Produtos oficiais do clube com sistema de e-commerce integrado</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Product 1 -->
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+                    <img src="https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=300&fit=crop" 
+                         alt="Camiseta Titular" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">Camiseta Titular 2024</h3>
+                        <p class="text-gray-600 mb-4">Uniforme oficial da temporada</p>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <span class="text-2xl font-bold text-gray-900">R$ 79,90</span>
+                                <span class="text-lg text-gray-500 line-through ml-2">R$ 99,90</span>
+                            </div>
+                        </div>
+                        <button class="w-full mt-4 bg-blue-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                            Adicionar ao Carrinho
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Product 2 -->
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+                    <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?w=400&h=300&fit=crop" 
+                         alt="Chuteira Oficial" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">Chuteira Oficial</h3>
+                        <p class="text-gray-600 mb-4">Calçado de alta performance</p>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <span class="text-2xl font-bold text-gray-900">R$ 199,90</span>
+                            </div>
+                        </div>
+                        <button class="w-full mt-4 bg-blue-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                            Adicionar ao Carrinho
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Product 3 -->
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+                    <img src="https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=400&h=300&fit=crop" 
+                         alt="Boné Oficial" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">Boné Oficial</h3>
+                        <p class="text-gray-600 mb-4">Acessório estiloso do clube</p>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <span class="text-2xl font-bold text-gray-900">R$ 39,90</span>
+                            </div>
+                        </div>
+                        <button class="w-full mt-4 bg-blue-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                            Adicionar ao Carrinho
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Product 4 -->
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+                    <img src="https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?w=400&h=300&fit=crop" 
+                         alt="Bola Oficial" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">Bola Oficial</h3>
+                        <p class="text-gray-600 mb-4">Bola de futebol oficial do clube</p>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <span class="text-2xl font-bold text-gray-900">R$ 149,90</span>
+                            </div>
+                        </div>
+                        <button class="w-full mt-4 bg-blue-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                            Adicionar ao Carrinho
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Shopping Cart Summary -->
+            <div class="mt-16 bg-white rounded-lg shadow-lg p-8">
+                <h3 class="text-2xl font-semibold text-gray-900 mb-6 text-center">Carrinho de Compras</h3>
+                <div class="max-w-2xl mx-auto">
+                    <div class="space-y-4 mb-6">
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                            <span class="text-gray-700">Camiseta Titular 2024</span>
+                            <span class="font-semibold">R$ 79,90</span>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                            <span class="text-gray-700">Boné Oficial</span>
+                            <span class="font-semibold">R$ 39,90</span>
+                        </div>
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                            <span class="text-gray-700">Bola Oficial</span>
+                            <span class="font-semibold">R$ 149,90</span>
+                        </div>
+                    </div>
+                    
+                    <div class="border-t pt-4">
+                        <div class="flex items-center justify-between text-xl font-bold">
+                            <span>Total:</span>
+                            <span>R$ 269,70</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 space-y-4">
+                        <button class="w-full bg-green-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-green-700 transition-colors">
+                            Finalizar Compra
+                        </button>
+                        <button class="w-full bg-gray-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-gray-700 transition-colors">
+                            Continuar Comprando
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Public Site Section -->
+    <section id="site" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-gray-900 mb-4">Site Público Automático</h2>
+                <p class="text-xl text-gray-600">Website profissional gerado automaticamente para cada clube</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <!-- Site Features -->
+                <div class="space-y-8">
+                    <div class="bg-gradient-to-r from-blue-50 to-cyan-50 p-8 rounded-lg">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Páginas Automáticas</h3>
+                        <ul class="space-y-2 text-gray-600">
+                            <li>• Homepage com informações do clube</li>
+                            <li>• Página de equipes e categorias</li>
+                            <li>• Galeria de atletas</li>
+                            <li>• Loja online integrada</li>
+                            <li>• Formulário de contato</li>
+                            <li>• Blog de notícias</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-8 rounded-lg">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">SEO Otimizado</h3>
+                        <ul class="space-y-2 text-gray-600">
+                            <li>• Meta tags automáticas</li>
+                            <li>• Sitemap XML gerado</li>
+                            <li>• URLs amigáveis</li>
+                            <li>• Schema markup</li>
+                            <li>• Otimização para mobile</li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-8 rounded-lg">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-4">Personalização</h3>
+                        <ul class="space-y-2 text-gray-600">
+                            <li>• Cores e logo do clube</li>
+                            <li>• Conteúdo personalizado</li>
+                            <li>• Integração com redes sociais</li>
+                            <li>• Analytics integrado</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Site Stats -->
+                <div class="bg-white rounded-lg shadow-lg p-8">
+                    <h3 class="text-xl font-semibold text-gray-900 mb-6">Estatísticas do Site</h3>
+                    
+                    <div class="space-y-6">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="text-center bg-blue-50 p-4 rounded-lg">
+                                <div class="text-2xl font-bold text-blue-600">12</div>
+                                <div class="text-sm text-gray-600">Páginas</div>
+                            </div>
+                            <div class="text-center bg-green-50 p-4 rounded-lg">
+                                <div class="text-2xl font-bold text-green-600">45</div>
+                                <div class="text-sm text-gray-600">Produtos</div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Visitas Mensais</span>
+                                <span class="font-semibold">1.2K</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Tempo de Carregamento</span>
+                                <span class="font-semibold text-green-600">0.8s</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Taxa de Conversão</span>
+                                <span class="font-semibold text-blue-600">3.2%</span>
+                            </div>
+                        </div>
+
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-gradient-to-r from-blue-500 to-green-500 h-2 rounded-full" style="width: 78%"></div>
+                        </div>
+                        <p class="text-sm text-gray-600 text-center">Performance Score: 78/100</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                            <span class="text-white font-bold text-xl">RI</span>
+                        </div>
+                        <h3 class="ml-3 text-xl font-bold">Real Independent</h3>
+                    </div>
+                    <p class="text-gray-400 mb-4">Sistema completo de gestão para clubes de futebol com IA, multi-tenancy e site público automático.</p>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Recursos</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white transition-colors">Dashboard Admin</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Portal do Atleta</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Inteligência Artificial</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Site Público</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Tecnologias</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li>Laravel 11</li>
+                        <li>PostgreSQL</li>
+                        <li>Tailwind CSS</li>
+                        <li>OpenAI GPT-4</li>
+                        <li>Asaas API</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Contato</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li>contato@realindependent.com</li>
+                        <li>(11) 3456-7890</li>
+                        <li>São Paulo, SP</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2025 Real Independent Club Management. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add fade-in animation on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('fade-in-up');
+                }
+            });
+        }, observerOptions);
+
+        // Observe all sections
+        document.querySelectorAll('section').forEach(section => {
+            observer.observe(section);
+        });
+    </script>
+</body>
+</html>
