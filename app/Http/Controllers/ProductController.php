@@ -18,7 +18,7 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         try {
-            $query = Product::withTrashed();
+            $query = Product::withTrashed()->where('type', '!=', 'subscription');
 
             // Search
             if ($request->filled('search')) {
@@ -51,7 +51,7 @@ class ProductController extends Controller
             }
 
             $products = $query->latest()->paginate(20);
-            $types = ['product', 'service', 'subscription', 'merchandise'];
+            $types = ['product', 'service', 'merchandise'];
         } catch (\Exception $e) {
             $products = new \Illuminate\Pagination\LengthAwarePaginator(
                 collect([]),
@@ -59,7 +59,7 @@ class ProductController extends Controller
                 20,
                 1
             );
-            $types = ['product', 'service', 'subscription', 'merchandise'];
+            $types = ['product', 'service', 'merchandise'];
         }
 
         return view('products.index', compact('products', 'types'));
@@ -72,7 +72,7 @@ class ProductController extends Controller
      */
     public function create()
     {
-        $types = ['product' => 'Produto', 'service' => 'Serviço', 'subscription' => 'Assinatura', 'merchandise' => 'Mercadoria'];
+        $types = ['product' => 'Produto', 'service' => 'Serviço', 'merchandise' => 'Mercadoria'];
         
         return view('products.create', compact('types'));
     }
@@ -101,11 +101,19 @@ class ProductController extends Controller
         ]);
 
         try {
-            $product = new Product($request->except(['image']));
+            $productData = $request->except(['image', 'cycle']);
+            $product = new Product($productData);
+            
+            // Handle attributes and cycle
+            $attributes = $request->input('attributes', []);
+            if ($request->input('type') === 'subscription' && $request->filled('cycle')) {
+                $attributes['cycle'] = $request->input('cycle');
+            }
+            $product->attributes = $attributes;
             
             // Handle image upload
             if ($request->hasFile('image')) {
-                $path = $request->file('image')->store('products', 'public');
+                $path = $request->file('image')->store('products');
                 $product->image = $path;
             }
 
@@ -113,9 +121,12 @@ class ProductController extends Controller
             $product->is_active = $request->boolean('is_active', true);
             $product->is_featured = $request->boolean('is_featured', false);
             
-            // Stock quantity for non-physical products
+            // Handle stock quantity based on type
             if ($product->type === 'service' || $product->type === 'subscription') {
-                $product->stock_quantity = null;
+                $product->stock_quantity = 0;
+            } else {
+                // For physical products, default to 0 if not provided
+                $product->stock_quantity = $request->input('stock_quantity') ?? 0;
             }
 
             $product->save();
@@ -169,7 +180,7 @@ class ProductController extends Controller
      */
     public function edit(Product $product)
     {
-        $types = ['product' => 'Produto', 'service' => 'Serviço', 'subscription' => 'Assinatura', 'merchandise' => 'Mercadoria'];
+        $types = ['product' => 'Produto', 'service' => 'Serviço', 'merchandise' => 'Mercadoria'];
         
         return view('products.edit', compact('product', 'types'));
     }
@@ -201,16 +212,28 @@ class ProductController extends Controller
         try {
             $oldImage = $product->image;
             
-            $product->update($request->except(['image']));
+            $productData = $request->except(['image', 'cycle']);
+            $product->fill($productData);
+
+            // Handle attributes and cycle
+            $attributes = $request->input('attributes', []);
+            if ($request->input('type') === 'subscription' && $request->filled('cycle')) {
+                $attributes['cycle'] = $request->input('cycle');
+            }
+            $product->attributes = $attributes;
+
+            if ($product->type === 'service' || $product->type === 'subscription') {
+                $product->stock_quantity = 0;
+            }
 
             // Handle image upload
             if ($request->hasFile('image')) {
                 // Delete old image
                 if ($oldImage) {
-                    Storage::disk('public')->delete($oldImage);
+                    Storage::delete($oldImage);
                 }
                 
-                $path = $request->file('image')->store('products', 'public');
+                $path = $request->file('image')->store('products');
                 $product->update(['image' => $path]);
             }
 

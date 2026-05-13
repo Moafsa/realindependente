@@ -1,5 +1,6 @@
 /**
  * Dashboard Charts and Interactive Features
+ * Version 2.0 - Premium Aesthetics
  */
 
 (function() {
@@ -8,12 +9,62 @@
     let athleteEvolutionChart = null;
     let revenueChart = null;
 
+    // Chart Colors
+    const colors = {
+        blue: {
+            solid: 'rgb(59, 130, 246)',
+            light: 'rgba(59, 130, 246, 0.1)',
+            gradient: ['rgba(59, 130, 246, 0.3)', 'rgba(59, 130, 246, 0)']
+        },
+        orange: {
+            solid: 'rgb(249, 115, 22)',
+            light: 'rgba(249, 115, 22, 0.1)',
+            gradient: ['rgba(249, 115, 22, 0.3)', 'rgba(249, 115, 22, 0)']
+        }
+    };
+
     // Initialize on DOM ready
     document.addEventListener('DOMContentLoaded', function() {
         initializeCharts();
         setupPeriodSelector();
         setupAutoRefresh();
+        animateNumbers();
     });
+
+    /**
+     * Animate Metric Numbers
+     */
+    function animateNumbers() {
+        const counters = document.querySelectorAll('.text-3xl.font-bold');
+        counters.forEach(counter => {
+            const animate = () => {
+                const value = counter.innerText;
+                const isPrice = value.includes('R$');
+                let target = parseFloat(value.replace('R$', '').replace('.', '').replace(',', '.'));
+                
+                if (isNaN(target)) return;
+
+                let current = 0;
+                const step = target / 50;
+                
+                const updateCounter = () => {
+                    current += step;
+                    if (current < target) {
+                        if (isPrice) {
+                            counter.innerText = 'R$ ' + Math.floor(current).toLocaleString('pt-BR');
+                        } else {
+                            counter.innerText = Math.floor(current);
+                        }
+                        setTimeout(updateCounter, 20);
+                    } else {
+                        counter.innerText = value;
+                    }
+                };
+                updateCounter();
+            };
+            animate();
+        });
+    }
 
     /**
      * Initialize all charts
@@ -24,53 +75,72 @@
     }
 
     /**
+     * Helper to create gradient
+     */
+    function createGradient(ctx, colors) {
+        const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+        gradient.addColorStop(0, colors[0]);
+        gradient.addColorStop(1, colors[1]);
+        return gradient;
+    }
+
+    /**
      * Initialize Athlete Evolution Chart
      */
     function initializeAthleteEvolutionChart() {
         const ctx = document.getElementById('athleteEvolutionChart');
         if (!ctx) return;
 
-        // Destroy existing chart if it exists
-        if (athleteEvolutionChart) {
-            athleteEvolutionChart.destroy();
-            athleteEvolutionChart = null;
-        }
-
-        // Get initial data from backend or fetch via API
         fetchAthleteEvolutionData('6months').then(data => {
+            const chartCtx = ctx.getContext('2d');
+            const bgGradient = createGradient(chartCtx, colors.blue.gradient);
+
             athleteEvolutionChart = new Chart(ctx, {
                 type: 'line',
                 data: {
                     labels: data.map(item => item.month_label),
                     datasets: [{
-                        label: 'Novos Atletas',
-                        data: data.map(item => item.count),
-                        borderColor: 'rgb(59, 130, 246)',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        label: 'Evolução de Atletas',
+                        data: data.map(item => item.count || item.avg_score || 0),
+                        borderColor: colors.blue.solid,
+                        backgroundColor: bgGradient,
                         tension: 0.4,
                         fill: true,
-                        pointRadius: 4,
-                        pointHoverRadius: 6,
+                        pointRadius: 6,
+                        pointBackgroundColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointHoverRadius: 8,
+                        pointHoverBorderWidth: 3,
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: {
-                            display: false
-                        },
+                        legend: { display: false },
                         tooltip: {
-                            mode: 'index',
-                            intersect: false,
+                            backgroundColor: 'rgba(17, 24, 39, 0.9)',
+                            padding: 12,
+                            cornerRadius: 8,
+                            titleFont: { size: 14, weight: 'bold' },
+                            bodyFont: { size: 13 },
+                            displayColors: false,
+                            callbacks: {
+                                label: function(context) {
+                                    return ' Score Médio: ' + context.parsed.y;
+                                }
+                            }
                         }
                     },
                     scales: {
                         y: {
-                            beginAtZero: true,
-                            ticks: {
-                                precision: 0
-                            }
+                            beginAtZero: false,
+                            grid: { color: 'rgba(0,0,0,0.05)' },
+                            ticks: { font: { size: 11 } }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { size: 11 } }
                         }
                     }
                 }
@@ -85,51 +155,46 @@
         const ctx = document.getElementById('revenueChart');
         if (!ctx) return;
 
-        // Get revenue data from window object (set by Blade template)
         let revenueData = window.revenueData || [];
 
-        // If no data in page, fetch from API
         if (revenueData.length === 0) {
-            fetchRevenueData().then(data => {
-                revenueData = data;
-                createRevenueChart(data);
-            });
+            // Se não houver dados no window, buscar da API (ou usar fallback do window injetado pelo Blade)
+            createRevenueChartFromView(window.revenueTrendsData || []);
         } else {
-            createRevenueChart(revenueData);
+            createRevenueChartFromView(revenueData);
         }
 
-        function createRevenueChart(data) {
-            // Destroy existing chart if it exists
-            if (revenueChart) {
-                revenueChart.destroy();
-                revenueChart = null;
-            }
+        function createRevenueChartFromView(data) {
+            if (revenueChart) revenueChart.destroy();
             
+            const chartCtx = ctx.getContext('2d');
+            const bgGradient = createGradient(chartCtx, colors.orange.gradient);
+
             revenueChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: data.map(item => item.month_label || item.month),
                     datasets: [{
-                        label: 'Receita (R$)',
+                        label: 'Receita',
                         data: data.map(item => parseFloat(item.revenue) || 0),
-                        backgroundColor: 'rgba(249, 115, 22, 0.8)',
-                        borderColor: 'rgb(249, 115, 22)',
-                        borderWidth: 1,
+                        backgroundColor: bgGradient,
+                        borderColor: colors.orange.solid,
+                        borderWidth: 2,
+                        borderRadius: 6,
+                        hoverBackgroundColor: colors.orange.solid,
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: {
-                            display: false
-                        },
+                        legend: { display: false },
                         tooltip: {
+                            backgroundColor: 'rgba(17, 24, 39, 0.9)',
                             callbacks: {
                                 label: function(context) {
-                                    return 'R$ ' + context.parsed.y.toLocaleString('pt-BR', {
-                                        minimumFractionDigits: 2,
-                                        maximumFractionDigits: 2
+                                    return ' R$ ' + context.parsed.y.toLocaleString('pt-BR', {
+                                        minimumFractionDigits: 2
                                     });
                                 }
                             }
@@ -138,12 +203,13 @@
                     scales: {
                         y: {
                             beginAtZero: true,
+                            grid: { color: 'rgba(0,0,0,0.05)' },
                             ticks: {
-                                callback: function(value) {
-                                    return 'R$ ' + value.toLocaleString('pt-BR');
-                                }
+                                callback: val => 'R$ ' + val.toLocaleString('pt-BR'),
+                                font: { size: 10 }
                             }
-                        }
+                        },
+                        x: { grid: { display: false } }
                     }
                 }
             });
@@ -151,18 +217,17 @@
     }
 
     /**
-     * Setup period selector for evolution chart
+     * Period Selector Setup
      */
     function setupPeriodSelector() {
-        const periodSelector = document.getElementById('evolution-period');
-        if (!periodSelector) return;
+        const selector = document.getElementById('evolution-period');
+        if (!selector) return;
 
-        periodSelector.addEventListener('change', function() {
-            const period = this.value;
-            fetchAthleteEvolutionData(period).then(data => {
+        selector.addEventListener('change', function() {
+            fetchAthleteEvolutionData(this.value).then(data => {
                 if (athleteEvolutionChart) {
                     athleteEvolutionChart.data.labels = data.map(item => item.month_label);
-                    athleteEvolutionChart.data.datasets[0].data = data.map(item => item.count);
+                    athleteEvolutionChart.data.datasets[0].data = data.map(item => item.count || item.avg_score);
                     athleteEvolutionChart.update();
                 }
             });
@@ -170,91 +235,49 @@
     }
 
     /**
-     * Fetch athlete evolution data from API
+     * API Fetchers
      */
     function fetchAthleteEvolutionData(period) {
         return fetch(`/dashboard/athlete-evolution?period=${period}`, {
-            headers: {
-                'Accept': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            }
+            headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                return data.data;
-            }
-            return [];
-        })
-        .catch(error => {
-            console.error('Error fetching athlete evolution data:', error);
-            return [];
-        });
+        .then(res => res.json())
+        .then(json => json.success ? json.data : [])
+        .catch(() => []);
     }
 
     /**
-     * Fetch revenue data from API
-     */
-    function fetchRevenueData() {
-        return fetch('/dashboard/metrics', {
-            headers: {
-                'Accept': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            // This would need to be implemented in the backend
-            // For now, return empty array
-            return [];
-        })
-        .catch(error => {
-            console.error('Error fetching revenue data:', error);
-            return [];
-        });
-    }
-
-    /**
-     * Setup auto-refresh for metrics
+     * Polling logic
      */
     function setupAutoRefresh() {
-        // Refresh metrics every 5 minutes
-        setInterval(function() {
-            refreshMetrics();
-        }, 5 * 60 * 1000);
+        setInterval(() => {
+            fetch('/dashboard/metrics', {
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(res => res.json())
+            .then(json => {
+                if (json.success) updateUI(json.data);
+            });
+        }, 60000); // 1 minute
     }
 
-    /**
-     * Refresh dashboard metrics
-     */
-    function refreshMetrics() {
-        fetch('/dashboard/metrics', {
-            headers: {
-                'Accept': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Update metric cards
-                updateMetricCard('total_athletes', data.data.total_athletes);
-                updateMetricCard('active_athletes', data.data.active_athletes);
-                updateMetricCard('total_teams', data.data.total_teams);
-                updateMetricCard('total_revenue', data.data.total_revenue);
-            }
-        })
-        .catch(error => {
-            console.error('Error refreshing metrics:', error);
-        });
+    function updateUI(data) {
+        // Update counters with smooth transition
+        updateValue('total_athletes', data.total_athletes);
+        updateValue('active_athletes', data.active_athletes);
+        updateValue('total_teams', data.total_teams);
+        updateValue('this_month_revenue', 'R$ ' + data.monthly_revenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 }));
     }
 
-    /**
-     * Update a metric card value
-     */
-    function updateMetricCard(metric, value) {
-        // This would update the specific metric card
-        // Implementation depends on the card structure
+    function updateValue(id, value) {
+        const el = document.getElementById('metric-' + id);
+        if (el && el.innerText != value) {
+            el.classList.add('scale-110', 'text-blue-600');
+            setTimeout(() => {
+                el.innerText = value;
+                el.classList.remove('scale-110', 'text-blue-600');
+            }, 300);
+        }
     }
 })();
 

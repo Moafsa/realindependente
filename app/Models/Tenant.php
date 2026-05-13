@@ -7,19 +7,24 @@ use Illuminate\Database\Eloquent\Model;
 use Stancl\Tenancy\Database\Models\Tenant as BaseTenant;
 use Stancl\Tenancy\Database\Concerns\HasDatabase;
 use Stancl\Tenancy\Database\Concerns\HasDomains;
+use Stancl\Tenancy\Contracts\TenantWithDatabase;
 
-class Tenant extends BaseTenant
+class Tenant extends BaseTenant implements TenantWithDatabase
 {
     use HasFactory, HasDatabase, HasDomains;
 
+    protected $connection = 'pgsql';
+
     protected $fillable = [
         'name',
-        'subdomain',
+        'email',
+        'domain',
         'database_name',
         'asaas_customer_id',
         'asaas_subscription_id',
         'plan_id',
         'status',
+        'is_active',
         'trial_ends_at',
         'subscription_ends_at',
         'data',
@@ -29,6 +34,26 @@ class Tenant extends BaseTenant
         'trial_ends_at' => 'datetime',
         'subscription_ends_at' => 'datetime',
     ];
+
+    /**
+     * Define custom columns that should not be stored in the 'data' JSON blob.
+     */
+    public static function getCustomColumns(): array
+    {
+        return [
+            'id',
+            'name',
+            'email',
+            'domain',
+            'plan_id',
+            'status',
+            'is_active',
+            'trial_ends_at',
+            'subscription_ends_at',
+            'asaas_customer_id',
+            'asaas_subscription_id',
+        ];
+    }
 
     /**
      * Get the plan that belongs to the tenant.
@@ -87,16 +112,43 @@ class Tenant extends BaseTenant
         return 'tenant_' . $this->id;
     }
 
+
     /**
      * Get the tenant's URL.
      */
     public function getUrlAttribute()
     {
+        // Se estiver em CLI, usa os defaults
+        if (app()->runningInConsole()) {
+            return 'http://' . $this->domain . '.' . config('tenancy.central_domains')[0];
+        }
+
         $primaryDomain = $this->primary_domain;
+        
         if ($primaryDomain) {
-            return 'http://' . $primaryDomain->domain;
+            $domain = $primaryDomain->domain;
+        } else {
+            $currentHost = request()->getHost();
+            $centralDomains = config('tenancy.central_domains', []);
+            $baseDomain = $centralDomains[0] ?? 'meuclube.app';
+            
+            foreach ($centralDomains as $central) {
+                if ($currentHost === $central || str_ends_with($currentHost, '.' . $central)) {
+                    $baseDomain = $central;
+                    break;
+                }
+            }
+            $domain = $this->domain . '.' . $baseDomain;
         }
         
-        return 'http://' . $this->subdomain . '.' . config('tenancy.central_domains')[0];
+        $scheme = request()->isSecure() ? 'https://' : 'http://';
+        $port = request()->getPort();
+        $url = $scheme . $domain;
+        
+        if ($port && !in_array($port, [80, 443])) {
+            $url .= ':' . $port;
+        }
+        
+        return $url;
     }
 }

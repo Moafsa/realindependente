@@ -68,7 +68,7 @@
                             Lembrar de mim
                         </label>
                     </div>
-                    <a href="#" class="text-sm text-blue-600 hover:text-blue-800">
+                    <a href="{{ route('password.request') }}" class="text-sm text-blue-600 hover:text-blue-800">
                         Esqueceu a senha?
                     </a>
                 </div>
@@ -83,9 +83,9 @@
             <!-- Register Link -->
             <div class="mt-6 text-center">
                 <p class="text-gray-600">
-                    Não tem uma conta?
+                    Quer gerenciar seu clube?
                     <a href="{{ route('register') }}" class="text-blue-600 hover:text-blue-800 font-semibold">
-                        Cadastre-se aqui
+                        Crie sua conta aqui
                     </a>
                 </p>
             </div>

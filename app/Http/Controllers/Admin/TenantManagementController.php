@@ -8,6 +8,7 @@ use App\Models\Plan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\URL;
 
 class TenantManagementController extends Controller
 {
@@ -25,7 +26,7 @@ class TenantManagementController extends Controller
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
                 $q->where('name', 'like', '%' . $request->search . '%')
-                  ->orWhere('subdomain', 'like', '%' . $request->search . '%');
+                  ->orWhere('domain', 'like', '%' . $request->search . '%');
             });
         }
 
@@ -65,7 +66,7 @@ class TenantManagementController extends Controller
     {
         $tenant->load(['plan', 'domains']);
         
-        // Get tenant statistics (would need to connect to tenant database)
+        // Get basic stats
         $stats = [
             'created_at' => $tenant->created_at,
             'trial_ends_at' => $tenant->trial_ends_at,
@@ -73,7 +74,60 @@ class TenantManagementController extends Controller
             'status' => $tenant->status,
         ];
 
-        return view('admin.tenants.show', compact('tenant', 'stats'));
+        // Get tenant statistics by manually switching context (safer than run())
+        try {
+            tenancy()->initialize($tenant);
+            $usageStats = [
+                'athletes_count' => \App\Models\Athlete::count(),
+                'teams_count' => \App\Models\Team::count(),
+                'ai_content_count' => \App\Models\AiGeneratedContent::count(),
+                'users_count' => \App\Models\User::count(),
+            ];
+            tenancy()->end();
+        } catch (\Exception $e) {
+            $usageStats = [
+                'athletes_count' => 0,
+                'teams_count' => 0,
+                'ai_content_count' => 0,
+                'users_count' => 0,
+            ];
+        }
+
+        return view('admin.tenants.show', compact('tenant', 'stats', 'usageStats'));
+    }
+
+    /**
+     * Impersonate a tenant admin.
+     */
+    public function impersonate(Tenant $tenant)
+    {
+        // Get the primary domain
+        $domain = $tenant->domains()->where('is_primary', true)->first() 
+               ?? $tenant->domains()->first();
+
+        if (!$domain) {
+            return back()->with('error', 'Este clube não possui um domínio configurado.');
+        }
+
+        // Generate a signed URL for impersonation
+        // We'll use a route that exists on the tenant side
+        // Force the root URL to the tenant domain so the signature is generated correctly for that domain
+        $currentPort = request()->getPort();
+        $portSuffix = ($currentPort && $currentPort != 80 && $currentPort != 443) ? ":$currentPort" : "";
+        $protocol = request()->isSecure() ? 'https://' : 'http://';
+        
+        $originalRootUrl = config('app.url');
+        URL::forceRootUrl($protocol . $domain->domain . $portSuffix);
+        
+        $url = URL::signedRoute('tenant.impersonate', [
+            'tenant' => $tenant->id,
+            'admin_id' => auth()->id(),
+        ], now()->addMinutes(15));
+        
+        // Restore the original root URL
+        URL::forceRootUrl($originalRootUrl);
+
+        return redirect()->away($url);
     }
 
     /**

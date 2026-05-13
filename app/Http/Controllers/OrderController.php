@@ -20,6 +20,13 @@ class OrderController extends Controller
         try {
             $query = Order::with(['user', 'athlete', 'orderItems.product']);
 
+            $user = auth()->user();
+            if ($user->role === 'coach') {
+                $coachTeams = \App\Models\Team::where('coach_id', $user->id)->pluck('id')->toArray();
+                $coachAthletes = \App\Models\Athlete::whereIn('team_id', $coachTeams)->pluck('id')->toArray();
+                $query->whereIn('athlete_id', $coachAthletes);
+            }
+
             // Search
             if ($request->filled('search')) {
                 $query->where(function ($q) use ($request) {
@@ -89,6 +96,12 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
+        if (auth()->user()->role === 'coach') {
+            $coachTeams = \App\Models\Team::where('coach_id', auth()->id())->pluck('id')->toArray();
+            if (!$order->athlete || !in_array($order->athlete->team_id, $coachTeams)) {
+                abort(403, 'Acesso negado.');
+            }
+        }
         $order->load(['user', 'athlete', 'orderItems.product']);
         
         return view('orders.show', compact('order'));
@@ -103,6 +116,12 @@ class OrderController extends Controller
      */
     public function updateStatus(Request $request, Order $order)
     {
+        if (auth()->user()->role === 'coach') {
+            $coachTeams = \App\Models\Team::where('coach_id', auth()->id())->pluck('id')->toArray();
+            if (!$order->athlete || !in_array($order->athlete->team_id, $coachTeams)) {
+                abort(403, 'Acesso negado.');
+            }
+        }
         $request->validate([
             'status' => 'required|in:pending,paid,shipped,delivered,cancelled',
             'notes' => 'nullable|string|max:1000',
@@ -119,6 +138,7 @@ class OrderController extends Controller
             // Update timestamps based on status
             if ($request->status === 'paid' && !$order->paid_at) {
                 $order->update(['paid_at' => now()]);
+                $order->recordAsRevenue();
             }
 
             if ($request->status === 'shipped' && !$order->shipped_at) {
@@ -158,6 +178,12 @@ class OrderController extends Controller
      */
     public function cancel(Order $order)
     {
+        if (auth()->user()->role === 'coach') {
+            $coachTeams = \App\Models\Team::where('coach_id', auth()->id())->pluck('id')->toArray();
+            if (!$order->athlete || !in_array($order->athlete->team_id, $coachTeams)) {
+                abort(403, 'Acesso negado.');
+            }
+        }
         if (!$order->can_be_cancelled) {
             return back()->withErrors([
                 'error' => 'Este pedido não pode ser cancelado.'

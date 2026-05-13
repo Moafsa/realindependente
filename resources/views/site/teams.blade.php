@@ -5,11 +5,13 @@
 
 @section('content')
 <!-- Header -->
-<section class="bg-gray-50 py-12">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<section class="relative text-white" 
+         style="background: {{ ($settings['teams_banner'] ?? false) ? 'url(' . Storage::url($settings['teams_banner']) . ')' : 'linear-gradient(to right, var(--primary-color), var(--secondary-color))' }}; background-size: cover; background-position: center;">
+    <div class="absolute inset-0 bg-black opacity-50"></div>
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div class="text-center">
-            <h1 class="text-3xl font-bold text-gray-900 mb-4">Nossas Equipes</h1>
-            <p class="text-lg text-gray-600">Conheça todas as equipes que representam nosso clube</p>
+            <h1 class="text-3xl font-bold mb-4">{{ $settings['teams_title'] ?? 'Nossas Equipes' }}</h1>
+            <p class="text-lg opacity-90">{{ $settings['teams_subtitle'] ?? 'Conheça todas as equipes que representam nosso clube' }}</p>
         </div>
     </div>
 </section>
@@ -23,7 +25,7 @@
                 <div class="p-6">
                     <div class="flex items-center space-x-4 mb-4">
                         @if($team->logo)
-                        <img class="h-16 w-16 rounded-full object-cover" src="{{ asset('storage/' . $team->logo) }}" alt="{{ $team->name }}">
+                        <img class="h-16 w-16 rounded-full object-cover" src="{{ Storage::url($team->logo) }}" alt="{{ $team->name }}">
                         @else
                         <div class="h-16 w-16 rounded-full flex items-center justify-center text-white font-bold text-xl" style="background-color: {{ $team->color_primary }}">
                             {{ substr($team->name, 0, 1) }}
@@ -52,7 +54,7 @@
                         <div class="text-sm text-gray-500">
                             <span class="font-medium">{{ $team->athletes_count }}</span> atletas
                         </div>
-                        <a href="{{ route('site.team', $team) }}" class="text-blue-600 hover:text-blue-800 font-medium">
+                        <a href="{{ route('site.team', $team->id) }}" class="text-blue-600 hover:text-blue-800 font-medium">
                             Ver Detalhes →
                         </a>
                     </div>

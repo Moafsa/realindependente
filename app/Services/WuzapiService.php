@@ -12,8 +12,9 @@ class WuzapiService
 
     public function __construct()
     {
-        $this->apiKey = config('services.wuzapi.api_key');
-        $this->baseUrl = config('services.wuzapi.base_url', 'https://api.wuzapi.com.br');
+        // Force internal Docker URL
+        $this->apiKey = config('services.wuzapi.api_key', 'admin123456');
+        $this->baseUrl = 'http://wuzapi:8080';
     }
 
     /**
@@ -74,67 +75,200 @@ class WuzapiService
     }
 
     /**
-     * Envia mensagem genérica via WhatsApp.
+     * Envia notificação de Plano IA (Treino ou Dieta).
      * 
-     * @param string $phoneNumber Número do telefone (formato: 5511999999999)
-     * @param string $message Mensagem a ser enviada
-     * @param bool $retry Se deve tentar novamente em caso de falha
+     * @param array $planData Dados do plano e atleta
+     * @param string $phoneNumber Número do telefone
      * @return bool
+     */
+    public function sendAiPlanNotification(array $planData, string $phoneNumber): bool
+    {
+        $message = $this->buildAiPlanNotificationMessage($planData);
+
+        return $this->sendMessage($phoneNumber, $message);
+    }
+
+    /**
+     * Helper: Garante que o usuário existe no WuzAPI.
+     */
+    private function ensureUser(): bool
+    {
+        try {
+            // Tenta listar usuários
+            $url = $this->baseUrl . '/admin/users';
+            $listRes = Http::withHeaders(['Authorization' => $this->apiKey])
+                ->get($url);
+
+            if ($listRes->successful()) {
+                $users = $listRes->json();
+                $users = is_array($users) ? $users : ($users['instances'] ?? []);
+                foreach ($users as $u) {
+                    if (($u['name'] ?? '') === 'admin' || ($u['token'] ?? '') === $this->apiKey) {
+                        return true;
+                    }
+                }
+            }
+
+            // Cria usuário se não existir
+            $createRes = Http::withHeaders([
+                'Authorization' => $this->apiKey,
+                'Content-Type' => 'application/json'
+            ])->post($this->baseUrl . '/admin/users', [
+                'name' => 'admin',
+                'token' => $this->apiKey,
+                'webhook' => '',
+                'expiration' => 0,
+                'events' => "Message,ReadReceipt,Disconnected,Connected"
+            ]);
+
+            return $createRes->successful() || $createRes->status() === 409;
+        } catch (\Exception $e) {
+            Log::error('[WuzapiService] ensureUser exception: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Obtém o status da sessão do WhatsApp.
+     */
+    public function getSessionStatus(): string
+    {
+        if (empty($this->apiKey)) return 'DISCONNECTED';
+
+        try {
+            $response = Http::withHeaders(['Token' => $this->apiKey])
+                ->get($this->baseUrl . "/session/status");
+
+            if (!$response->successful()) {
+                // Fallback: verificar via admin/users
+                if ($this->ensureUser()) {
+                    $adminRes = Http::withHeaders(['Authorization' => $this->apiKey])
+                        ->get($this->baseUrl . '/admin/users');
+                    if ($adminRes->successful()) {
+                        $data = $adminRes->json();
+                        $instances = $data['instances'] ?? [];
+                        foreach ($instances as $inst) {
+                            if (($inst['name'] ?? '') === 'admin' && ($inst['connected'] ?? false)) {
+                                return 'CONNECTED';
+                            }
+                        }
+                    }
+                }
+                return 'DISCONNECTED';
+            }
+
+            $data = $response->json()['data'] ?? [];
+            
+            $isLoggedIn = !empty($data['LoggedIn'] ?? $data['loggedIn'] ?? $data['authenticated'] ?? false) || ($data['state'] ?? '') === 'CONNECTED';
+            $isConnecting = !empty($data['Connected'] ?? $data['connected'] ?? false) || in_array($data['state'] ?? '', ['CONNECTING', 'STARTING', 'QRCODE']) || !empty($data['QRCode']);
+
+            if ($isLoggedIn) return 'CONNECTED';
+            if ($isConnecting) return 'QRCODE';
+            
+            return 'DISCONNECTED';
+        } catch (\Exception $e) {
+            Log::error('[WuzapiService] getSessionStatus exception: ' . $e->getMessage());
+            return 'DISCONNECTED';
+        }
+    }
+
+    /**
+     * Obtém o QR Code para conexão.
+     */
+    public function getQrCode()
+    {
+        if (empty($this->apiKey)) {
+            return ['success' => false, 'message' => 'API Key não configurada.'];
+        }
+
+        try {
+            // 1. Garante que o usuário existe
+            if (!$this->ensureUser()) {
+                return ['success' => false, 'message' => 'Falha ao verificar/criar usuário no WuzAPI.'];
+            }
+
+            // 2. Tenta conectar a sessão
+            $connectUrl = $this->baseUrl . "/session/connect";
+            Http::withHeaders(['Token' => $this->apiKey])
+                ->post($connectUrl, [
+                    'Subscribe' => ["Message", "ReadReceipt", "Disconnected", "Connected"],
+                    'Immediate' => false
+                ]);
+
+            // 3. Poll para obter o QR Code
+            $maxTries = 10;
+            for ($i = 0; $i < $maxTries; $i++) {
+                $response = Http::withHeaders(['Token' => $this->apiKey])
+                    ->get($this->baseUrl . "/session/qr");
+
+                if ($response->successful()) {
+                    $qr = $response->json()['data']['QRCode'] ?? null;
+                    if ($qr) {
+                        return ['success' => true, 'qr' => $qr];
+                    }
+                }
+
+                sleep(1);
+            }
+
+            return [
+                'success' => false, 
+                'message' => 'O servidor está preparando o QR Code. Por favor, aguarde e tente novamente.'
+            ];
+        } catch (\Exception $e) {
+            Log::error('[WuzapiService] getQrCode exception: ' . $e->getMessage());
+            return ['success' => false, 'message' => 'Erro de conexão: ' . $e->getMessage()];
+        }
+    }
+
+    /**
+     * Desconecta a sessão atual.
+     */
+    public function disconnectSession(): bool
+    {
+        if (empty($this->apiKey)) return false;
+
+        try {
+            return Http::withHeaders(['Token' => $this->apiKey])
+                ->post($this->baseUrl . '/session/logout')->successful();
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Envia mensagem via WhatsApp.
      */
     public function sendMessage(string $phoneNumber, string $message, bool $retry = true): bool
     {
-        if (empty($this->apiKey)) {
-            Log::warning('WuzapiService: API key não configurada');
-            return false;
-        }
+        if (empty($this->apiKey)) return false;
 
-        // Formata o número do telefone (remove caracteres especiais)
-        $phoneNumber = $this->formatPhoneNumber($phoneNumber);
+        $phone = $this->formatPhoneNumber($phoneNumber);
+        if (!str_ends_with($phone, '@s.whatsapp.net')) {
+            $phone .= '@s.whatsapp.net';
+        }
 
         try {
             $response = Http::withHeaders([
-                'Authorization' => 'Bearer ' . $this->apiKey,
+                'Token' => $this->apiKey,
                 'Content-Type' => 'application/json',
-            ])->timeout(30)->post($this->baseUrl . '/message/send', [
-                'phone' => $phoneNumber,
-                'message' => $message,
+            ])->timeout(30)->post($this->baseUrl . '/chat/send/text', [
+                'Phone' => $phone,
+                'Body' => $message,
             ]);
 
             if ($response->successful()) {
-                Log::info('WuzapiService: Mensagem enviada com sucesso', [
-                    'phone' => $phoneNumber,
-                    'message_preview' => substr($message, 0, 50) . '...',
-                ]);
                 return true;
             }
 
-            // Se falhou e retry está habilitado, tenta novamente uma vez
             if ($retry) {
-                Log::warning('WuzapiService: Falha ao enviar mensagem, tentando novamente', [
-                    'phone' => $phoneNumber,
-                    'status' => $response->status(),
-                    'response' => $response->body(),
-                ]);
-
-                sleep(2); // Aguarda 2 segundos antes de tentar novamente
+                sleep(2);
                 return $this->sendMessage($phoneNumber, $message, false);
             }
 
-            Log::error('WuzapiService: Erro ao enviar mensagem', [
-                'phone' => $phoneNumber,
-                'status' => $response->status(),
-                'response' => $response->body(),
-            ]);
-
             return false;
-
         } catch (\Exception $e) {
-            Log::error('WuzapiService: Exceção ao enviar mensagem', [
-                'phone' => $phoneNumber,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-            ]);
-
+            Log::error('[WuzapiService] sendMessage exception: ' . $e->getMessage());
             return false;
         }
     }
@@ -214,7 +348,7 @@ class WuzapiService
     /**
      * Constrói mensagem de lembrete de jogo.
      */
-    private function buildGameReminderMessage(array $gameData): string
+    public function buildGameReminderMessage(array $gameData): string
     {
         $athleteName = $gameData['athlete_name'] ?? 'Atleta';
         $date = isset($gameData['date']) ? date('d/m/Y', strtotime($gameData['date'])) : 'Data não informada';
@@ -232,6 +366,32 @@ class WuzapiService
         $message .= "📍 *Local:* {$location}\n\n";
         $message .= "Chegue com antecedência para o aquecimento!\n\n";
         $message .= "Boa sorte! 🍀";
+
+        return $message;
+    }
+
+    /**
+     * Constrói mensagem para Plano IA.
+     */
+    private function buildAiPlanNotificationMessage(array $planData): string
+    {
+        $athleteName = $planData['athlete_name'] ?? 'Atleta';
+        $title = $planData['title'] ?? 'Plano Especialista';
+        $type = ($planData['type'] ?? '') === 'workout_plan' ? '🏋️‍♂️ *HORA DO TREINO*' : '🥗 *HORA DA ALIMENTAÇÃO*';
+        $goal = $planData['goal'] ?? 'Alta Performance';
+        
+        $message = "{$type}\n\n";
+        $message .= "Olá *{$athleteName}*! Está na hora de seguir seu protocolo de elite.\n\n";
+        $message .= "📌 *Plano:* {$title}\n";
+        $message .= "🎯 *Objetivo:* {$goal}\n\n";
+        
+        if (isset($planData['current_task'])) {
+            $message .= "📝 *O que fazer agora:*\n";
+            $message .= "_{$planData['current_task']}_\n\n";
+        }
+        
+        $message .= "Acesse seu perfil completo no app para mais detalhes.\n";
+        $message .= "Mantenha o foco! 🚀";
 
         return $message;
     }

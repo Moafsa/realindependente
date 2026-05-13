@@ -16,6 +16,8 @@ class PerformanceRecord extends Model
         'notes',
         'recorded_by',
         'recorded_at',
+        'tenant_id',
+        'tenant_name',
     ];
 
     protected $casts = [

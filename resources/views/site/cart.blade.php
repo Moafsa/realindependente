@@ -29,7 +29,7 @@
                         @foreach($items as $item)
                         <div class="p-6">
                             <div class="flex items-center space-x-4">
-                                <img src="{{ $item['product']->image ? asset('storage/' . $item['product']->image) : 'https://via.placeholder.com/150' }}" 
+                                <img src="{{ $item['product']->image_url }}" 
                                      alt="{{ $item['product']->name }}" 
                                      class="w-24 h-24 object-cover rounded-lg">
                                 <div class="flex-1">

@@ -32,6 +32,11 @@ class EventServiceProvider extends ServiceProvider
         \App\Events\TrainingScheduled::class => [
             \App\Listeners\SendTrainingReminderListener::class,
         ],
+
+        // Eventos de torneio
+        \App\Events\MatchScheduled::class => [
+            \App\Listeners\SendMatchNotificationListener::class,
+        ],
     ];
 
     /**

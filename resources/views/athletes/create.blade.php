@@ -35,10 +35,68 @@
             </div>
 
             <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Gênero</label>
+                <div class="flex gap-4">
+                    <label class="flex items-center">
+                        <input type="radio" name="gender" value="masculino" class="mr-2" {{ old('gender') == 'masculino' ? 'checked' : '' }}>
+                        <span class="text-sm text-gray-700">Masculino</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="radio" name="gender" value="feminino" class="mr-2" {{ old('gender') == 'feminino' ? 'checked' : '' }}>
+                        <span class="text-sm text-gray-700">Feminino</span>
+                    </label>
+                </div>
+            </div>
+
+            <div>
+                <label for="document" class="block text-sm font-medium text-gray-700">Documento (CPF)</label>
+                <input type="text" name="document" id="document" value="{{ old('document') }}"
+                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                       placeholder="000.000.000-00">
+                @error('document')
+                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div>
+                <label for="phone" class="block text-sm font-medium text-gray-700">Telefone do Atleta</label>
+                <input type="text" name="phone" id="phone" value="{{ old('phone') }}"
+                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                       placeholder="(00) 00000-0000">
+                @error('phone')
+                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div class="md:col-span-2">
+                <label for="address" class="block text-sm font-medium text-gray-700">Endereço Residencial</label>
+                <input type="text" name="address" id="address" value="{{ old('address') }}"
+                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                       placeholder="Rua, Número, Bairro, Cidade - UF">
+                @error('address')
+                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div>
                 <label for="birth_date" class="block text-sm font-medium text-gray-700">Data de Nascimento *</label>
                 <input type="date" name="birth_date" id="birth_date" value="{{ old('birth_date') }}" required
                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                 @error('birth_date')
+                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div>
+                <label for="subcategory" class="block text-sm font-medium text-gray-700">Subcategoria (Auto se vazio)</label>
+                <select name="subcategory" id="subcategory"
+                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    <option value="">Automático por idade</option>
+                    @foreach($categories as $category)
+                    <option value="{{ $category }}" {{ old('subcategory') == $category ? 'selected' : '' }}>{{ $category }}</option>
+                    @endforeach
+                </select>
+                @error('subcategory')
                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                 @enderror
             </div>
@@ -146,6 +204,16 @@
             </div>
 
             <div>
+                <label for="guardian_document" class="block text-sm font-medium text-gray-700">CPF do Responsável</label>
+                <input type="text" name="guardian_document" id="guardian_document" value="{{ old('guardian_document') }}"
+                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                       placeholder="000.000.000-00">
+                @error('guardian_document')
+                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div>
                 <label for="guardian_email" class="block text-sm font-medium text-gray-700">Email do Responsável</label>
                 <input type="email" name="guardian_email" id="guardian_email" value="{{ old('guardian_email') }}"
                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
@@ -237,6 +305,11 @@
                         @error('user_password')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Atestado Médico (PDF ou Imagem)</label>
+                        <input type="file" name="medical_certificate" accept=".pdf,image/*"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition">
                     </div>
                 </div>
             </div>

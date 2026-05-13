@@ -48,6 +48,6 @@ class RegisterController extends Controller
         //     ->causedBy($user)
         //     ->log('User registered');
 
-        return redirect()->route('admin.dashboard');
+        return redirect()->route('dashboard');
     }
 }

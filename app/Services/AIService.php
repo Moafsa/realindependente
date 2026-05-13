@@ -18,46 +18,50 @@ class AIService
 
     public function __construct(AIUsageService $usageService)
     {
-        $this->apiKey = config('services.openai.api_key');
-        $this->baseUrl = config('services.openai.base_url', 'https://api.openai.com/v1');
-        $this->model = config('services.openai.model', 'gpt-4');
+        $this->apiKey = \App\Models\SiteSetting::get('openai_api_key', config('services.openai.api_key'));
+        $this->baseUrl = \App\Models\SiteSetting::get('openai_base_url', config('services.openai.base_url', 'https://api.openai.com/v1'));
+        $this->model = \App\Models\SiteSetting::get('openai_model', config('services.openai.model', 'gpt-4'));
         $this->usageService = $usageService;
     }
 
     /**
      * Generate a workout plan for an athlete.
      */
-    public function generateWorkoutPlan(Athlete $athlete): array
+    /**
+     * Generate a workout plan for an athlete.
+     */
+    public function generateWorkoutPlan(Athlete $athlete, ?string $coachInstructions = null): AiGeneratedContent
     {
-        // Verifica se pode gerar mais planos
-        if (!$this->usageService->canGeneratePlan($athlete, 'workout_plan')) {
-            throw new \Exception('Limite de gerações mensais atingido. Entre em contato com o administrador.');
-        }
+        Log::info('AIService: [CHECKPOINT 1] Entrou em generateWorkoutPlan', ['athlete_id' => $athlete->id]);
 
-        // Verifica cache de planos similares
-        $cacheKey = $this->getCacheKey($athlete, 'workout_plan');
-        $cached = Cache::get($cacheKey);
-        
-        if ($cached) {
-            Log::info('AIService: Plano de treino retornado do cache', [
-                'athlete_id' => $athlete->id,
-            ]);
-            return $cached;
-        }
-
-        $prompt = $this->buildWorkoutPrompt($athlete);
-        
         try {
+            // Verifica se pode gerar mais planos
+            Log::info('AIService: [CHECKPOINT 2] Verificando limite de uso...');
+            if (!$this->usageService->canGeneratePlan($athlete, 'workout_plan')) {
+                Log::warning('AIService: [CHECKPOINT 2.1] Limite atingido!');
+                throw new \Exception('Limite de gerações mensais atingido. Entre em contato com o administrador.');
+            }
+
+            Log::info('AIService: [CHECKPOINT 3] Construindo prompt...');
+            $prompt = $this->buildWorkoutPrompt($athlete, $coachInstructions);
+            Log::info('AIService: [CHECKPOINT 3.1] Prompt construído com sucesso.');
+
+            Log::info('AIService: [CHECKPOINT 4] Chamando OpenAI (Isso pode demorar)...');
             $response = $this->callOpenAI($prompt);
+            Log::info('AIService: [CHECKPOINT 4.1] Resposta recebida da OpenAI.');
+            
             $content = $this->parseWorkoutResponse($response);
+            Log::info('AIService: [CHECKPOINT 5] Resposta parseada.');
             
             $tokensUsed = $response['usage']['total_tokens'] ?? 0;
             $cost = $this->calculateCost($tokensUsed);
             
+            Log::info('AIService: [CHECKPOINT 6] Salvando no banco de dados...');
             // Save to database
             $aiContent = AiGeneratedContent::create([
                 'athlete_id' => $athlete->id,
                 'type' => 'workout_plan',
+                'status' => 'pending',
                 'content' => $content,
                 'prompt' => $prompt,
                 'model_used' => $this->model,
@@ -65,19 +69,18 @@ class AIService
                 'cost' => $cost,
                 'generated_at' => now(),
             ]);
+            Log::info('AIService: [CHECKPOINT 6.1] Salvo com ID: ' . $aiContent->id);
 
             // Registra uso
             $this->usageService->recordUsage($athlete, 'workout_plan', $tokensUsed, $cost);
 
-            // Armazena no cache por 24 horas
-            Cache::put($cacheKey, $content, now()->addHours(24));
-
-            return $content;
+            return $aiContent;
             
         } catch (\Exception $e) {
-            Log::error('AI Service Error - Generate Workout Plan', [
+            Log::error('AIService Error - Generate Workout Plan', [
                 'athlete_id' => $athlete->id,
                 'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
             ]);
             
             throw new \Exception('Erro ao gerar plano de treino: ' . $e->getMessage());
@@ -85,27 +88,18 @@ class AIService
     }
 
     /**
-     * Generate a nutrition plan for an athlete.
+     * Generate a meal plan for an athlete.
      */
-    public function generateNutritionPlan(Athlete $athlete): array
+    public function generateMealPlan(Athlete $athlete, ?string $coachInstructions = null): AiGeneratedContent
     {
+        Log::info('AIService: Iniciando geração de plano nutricional', ['athlete_id' => $athlete->id]);
+
         // Verifica se pode gerar mais planos
         if (!$this->usageService->canGeneratePlan($athlete, 'meal_plan')) {
             throw new \Exception('Limite de gerações mensais atingido. Entre em contato com o administrador.');
         }
 
-        // Verifica cache de planos similares
-        $cacheKey = $this->getCacheKey($athlete, 'meal_plan');
-        $cached = Cache::get($cacheKey);
-        
-        if ($cached) {
-            Log::info('AIService: Plano nutricional retornado do cache', [
-                'athlete_id' => $athlete->id,
-            ]);
-            return $cached;
-        }
-
-        $prompt = $this->buildNutritionPrompt($athlete);
+        $prompt = $this->buildNutritionPrompt($athlete, $coachInstructions);
         
         try {
             $response = $this->callOpenAI($prompt);
@@ -118,6 +112,7 @@ class AIService
             $aiContent = AiGeneratedContent::create([
                 'athlete_id' => $athlete->id,
                 'type' => 'meal_plan',
+                'status' => 'pending',
                 'content' => $content,
                 'prompt' => $prompt,
                 'model_used' => $this->model,
@@ -132,15 +127,13 @@ class AIService
             // Gera imagens dos pratos se necessário
             if (isset($content['meals']) && is_array($content['meals'])) {
                 $content['meals'] = $this->addMealImages($content['meals'], $athlete);
+                $aiContent->update(['content' => $content]);
             }
 
-            // Armazena no cache por 24 horas
-            Cache::put($cacheKey, $content, now()->addHours(24));
-
-            return $content;
+            return $aiContent;
             
         } catch (\Exception $e) {
-            Log::error('AI Service Error - Generate Nutrition Plan', [
+            Log::error('AIService Error - Generate Meal Plan', [
                 'athlete_id' => $athlete->id,
                 'error' => $e->getMessage(),
             ]);
@@ -152,7 +145,7 @@ class AIService
     /**
      * Build workout prompt for an athlete.
      */
-    private function buildWorkoutPrompt(Athlete $athlete): string
+    private function buildWorkoutPrompt(Athlete $athlete, ?string $coachInstructions = null): string
     {
         $age = $athlete->age;
         $weight = $athlete->weight;
@@ -160,38 +153,59 @@ class AIService
         $position = $athlete->position;
         $team = $athlete->team->name ?? 'Sem equipe';
         
-        $prompt = "Você é um preparador físico especializado em futebol. Crie um plano de treino personalizado para um atleta com as seguintes características:\n\n";
+        // Obter métricas de performance para contexto
+        $metrics = $athlete->performanceRecords()
+            ->orderBy('recorded_at', 'desc')
+            ->get()
+            ->groupBy('metric')
+            ->map(fn($group) => $group->first()->value);
+
+        $metricsContext = "";
+        if ($metrics->count() > 0) {
+            $metricsContext = "\nÚltimas métricas de desempenho (0-100%):\n";
+            foreach ($metrics as $metric => $value) {
+                $metricsContext .= "- {$metric}: {$value}%\n";
+            }
+        }
+        
+        $prompt = "Você é um **Preparador Físico de Elite**, especialista em futebol de alto rendimento com doutorado em fisiologia do exercício. ";
+        $prompt .= "Seu objetivo é criar um plano de treino periodizado e altamente técnico para o seguinte atleta:\n\n";
+        $prompt .= "DADOS DO ATLETA:\n";
         $prompt .= "Idade: {$age} anos\n";
         $prompt .= "Peso: {$weight} kg\n";
         $prompt .= "Altura: {$height} cm\n";
         $prompt .= "Posição: {$position}\n";
-        $prompt .= "Equipe: {$team}\n\n";
+        $prompt .= "Equipe: {$team}\n";
+        $prompt .= $metricsContext . "\n";
         
-        $prompt .= "O plano deve incluir:\n";
-        $prompt .= "1. Aquecimento (10-15 minutos)\n";
-        $prompt .= "2. Exercícios principais (30-45 minutos)\n";
-        $prompt .= "3. Alongamento (10-15 minutos)\n\n";
+        if ($coachInstructions) {
+            $prompt .= "INSTRUÇÕES ADICIONAIS DO TREINADOR:\n";
+            $prompt .= "{$coachInstructions}\n\n";
+        }
         
-        $prompt .= "Foque em exercícios que podem ser feitos em casa, sem equipamentos especiais.\n";
-        $prompt .= "Inclua exercícios específicos para a posição do atleta.\n";
-        $prompt .= "Considere a idade e nível de condicionamento.\n\n";
+        $prompt .= "DIRETRIZES DO PLANO:\n";
+        $prompt .= "1. Analise as métricas acima. Se houver notas baixas, priorize exercícios para corrigir essas fraquezas.\n";
+        $prompt .= "2. Divida o treino em: Mobilidade, Força Explosiva, Técnica Específica e Core.\n";
+        $prompt .= "3. Defina a DURACÃO total em dias e a FREQUÊNCIA semanal que você considera ideal para este objetivo.\n";
+        $prompt .= "4. Sugira horários ideais para as notificações de lembrete no WhatsApp.\n\n";
         
         $prompt .= "Retorne a resposta em formato JSON com a seguinte estrutura:\n";
         $prompt .= "{\n";
-        $prompt .= "  \"title\": \"Título do plano\",\n";
-        $prompt .= "  \"description\": \"Descrição geral do plano\",\n";
-        $prompt .= "  \"duration\": \"Duração total\",\n";
-        $prompt .= "  \"difficulty\": \"Nível de dificuldade\",\n";
+        $prompt .= "  \"title\": \"Título técnico do plano\",\n";
+        $prompt .= "  \"description\": \"Análise técnica do porquê este plano foi criado baseado nos dados do atleta\",\n";
+        $prompt .= "  \"duration_days\": 30,\n";
+        $prompt .= "  \"frequency_label\": \"5x por semana\",\n";
+        $prompt .= "  \"notification_suggestions\": [\"08:00\", \"16:00\"],\n";
         $prompt .= "  \"exercises\": [\n";
         $prompt .= "    {\n";
-        $prompt .= "      \"name\": \"Nome do exercício\",\n";
-        $prompt .= "      \"description\": \"Descrição do exercício\",\n";
-        $prompt .= "      \"sets\": \"Número de séries\",\n";
-        $prompt .= "      \"reps\": \"Número de repetições\",\n";
-        $prompt .= "      \"duration\": \"Duração (se aplicável)\"\n";
+        $prompt .= "      \"name\": \"Nome técnico do exercício\",\n";
+        $prompt .= "      \"description\": \"Execução correta e observação fisiológica\",\n";
+        $prompt .= "      \"sets\": \"Séries\",\n";
+        $prompt .= "      \"reps\": \"Repetições/Tempo\",\n";
+        $prompt .= "      \"rest\": \"Tempo de descanso\"\n";
         $prompt .= "    }\n";
         $prompt .= "  ],\n";
-        $prompt .= "  \"tips\": [\"Dica 1\", \"Dica 2\"]\n";
+        $prompt .= "  \"tips\": [\"Dica de performance 1\", \"Dica de recuperação 2\"]\n";
         $prompt .= "}";
 
         return $prompt;
@@ -200,50 +214,66 @@ class AIService
     /**
      * Build nutrition prompt for an athlete.
      */
-    private function buildNutritionPrompt(Athlete $athlete): string
+    private function buildNutritionPrompt(Athlete $athlete, ?string $coachInstructions = null): string
     {
         $age = $athlete->age;
         $weight = $athlete->weight;
         $height = $athlete->height;
         $position = $athlete->position;
         $team = $athlete->team->name ?? 'Sem equipe';
+
+        $metrics = $athlete->performanceRecords()
+            ->orderBy('recorded_at', 'desc')
+            ->get()
+            ->groupBy('metric')
+            ->map(fn($group) => $group->first()->value);
+
+        $metricsContext = "";
+        if ($metrics->count() > 0) {
+            $metricsContext = "\nContexto de Performance do Atleta:\n";
+            foreach ($metrics as $metric => $value) {
+                $metricsContext .= "- {$metric}: {$value}%\n";
+            }
+        }
         
-        $prompt = "Você é um nutricionista esportivo especializado em futebol. Crie um plano nutricional personalizado para um atleta com as seguintes características:\n\n";
+        $prompt = "Você é um **Nutricionista Esportivo de Alta Performance**, especializado em nutrição funcional para atletas de elite. ";
+        $prompt .= "Seu objetivo é criar um protocolo nutricional otimizado para o seguinte atleta:\n\n";
+        $prompt .= "DADOS BIOMÉTRICOS:\n";
         $prompt .= "Idade: {$age} anos\n";
         $prompt .= "Peso: {$weight} kg\n";
         $prompt .= "Altura: {$height} cm\n";
-        $prompt .= "Posição: {$position}\n";
-        $prompt .= "Equipe: {$team}\n\n";
+        $prompt .= "Posição em campo: {$position}\n";
+        $prompt .= $metricsContext . "\n";
         
-        $prompt .= "O plano deve incluir:\n";
-        $prompt .= "1. Café da manhã\n";
-        $prompt .= "2. Lanche da manhã\n";
-        $prompt .= "3. Almoço\n";
-        $prompt .= "4. Lanche da tarde\n";
-        $prompt .= "5. Jantar\n";
-        $prompt .= "6. Lanche da noite (se necessário)\n\n";
+        if ($coachInstructions) {
+            $prompt .= "INSTRUÇÕES ADICIONAIS DO TREINADOR/NUTRICIONISTA:\n";
+            $prompt .= "{$coachInstructions}\n\n";
+        }
         
-        $prompt .= "Considere:\n";
-        $prompt .= "- A idade e fase de desenvolvimento\n";
-        $prompt .= "- As necessidades energéticas para futebol\n";
-        $prompt .= "- Alimentos acessíveis no Brasil\n";
-        $prompt .= "- Hidratação adequada\n\n";
+        $prompt .= "REQUISITOS DO PLANO:\n";
+        $prompt .= "1. Ajuste a distribuição de macronutrientes baseada na idade e posição.\n";
+        $prompt .= "2. Inclua sugestões de suplementação básica (se aplicável para a idade).\n";
+        $prompt .= "3. Defina a DURAÇÃO (dias) e FREQUÊNCIA (ex: Diário) deste protocolo nutricional.\n";
+        $prompt .= "4. Defina horários estratégicos para as notificações de alimentação no WhatsApp.\n\n";
         
         $prompt .= "Retorne a resposta em formato JSON com a seguinte estrutura:\n";
         $prompt .= "{\n";
-        $prompt .= "  \"title\": \"Título do plano\",\n";
-        $prompt .= "  \"description\": \"Descrição geral do plano\",\n";
-        $prompt .= "  \"calories\": \"Total de calorias diárias\",\n";
+        $prompt .= "  \"title\": \"Título do Protocolo Nutricional\",\n";
+        $prompt .= "  \"description\": \"Análise nutricional baseada no biotipo e carga de treino do atleta\",\n";
+        $prompt .= "  \"duration_days\": 15,\n";
+        $prompt .= "  \"frequency_label\": \"Diário\",\n";
+        $prompt .= "  \"calories\": \"Total calórico estimado\",\n";
+        $prompt .= "  \"notification_suggestions\": [\"07:30\", \"10:00\", \"13:00\", \"16:00\", \"19:00\"],\n";
         $prompt .= "  \"meals\": [\n";
         $prompt .= "    {\n";
         $prompt .= "      \"name\": \"Nome da refeição\",\n";
-        $prompt .= "      \"time\": \"Horário\",\n";
-        $prompt .= "      \"foods\": [\"Alimento 1\", \"Alimento 2\"],\n";
-        $prompt .= "      \"calories\": \"Calorias da refeição\",\n";
-        $prompt .= "      \"description\": \"Descrição da refeição\"\n";
+        $prompt .= "      \"time\": \"Horário sugerido\",\n";
+        $prompt .= "      \"foods\": [\"Alimento + Porção\", \"Alimento + Porção\"],\n";
+        $prompt .= "      \"macronutrients\": \"Foco (ex: Proteína e Fibras)\",\n";
+        $prompt .= "      \"description\": \"Importância desta refeição para o treino\"\n";
         $prompt .= "    }\n";
         $prompt .= "  ],\n";
-        $prompt .= "  \"tips\": [\"Dica 1\", \"Dica 2\"]\n";
+        $prompt .= "  \"tips\": [\"Dica de hidratação\", \"Dica de sono/recuperação\"]\n";
         $prompt .= "}";
 
         return $prompt;
@@ -254,10 +284,18 @@ class AIService
      */
     private function callOpenAI(string $prompt): array
     {
+        Log::info('AIService: Enviando solicitação para OpenAI...', [
+            'model' => $this->model,
+            'prompt_length' => strlen($prompt)
+        ]);
+
+        $startTime = microtime(true);
+
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . $this->apiKey,
             'Content-Type' => 'application/json',
-        ])->post($this->baseUrl . '/chat/completions', [
+        ])->timeout(120) // Aumentado para 120 segundos
+        ->post($this->baseUrl . '/chat/completions', [
             'model' => $this->model,
             'messages' => [
                 [
@@ -265,16 +303,18 @@ class AIService
                     'content' => $prompt,
                 ],
             ],
-            'max_tokens' => 2000,
+            'max_tokens' => 2500, // Aumentado para planos mais longos
             'temperature' => 0.7,
         ]);
 
-        if (!$response->successful()) {
-            throw new \Exception('Erro na API da OpenAI: ' . $response->body());
-        }
+        Log::info('AIService: Resposta da OpenAI recebida com sucesso', [
+            'duration' => $duration,
+            'tokens_used' => $response['usage']['total_tokens'] ?? 0
+        ]);
 
         return $response->json();
     }
+
 
     /**
      * Parse workout response from OpenAI.
@@ -517,6 +557,56 @@ class AIService
     }
 
     /**
+     * Generate a blog post based on context.
+     */
+    public function generateBlogPost(string $context): array
+    {
+        $prompt = "Você é um especialista em marketing esportivo e redação para blogs de clubes de futebol. ";
+        $prompt .= "Crie um post de blog engajador baseado no seguinte contexto do clube: {$context}\n\n";
+        
+        $prompt .= "O post deve ser profissional, informativo e usar um tom que conecte com torcedores e pais de atletas.\n";
+        $prompt .= "Inclua um título atraente, um resumo (excerpt) curto e o conteúdo completo formatado em HTML (apenas tags básicas como <p>, <h2>, <ul>, <li>).\n\n";
+        
+        $prompt .= "Retorne a resposta EXCLUSIVAMENTE em formato JSON com a seguinte estrutura:\n";
+        $prompt .= "{\n";
+        $prompt .= "  \"title\": \"Título do post\",\n";
+        $prompt .= "  \"excerpt\": \"Resumo curto do post para listagem\",\n";
+        $prompt .= "  \"content\": \"Conteúdo completo em HTML\",\n";
+        $prompt .= "  \"meta_description\": \"Descrição para SEO (máximo 160 caracteres)\"\n";
+        $prompt .= "}";
+
+        try {
+            $response = $this->callOpenAI($prompt);
+            $content = $response['choices'][0]['message']['content'] ?? '';
+            
+            // Clean content from markdown code blocks if present
+            $content = preg_replace('/```json\s?(.*?)\s?```/s', '$1', $content);
+            
+            $decoded = json_decode(trim($content), true);
+            
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                Log::error('AIService: Erro ao decodificar JSON do post', [
+                    'content' => $content,
+                    'error' => json_last_error_msg()
+                ]);
+                throw new \Exception('A IA retornou um formato inválido.');
+            }
+
+            return [
+                'data' => $decoded,
+                'tokens' => $response['usage']['total_tokens'] ?? 0,
+                'model' => $this->model
+            ];
+            
+        } catch (\Exception $e) {
+            Log::error('AIService: Erro ao gerar post de blog', [
+                'error' => $e->getMessage()
+            ]);
+            throw $e;
+        }
+    }
+
+    /**
      * Gera chave de cache para planos similares.
      * 
      * @param Athlete $athlete
@@ -532,5 +622,109 @@ class AIService
         $key .= "position:{$athlete->position}";
         
         return $key;
+    }
+
+    /**
+     * Call OpenAI API with Vision support.
+     */
+    private function callOpenAIVision(string $prompt, string $imageBase64): array
+    {
+        Log::info('AIService: Enviando solicitação de VISÃO para OpenAI...', [
+            'model' => 'gpt-4o',
+            'prompt_length' => strlen($prompt)
+        ]);
+
+        $startTime = microtime(true);
+
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . $this->apiKey,
+            'Content-Type' => 'application/json',
+        ])->timeout(120)
+        ->post($this->baseUrl . '/chat/completions', [
+            'model' => 'gpt-4o',
+            'messages' => [
+                [
+                    'role' => 'user',
+                    'content' => [
+                        [
+                            'type' => 'text',
+                            'text' => $prompt
+                        ],
+                        [
+                            'type' => 'image_url',
+                            'image_url' => [
+                                'url' => "data:image/jpeg;base64,{$imageBase64}"
+                            ]
+                        ]
+                    ],
+                ],
+            ],
+            'max_tokens' => 1000,
+            'temperature' => 0.2,
+        ]);
+
+        $duration = microtime(true) - $startTime;
+
+        if (!$response->successful()) {
+            Log::error('AIService: Erro na API de Visão da OpenAI', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+                'duration' => $duration
+            ]);
+            throw new \Exception('Erro na API de Visão da OpenAI: ' . $response->body());
+        }
+
+        return $response->json();
+    }
+
+    /**
+     * Analyze a meal photo and return nutritional data.
+     */
+    public function analyzeMealPhoto(string $imageBase64): array
+    {
+        $prompt = "Você é um nutricionista esportivo especializado em análise visual de alimentos.\n";
+        $prompt .= "Analise a imagem enviada e identifique os alimentos presentes.\n";
+        $prompt .= "Estime as quantidades (em gramas) e calcule as informações nutricionais aproximadas (calorias, proteínas, carboidratos e gorduras).\n\n";
+        
+        $prompt .= "Retorne a resposta EXCLUSIVAMENTE em formato JSON com a seguinte estrutura:\n";
+        $prompt .= "{\n";
+        $prompt .= "  \"food_items\": [\n";
+        $prompt .= "    {\"name\": \"Alimento\", \"amount\": \"100g\", \"calories\": 150, \"protein\": 20, \"carbs\": 0, \"fat\": 5}\n";
+        $prompt .= "  ],\n";
+        $prompt .= "  \"total\": {\n";
+        $prompt .= "    \"calories\": 450,\n";
+        $prompt .= "    \"protein\": 40,\n";
+        $prompt .= "    \"carbs\": 50,\n";
+        $prompt .= "    \"fat\": 15\n";
+        $prompt .= "  },\n";
+        $prompt .= "  \"health_score\": 8,\n";
+        $prompt .= "  \"coach_notes\": \"Excelente escolha de proteína limpa para pós-treino.\"\n";
+        $prompt .= "}";
+
+        try {
+            $response = $this->callOpenAIVision($prompt, $imageBase64);
+            $content = $response['choices'][0]['message']['content'] ?? '';
+            
+            // Clean content from markdown code blocks if present
+            $content = preg_replace('/```json\s?(.*?)\s?```/s', '$1', $content);
+            
+            $decoded = json_decode(trim($content), true);
+            
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                Log::error('AIService: Erro ao decodificar JSON da análise de refeição', [
+                    'content' => $content,
+                    'error' => json_last_error_msg()
+                ]);
+                throw new \Exception('A IA retornou um formato de análise inválido.');
+            }
+
+            return $decoded;
+            
+        } catch (\Exception $e) {
+            Log::error('AIService: Erro ao analisar foto de refeição', [
+                'error' => $e->getMessage()
+            ]);
+            throw $e;
+        }
     }
 }

@@ -9,14 +9,13 @@
 
     // Initialize on DOM ready
     document.addEventListener('DOMContentLoaded', function() {
-        initializeColorSync();
         updatePreview(); // Initial preview update
     });
 
     /**
      * Update preview in real-time
      */
-    function updatePreview() {
+    window.updatePreview = function() {
         // Debounce preview updates
         clearTimeout(previewTimeout);
         previewTimeout = setTimeout(() => {
@@ -31,12 +30,46 @@
         const primaryColor = document.getElementById('color_primary')?.value || '#2563eb';
         const secondaryColor = document.getElementById('color_secondary')?.value || '#16a34a';
         const siteName = document.getElementById('site_name')?.value || 'Nome do Clube';
-        const siteDescription = document.getElementById('site_description')?.value || 'Descrição do clube';
-        const bannerTitle = document.getElementById('banner_title')?.value || 'Bem-vindo ao Nosso Clube';
-        const bannerSubtitle = document.getElementById('banner_subtitle')?.value || 'Descrição do clube';
-        const contactPhone = document.getElementById('contact_phone')?.value || '(00) 0000-0000';
-        const contactEmail = document.getElementById('contact_email')?.value || 'contato@clube.com';
-        const contactAddress = document.getElementById('contact_address')?.value || 'Endereço do clube';
+        
+        // Detect active tab
+        const activeTabBtn = document.querySelector('.tab-btn.text-blue-600');
+        const activeTab = activeTabBtn ? activeTabBtn.id.replace('tab-', '') : 'home';
+
+        let bannerTitle = '';
+        let bannerSubtitle = '';
+        let bannerPreviewId = '';
+
+        // Mapping fields based on active tab
+        switch(activeTab) {
+            case 'home':
+                bannerTitle = document.getElementById('hero_title')?.value || 'Bem-vindo';
+                bannerSubtitle = document.getElementById('hero_subtitle')?.value || 'Descrição';
+                bannerPreviewId = 'banner-preview';
+                break;
+            case 'sobre':
+                bannerTitle = document.getElementById('about_title')?.value || 'Sobre Nós';
+                bannerSubtitle = document.getElementById('about_subtitle')?.value || 'Nossa História';
+                bannerPreviewId = 'banner-preview'; // About often shares hero banner or has site_hero_image
+                break;
+            case 'atletas':
+                bannerTitle = document.getElementById('athletes_title')?.value || 'Atletas';
+                bannerSubtitle = document.getElementById('athletes_subtitle')?.value || 'Nossos Talentos';
+                bannerPreviewId = 'athletes-banner-preview';
+                break;
+            case 'equipes':
+                bannerTitle = document.getElementById('teams_title')?.value || 'Equipes';
+                bannerSubtitle = document.getElementById('teams_subtitle')?.value || 'Nossas Categorias';
+                bannerPreviewId = 'teams-banner-preview';
+                break;
+            case 'loja':
+                bannerTitle = document.getElementById('store_title')?.value || 'Loja';
+                bannerSubtitle = document.getElementById('store_subtitle')?.value || 'Produtos Oficiais';
+                bannerPreviewId = 'store-banner-preview';
+                break;
+            default:
+                bannerTitle = document.getElementById('hero_title')?.value || 'Clube';
+                bannerSubtitle = document.getElementById('hero_subtitle')?.value || '';
+        }
 
         // Apply CSS variables
         const preview = document.getElementById('live-preview');
@@ -48,19 +81,50 @@
         // Update preview hero background
         const previewHero = document.getElementById('preview-hero');
         if (previewHero) {
-            previewHero.style.background = `linear-gradient(to right, ${primaryColor}, ${secondaryColor})`;
+            let bannerSrc = null;
+            const bannerPreview = document.getElementById(bannerPreviewId);
+            
+            if (bannerPreview) {
+                if (bannerPreview.tagName === 'IMG') {
+                    bannerSrc = bannerPreview.src;
+                } else {
+                    bannerSrc = bannerPreview.querySelector('img')?.src;
+                }
+            }
+            
+            if (bannerSrc && bannerSrc !== '' && !bannerSrc.includes('placeholder')) {
+                previewHero.style.background = `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url(${bannerSrc})`;
+                previewHero.style.backgroundSize = 'cover';
+                previewHero.style.backgroundPosition = 'center';
+            } else {
+                previewHero.style.background = `linear-gradient(to right, ${primaryColor}, ${secondaryColor})`;
+            }
         }
 
-        // Update text content
+        // Update preview site name and logo
         const previewSiteName = document.getElementById('preview-site-name');
         if (previewSiteName) {
             previewSiteName.textContent = siteName;
             previewSiteName.style.color = primaryColor;
         }
 
-        const previewDescription = document.getElementById('preview-description');
-        if (previewDescription) {
-            previewDescription.textContent = siteDescription;
+        const previewLogoContainer = document.getElementById('preview-logo');
+        if (previewLogoContainer) {
+            const logoPreview = document.getElementById('logo-preview');
+            let logoSrc = null;
+
+            if (logoPreview) {
+                if (logoPreview.tagName === 'IMG') {
+                    logoSrc = logoPreview.src;
+                } else {
+                    logoSrc = logoPreview.querySelector('img')?.src;
+                }
+            }
+            
+            if (logoSrc && logoSrc !== '' && !logoSrc.includes('placeholder')) {
+                previewLogoContainer.innerHTML = `<img src="${logoSrc}" class="h-full w-full object-contain">`;
+                previewLogoContainer.classList.remove('bg-gray-200');
+            }
         }
 
         const previewBannerTitle = document.getElementById('preview-banner-title');
@@ -73,30 +137,12 @@
             previewBannerSubtitle.textContent = bannerSubtitle;
         }
 
-        const previewPhone = document.getElementById('preview-phone');
-        if (previewPhone) {
-            previewPhone.textContent = `📞 ${contactPhone}`;
-        }
-
-        const previewEmail = document.getElementById('preview-email');
-        if (previewEmail) {
-            previewEmail.textContent = `✉️ ${contactEmail}`;
-        }
-
-        const previewAddress = document.getElementById('preview-address');
-        if (previewAddress) {
-            previewAddress.textContent = `📍 ${contactAddress}`;
-        }
-
         // Update stat cards colors
-        const statCards = preview?.querySelectorAll('[style*="background-color"]');
+        const statCards = preview?.querySelectorAll('.grid > div');
         statCards?.forEach((card, index) => {
-            const color = index === 0 ? primaryColor : secondaryColor;
+            const color = index % 2 === 0 ? primaryColor : secondaryColor;
             card.style.backgroundColor = color + '1A'; // 10% opacity
-            const number = card.querySelector('.text-2xl');
-            if (number) {
-                number.style.color = color;
-            }
+            card.style.borderColor = color + '33'; // 20% opacity
         });
     }
 
@@ -113,56 +159,17 @@
             if (preview.tagName === 'IMG') {
                 preview.src = e.target.result;
             } else {
-                preview.innerHTML = `<img src="${e.target.result}" alt="Preview" class="h-full w-full object-contain rounded">`;
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.alt = 'Preview';
+                img.className = 'h-full w-full object-contain rounded';
+                preview.innerHTML = '';
+                preview.appendChild(img);
                 preview.classList.remove('bg-gray-100', 'text-gray-400');
             }
             updatePreview();
         };
         reader.readAsDataURL(file);
-    };
-
-    /**
-     * Save settings
-     */
-    window.saveSettings = function() {
-        const form = document.getElementById('settings-form');
-        const formFields = document.getElementById('form-fields');
-        
-        // Clear previous fields
-        formFields.innerHTML = '';
-
-        // Collect all settings
-        const settings = {};
-        document.querySelectorAll('[name^="settings["]').forEach(input => {
-            const key = input.name.match(/settings\[(.+)\]/)[1];
-            
-            if (input.type === 'file') {
-                if (input.files.length > 0) {
-                    // File will be handled by form submission
-                    const fileInput = document.createElement('input');
-                    fileInput.type = 'file';
-                    fileInput.name = input.name;
-                    fileInput.files = input.files;
-                    formFields.appendChild(fileInput);
-                }
-            } else if (input.type === 'checkbox') {
-                settings[key] = input.checked ? '1' : '0';
-            } else {
-                settings[key] = input.value;
-            }
-        });
-
-        // Add text settings as hidden inputs
-        Object.keys(settings).forEach(key => {
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = `settings[${key}]`;
-            input.value = settings[key];
-            formFields.appendChild(input);
-        });
-
-        // Submit form
-        form.submit();
     };
 
     /**
@@ -172,34 +179,8 @@
         updatePreview();
     };
 
-    /**
-     * Initialize color input sync
-     */
-    function initializeColorSync() {
-        const colorInputs = document.querySelectorAll('input[type="color"]');
-        colorInputs.forEach(colorInput => {
-            const textInput = colorInput.nextElementSibling;
-            if (textInput && textInput.tagName === 'INPUT') {
-                // Sync color to text
-                colorInput.addEventListener('input', function() {
-                    textInput.value = this.value;
-                    updatePreview();
-                });
-
-                // Sync text to color
-                textInput.addEventListener('input', function() {
-                    if (/^#[0-9A-F]{6}$/i.test(this.value)) {
-                        colorInput.value = this.value;
-                        updatePreview();
-                    }
-                });
-            }
-        });
-    }
-
     // Initial preview update
     setTimeout(() => {
         updatePreview();
     }, 100);
 })();
-

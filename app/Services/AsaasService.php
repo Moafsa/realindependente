@@ -10,12 +10,17 @@ class AsaasService
     private ?string $apiKey;
     private ?string $baseUrl;
     private ?string $environment;
+    private ?string $walletId;
 
     public function __construct()
     {
-        $this->apiKey = config('services.asaas.api_key');
+        // Prioritize tenant-specific API key if available
+        $tenantApiKey = \App\Models\SiteSetting::get('asaas_api_key');
+        
+        $this->apiKey = $tenantApiKey ?: config('services.asaas.api_key');
         $this->baseUrl = config('services.asaas.base_url', 'https://sandbox.asaas.com/api/v3');
         $this->environment = config('services.asaas.environment', 'sandbox');
+        $this->walletId = config('services.asaas.wallet_id');
     }
 
     /**
@@ -58,10 +63,7 @@ class AsaasService
      */
     public function createCharge(array $data): array
     {
-        $response = Http::withHeaders([
-            'access_token' => $this->apiKey,
-            'Content-Type' => 'application/json',
-        ])->post($this->baseUrl . '/payments', [
+        $payload = [
             'customer' => $data['customer_id'],
             'billingType' => $data['billing_type'] ?? 'PIX',
             'value' => $data['value'],
@@ -74,7 +76,22 @@ class AsaasService
             'interest' => $data['interest'] ?? null,
             'fine' => $data['fine'] ?? null,
             'postalService' => $data['postal_service'] ?? false,
-        ]);
+        ];
+
+        // Adiciona split se houver configuração de taxa administrativa
+        if (isset($data['split_percentage']) && $data['split_percentage'] > 0 && $this->walletId) {
+            $payload['split'] = [
+                [
+                    'walletId' => $this->walletId,
+                    'percentualValue' => $data['split_percentage'],
+                ]
+            ];
+        }
+
+        $response = Http::withHeaders([
+            'access_token' => $this->apiKey,
+            'Content-Type' => 'application/json',
+        ])->post($this->baseUrl . '/payments', $payload);
 
         if ($response->successful()) {
             return $response->json();
@@ -235,6 +252,25 @@ class AsaasService
         throw new \Exception('Erro ao buscar assinatura no Asaas: ' . $response->body());
     }
 
+    public function getSubscriptionPayments(string $subscriptionId): array
+    {
+        $response = Http::withHeaders([
+            'access_token' => $this->apiKey,
+        ])->get($this->baseUrl . "/subscriptions/{$subscriptionId}/payments");
+
+        if ($response->successful()) {
+            return $response->json();
+        }
+
+        Log::error('Asaas API Error - Get Subscription Payments', [
+            'status' => $response->status(),
+            'response' => $response->body(),
+            'subscription_id' => $subscriptionId,
+        ]);
+
+        return [];
+    }
+
     /**
      * Cancel a subscription in Asaas.
      */
@@ -304,6 +340,18 @@ class AsaasService
             $order->update([
                 'status' => 'paid',
                 'paid_at' => now(),
+            ]);
+
+            // Registra como receita no fluxo de caixa
+            \App\Models\CashFlow::create([
+                'description' => "Pedido #{$order->id} - " . ($order->athlete->full_name ?? $order->user->name ?? 'Cliente'),
+                'amount' => $order->total_amount,
+                'type' => 'entry',
+                'date' => now(),
+                'category' => $order->athlete_id ? 'Assinatura' : 'Loja',
+                'status' => 'completed',
+                'notes' => "Registrado automaticamente via webhook Asaas",
+                'created_by' => null,
             ]);
         }
     }

@@ -9,9 +9,12 @@ class AiGeneratedContent extends Model
 {
     use HasFactory;
 
+    protected $table = 'ai_generated_content';
+
     protected $fillable = [
         'athlete_id',
         'type',
+        'status',
         'content',
         'prompt',
         'model_used',
@@ -19,13 +22,36 @@ class AiGeneratedContent extends Model
         'cost',
         'is_favorite',
         'generated_at',
+        'start_date',
+        'end_date',
+        'frequency',
+        'notification_settings',
+        'goal',
+        'coach_instructions',
+        'last_edited_by',
+        'edited_at',
+        'accepted_at',
+    ];
+
+    protected $appends = [
+        'title',
+        'summary',
+        'duration',
+        'difficulty',
+        'calories',
     ];
 
     protected $casts = [
         'content' => 'array',
         'is_favorite' => 'boolean',
         'generated_at' => 'datetime',
+        'start_date' => 'date',
+        'end_date' => 'date',
+        'notification_settings' => 'array',
         'cost' => 'decimal:4',
+        'edited_at' => 'datetime',
+        'accepted_at' => 'datetime',
+        'last_edited_by' => 'integer',
     ];
 
     /**
@@ -34,6 +60,14 @@ class AiGeneratedContent extends Model
     public function athlete()
     {
         return $this->belongsTo(Athlete::class);
+    }
+
+    /**
+     * Get the user who last edited this content.
+     */
+    public function editor()
+    {
+        return $this->belongsTo(User::class, 'last_edited_by');
     }
 
     /**

@@ -35,3 +35,9 @@ Schedule::command('notifications:birthday-reminders')->dailyAt('08:00');
 
 // Generate performance reports
 Schedule::command('reports:generate-monthly')->monthlyOn(1, '06:00');
+
+// Send AI athlete plan notifications (Workout/Nutrition) via WhatsApp
+Schedule::command('athlete:send-ai-notifications')->everyMinute();
+
+// Update athlete subcategories (Sub-11, Sub-13, etc) based on birth year
+Schedule::command('athletes:update-subcategories')->daily();

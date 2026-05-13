@@ -20,6 +20,11 @@
         'url' => $seoUrl,
     ])
 
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="{{ $settings['color_primary'] ?? '#2563eb' }}">
+    <link rel="apple-touch-icon" href="https://ui-avatars.com/api/?name=R&color=FFFFFF&background=2563eb&size=192">
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
@@ -27,49 +32,113 @@
     <!-- Scripts -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+    <style>
+        :root {
+            --primary-color: {{ $settings['color_primary'] ?? '#2563eb' }};
+            --secondary-color: {{ $settings['color_secondary'] ?? '#16a34a' }};
+            --footer-color: {{ $settings['color_footer'] ?? '#1f2937' }};
+        }
+        
+        .bg-primary { background-color: var(--primary-color) !important; }
+        .text-primary { color: var(--primary-color) !important; }
+        .border-primary { border-color: var(--primary-color) !important; }
+        .hover\:bg-primary-dark:hover { filter: brightness(0.9); }
+        
+        .bg-secondary { background-color: var(--secondary-color) !important; }
+        .text-secondary { color: var(--secondary-color) !important; }
+        .border-secondary { border-color: var(--secondary-color) !important; }
+
+        /* Hover variants */
+        .hover\:text-primary:hover { color: var(--primary-color) !important; }
+        .hover\:text-secondary:hover { color: var(--secondary-color) !important; }
+        .hover\:bg-primary:hover { background-color: var(--primary-color) !important; }
+        .hover\:bg-secondary:hover { background-color: var(--secondary-color) !important; }
+        .hover\:border-primary:hover { border-color: var(--primary-color) !important; }
+        .hover\:border-secondary:hover { border-color: var(--secondary-color) !important; }
+
+        /* Sticky Header */
+        .sticky-header {
+            transition: all 0.3s ease-in-out;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .sticky-header.scrolled {
+            background-color: rgba(255, 255, 255, 0.8) !important;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            height: 4rem; /* h-16 */
+        }
+    </style>
 </head>
 <body class="font-sans antialiased bg-gray-50">
     <!-- Navigation -->
-    <nav class="bg-white shadow-lg">
+    <nav class="bg-white shadow-lg sticky-header" id="main-nav">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex">
                     <!-- Logo -->
                     <div class="flex-shrink-0 flex items-center">
-                        <a href="{{ route('site.home') }}" class="text-2xl font-bold text-blue-600">
-                            {{ $settings['site_name'] ?? 'Real Independent' }}
+                        <a href="{{ route('site.home') }}" class="text-2xl font-bold text-primary">
+                            @if($settings['site_logo'] ?? false)
+                                <img src="{{ Storage::url($settings['site_logo']) }}" alt="{{ $settings['site_name'] ?? 'Real Independent' }}" class="h-12 w-auto transition-all" id="site-logo">
+                            @else
+                                {{ $settings['site_name'] ?? 'Real Independent' }}
+                            @endif
                         </a>
                     </div>
                     
                     <!-- Navigation Links -->
                     <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
-                        <a href="{{ route('site.home') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('site.home') ? 'border-blue-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }} text-sm font-medium">
+                        <a href="{{ route('site.home') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('site.home') ? 'border-primary text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }} text-sm font-medium">
                             Início
                         </a>
-                        <a href="{{ route('site.about') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('site.about') ? 'border-blue-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }} text-sm font-medium">
+                        <a href="{{ route('site.about') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('site.about') ? 'border-primary text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }} text-sm font-medium">
                             Sobre
                         </a>
-                        <a href="{{ route('site.teams') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('site.teams') ? 'border-blue-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }} text-sm font-medium">
+                        <a href="{{ route('site.teams') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('site.teams') ? 'border-primary text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }} text-sm font-medium">
                             Equipes
                         </a>
-                        <a href="{{ route('site.athletes') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('site.athletes') ? 'border-blue-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }} text-sm font-medium">
+                        <a href="{{ route('site.coaches') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('site.coaches') ? 'border-primary text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }} text-sm font-medium">
+                            Treinadores
+                        </a>
+                        <a href="{{ route('site.athletes') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('site.athletes') ? 'border-primary text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }} text-sm font-medium">
                             Atletas
                         </a>
-                        <a href="{{ route('site.store') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('site.store') ? 'border-blue-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }} text-sm font-medium">
+                        <a href="{{ route('site.store') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('site.store') ? 'border-primary text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }} text-sm font-medium">
                             Loja
                         </a>
-                        <a href="{{ route('site.contact') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('site.contact') ? 'border-blue-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }} text-sm font-medium">
+                        <a href="{{ route('site.plans') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('site.plans') ? 'border-primary text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }} text-sm font-medium">
+                            Planos
+                        </a>
+                        <a href="{{ route('site.contact') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('site.contact') ? 'border-primary text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }} text-sm font-medium">
                             Contato
+                        </a>
+                        <a href="{{ route('site.blog') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('site.blog*') ? 'border-primary text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }} text-sm font-medium">
+                            Blog
                         </a>
                     </div>
                 </div>
                 
+                <!-- Mobile menu button -->
+                <div class="flex items-center sm:hidden">
+                    <button type="button" data-menu-button class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary" aria-controls="mobile-menu" aria-expanded="false">
+                        <span class="sr-only">Abrir menu principal</span>
+                        <svg class="block h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+
                 <!-- Right side -->
                 <div class="flex items-center space-x-4">
                     <!-- Cart -->
-                    <a href="{{ route('site.cart') }}" class="relative p-2 text-gray-500 hover:text-gray-700">
-                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01"></path>
+                    <a href="{{ route('site.cart') }}" class="relative p-2 text-gray-500 hover:text-primary transition-colors group">
+                        <svg class="h-6 w-6 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
                         </svg>
                         @if(session('cart'))
                         <span class="absolute -top-1 -right-1 h-5 w-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
@@ -93,8 +162,8 @@
                     <a href="{{ route('login') }}" class="text-gray-500 hover:text-gray-700 text-sm font-medium">
                         Entrar
                     </a>
-                    <a href="{{ route('register') }}" class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700">
-                        Cadastrar
+                    <a href="{{ route('site.register') }}" class="bg-primary text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-primary-dark">
+                        Matricule-se
                     </a>
                     @endauth
                 </div>
@@ -102,29 +171,65 @@
         </div>
         
         <!-- Mobile menu -->
-        <div class="sm:hidden" id="mobile-menu">
+        <div class="sm:hidden hidden" id="mobile-menu">
             <div class="pt-2 pb-3 space-y-1">
-                <a href="{{ route('site.home') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ request()->routeIs('site.home') ? 'border-blue-500 text-blue-700 bg-blue-50' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 hover:bg-gray-50' }} text-base font-medium">
+                <a href="{{ route('site.home') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ request()->routeIs('site.home') ? 'border-primary text-primary bg-blue-50' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 hover:bg-gray-50' }} text-base font-medium">
                     Início
                 </a>
-                <a href="{{ route('site.about') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ request()->routeIs('site.about') ? 'border-blue-500 text-blue-700 bg-blue-50' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 hover:bg-gray-50' }} text-base font-medium">
+                <a href="{{ route('site.about') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ request()->routeIs('site.about') ? 'border-primary text-primary bg-blue-50' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 hover:bg-gray-50' }} text-base font-medium">
                     Sobre
                 </a>
-                <a href="{{ route('site.teams') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ request()->routeIs('site.teams') ? 'border-blue-500 text-blue-700 bg-blue-50' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 hover:bg-gray-50' }} text-base font-medium">
+                <a href="{{ route('site.teams') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ request()->routeIs('site.teams') ? 'border-primary text-primary bg-blue-50' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 hover:bg-gray-50' }} text-base font-medium">
                     Equipes
                 </a>
-                <a href="{{ route('site.athletes') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ request()->routeIs('site.athletes') ? 'border-blue-500 text-blue-700 bg-blue-50' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 hover:bg-gray-50' }} text-base font-medium">
+                <a href="{{ route('site.coaches') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ request()->routeIs('site.coaches') ? 'border-primary text-primary bg-blue-50' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 hover:bg-gray-50' }} text-base font-medium">
+                    Treinadores
+                </a>
+                <a href="{{ route('site.athletes') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ request()->routeIs('site.athletes') ? 'border-primary text-primary bg-blue-50' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 hover:bg-gray-50' }} text-base font-medium">
                     Atletas
                 </a>
-                <a href="{{ route('site.store') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ request()->routeIs('site.store') ? 'border-blue-500 text-blue-700 bg-blue-50' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 hover:bg-gray-50' }} text-base font-medium">
+                <a href="{{ route('site.store') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ request()->routeIs('site.store') ? 'border-primary text-primary bg-blue-50' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 hover:bg-gray-50' }} text-base font-medium">
                     Loja
                 </a>
-                <a href="{{ route('site.contact') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ request()->routeIs('site.contact') ? 'border-blue-500 text-blue-700 bg-blue-50' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 hover:bg-gray-50' }} text-base font-medium">
+                <a href="{{ route('site.plans') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ request()->routeIs('site.plans') ? 'border-primary text-primary bg-blue-50' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 hover:bg-gray-50' }} text-base font-medium">
+                    Planos
+                </a>
+                <a href="{{ route('site.contact') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ request()->routeIs('site.contact') ? 'border-primary text-primary bg-blue-50' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 hover:bg-gray-50' }} text-base font-medium">
                     Contato
+                </a>
+                <a href="{{ route('site.blog') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ request()->routeIs('site.blog*') ? 'border-primary text-primary bg-blue-50' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 hover:bg-gray-50' }} text-base font-medium">
+                    Blog
                 </a>
             </div>
         </div>
     </nav>
+
+    <!-- Flash Messages -->
+    @if(session('success') || session('error') || $errors->any())
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+        @if(session('success'))
+            <div class="p-4 mb-4 text-sm text-green-700 bg-green-100 rounded-lg" role="alert">
+                <span class="font-medium">Sucesso!</span> {{ session('success') }}
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg" role="alert">
+                <span class="font-medium">Erro!</span> {{ session('error') }}
+            </div>
+        @endif
+
+        @if($errors->any())
+            <div class="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg" role="alert">
+                <ul class="list-disc list-inside">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+    </div>
+    @endif
 
     <!-- Main Content -->
     <main>
@@ -132,7 +237,7 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-gray-800 text-white">
+    <footer class="text-white" style="background-color: var(--footer-color);">
         <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
                 <!-- Company Info -->
@@ -173,7 +278,9 @@
                         <li><a href="{{ route('site.teams') }}" class="text-gray-300 hover:text-white">Equipes</a></li>
                         <li><a href="{{ route('site.athletes') }}" class="text-gray-300 hover:text-white">Atletas</a></li>
                         <li><a href="{{ route('site.store') }}" class="text-gray-300 hover:text-white">Loja</a></li>
+                        <li><a href="{{ route('site.plans') }}" class="text-gray-300 hover:text-white">Planos</a></li>
                         <li><a href="{{ route('site.contact') }}" class="text-gray-300 hover:text-white">Contato</a></li>
+                        <li><a href="{{ route('site.blog') }}" class="text-gray-300 hover:text-white">Blog</a></li>
                     </ul>
                 </div>
                 
@@ -203,6 +310,17 @@
     </footer>
 
     <script>
+        // PWA Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').then(registration => {
+                    console.log('SW registered: ', registration);
+                }).catch(registrationError => {
+                    console.log('SW registration failed: ', registrationError);
+                });
+            });
+        }
+
         // Mobile menu toggle
         document.addEventListener('DOMContentLoaded', function() {
             const mobileMenu = document.getElementById('mobile-menu');
@@ -213,7 +331,22 @@
                     mobileMenu.classList.toggle('hidden');
                 });
             }
+
+            // Sticky Header Scroll Effect
+            const nav = document.getElementById('main-nav');
+            const logo = document.getElementById('site-logo');
+            
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 10) {
+                    nav.classList.add('scrolled');
+                    if (logo) logo.classList.replace('h-12', 'h-10');
+                } else {
+                    nav.classList.remove('scrolled');
+                    if (logo) logo.classList.replace('h-10', 'h-12');
+                }
+            });
         });
     </script>
+    @stack('scripts')
 </body>
 </html>

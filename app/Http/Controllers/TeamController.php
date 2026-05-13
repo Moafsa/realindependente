@@ -13,18 +13,29 @@ class TeamController extends Controller
     /**
      * Display a listing of teams.
      */
-    public function index()
+    public function index(Request $request)
     {
         try {
-            $teams = Team::withCount('athletes')
-                ->with('coach')
-                ->orderBy('name')
-                ->get();
+            $categories = ['Sub-7', 'Sub-9', 'Sub-11', 'Sub-13', 'Sub-15', 'Sub-17', 'Sub-20', 'Sub-23', 'Profissional'];
+            
+            $query = Team::withCount('athletes')->with('coach');
+
+            $user = auth()->user();
+            if ($user->role === 'coach') {
+                $query->where('coach_id', $user->id);
+            }
+
+            if ($request->filled('category')) {
+                $query->where('category', $request->category);
+            }
+
+            $teams = $query->orderBy('name')->get();
         } catch (\Exception $e) {
+            $categories = [];
             $teams = collect([]);
         }
 
-        return view('teams.index', compact('teams'));
+        return view('teams.index', compact('teams', 'categories'));
     }
 
     /**
@@ -32,13 +43,18 @@ class TeamController extends Controller
      */
     public function create()
     {
+        if (auth()->user()->role === 'coach') {
+            abort(403, 'Acesso negado. Apenas administradores podem criar novas equipes.');
+        }
         try {
-            $coaches = User::where('role', 'coach')->orderBy('name')->get();
+            $coaches = User::where('role', 'coach')->where('is_active', true)->orderBy('name')->get();
+            $categories = ['Sub-7', 'Sub-9', 'Sub-11', 'Sub-13', 'Sub-15', 'Sub-17', 'Sub-20', 'Sub-23', 'Profissional'];
         } catch (\Exception $e) {
             $coaches = collect([]);
+            $categories = [];
         }
         
-        return view('teams.create', compact('coaches'));
+        return view('teams.create', compact('coaches', 'categories'));
     }
 
     /**
@@ -46,13 +62,16 @@ class TeamController extends Controller
      */
     public function store(Request $request)
     {
+        if (auth()->user()->role === 'coach') {
+            abort(403, 'Acesso negado. Apenas administradores podem criar novas equipes.');
+        }
         $request->validate([
             'name' => 'required|string|max:255',
             'category' => 'required|string|max:255',
             'description' => 'nullable|string|max:1000',
-            'coach_user_id' => 'nullable|exists:users,id',
-            'color_primary' => 'required|string|max:7',
-            'color_secondary' => 'required|string|max:7',
+            'coach_id' => 'nullable|exists:users,id',
+            'primary_color' => 'required|string|max:7',
+            'secondary_color' => 'required|string|max:7',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
@@ -60,7 +79,7 @@ class TeamController extends Controller
 
         // Handle logo upload
         if ($request->hasFile('logo')) {
-            $path = $request->file('logo')->store('teams', 'public');
+            $path = $request->file('logo')->store('teams');
             $team->logo = $path;
         }
 
@@ -75,6 +94,10 @@ class TeamController extends Controller
      */
     public function show(Team $team)
     {
+        $user = auth()->user();
+        if ($user->role === 'coach' && $team->coach_id !== $user->id) {
+            abort(403, 'Acesso negado. Você não tem permissão para visualizar esta equipe.');
+        }
         $team->load(['coach', 'athletes.branch']);
         
         $athletes = $team->athletes()
@@ -90,9 +113,14 @@ class TeamController extends Controller
      */
     public function edit(Team $team)
     {
-        $coaches = User::where('role', 'coach')->orderBy('name')->get();
+        $user = auth()->user();
+        if ($user->role === 'coach' && $team->coach_id !== $user->id) {
+            abort(403, 'Acesso negado. Você não tem permissão para editar esta equipe.');
+        }
+        $coaches = User::where('role', 'coach')->where('is_active', true)->orderBy('name')->get();
+        $categories = ['Sub-7', 'Sub-9', 'Sub-11', 'Sub-13', 'Sub-15', 'Sub-17', 'Sub-20', 'Sub-23', 'Profissional'];
         
-        return view('teams.edit', compact('team', 'coaches'));
+        return view('teams.edit', compact('team', 'coaches', 'categories'));
     }
 
     /**
@@ -100,13 +128,17 @@ class TeamController extends Controller
      */
     public function update(Request $request, Team $team)
     {
+        $user = auth()->user();
+        if ($user->role === 'coach' && $team->coach_id !== $user->id) {
+            abort(403, 'Acesso negado. Você não tem permissão para atualizar esta equipe.');
+        }
         $request->validate([
             'name' => 'required|string|max:255',
             'category' => 'required|string|max:255',
             'description' => 'nullable|string|max:1000',
-            'coach_user_id' => 'nullable|exists:users,id',
-            'color_primary' => 'required|string|max:7',
-            'color_secondary' => 'required|string|max:7',
+            'coach_id' => 'nullable|exists:users,id',
+            'primary_color' => 'required|string|max:7',
+            'secondary_color' => 'required|string|max:7',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
@@ -119,7 +151,7 @@ class TeamController extends Controller
                 Storage::disk('public')->delete($team->logo);
             }
             
-            $path = $request->file('logo')->store('teams', 'public');
+            $path = $request->file('logo')->store('teams');
             $team->update(['logo' => $path]);
         }
 
@@ -132,6 +164,9 @@ class TeamController extends Controller
      */
     public function destroy(Team $team)
     {
+        if (auth()->user()->role === 'coach') {
+            abort(403, 'Acesso negado. Apenas administradores podem excluir equipes.');
+        }
         // Check if team has athletes
         if ($team->athletes()->count() > 0) {
             return redirect()->route('admin.teams.index')
@@ -145,7 +180,7 @@ class TeamController extends Controller
 
         $team->delete();
 
-        return redirect()->route('teams.index')
+        return redirect()->route('admin.teams.index')
             ->with('success', 'Equipe removida com sucesso!');
     }
 
@@ -160,5 +195,63 @@ class TeamController extends Controller
         
         return redirect()->route('admin.teams.show', $team)
             ->with('success', "Equipe {$status} com sucesso!");
+    }
+
+    public function generateTeamAiPlan(Request $request, Team $team, \App\Services\AIService $aiService)
+    {
+        $request->validate([
+            'type' => 'required|string|in:workout_plan,meal_plan',
+            'goal' => 'required|string|max:255',
+        ]);
+
+        $athletes = $team->athletes;
+
+        if ($athletes->isEmpty()) {
+            return redirect()->back()->with('error', 'Esta equipe não possui atletas.');
+        }
+
+        $successCount = 0;
+        $failCount = 0;
+
+        foreach ($athletes as $athlete) {
+            try {
+                if ($request->type === 'workout_plan') {
+                    $aiContent = $aiService->generateWorkoutPlan($athlete);
+                } else {
+                    $aiContent = $aiService->generateMealPlan($athlete);
+                }
+
+                if ($aiContent) {
+                    \App\Models\AiGeneratedContent::where('athlete_id', $athlete->id)
+                        ->where('type', $request->type)
+                        ->where('status', 'active')
+                        ->where('id', '!=', $aiContent->id)
+                        ->update(['status' => 'archived']);
+
+                    $content = $aiContent->content;
+                    $duration = $content['duration_days'] ?? 30;
+                    $frequency = $content['frequency_label'] ?? '3x por semana';
+                    $notifications = $content['notification_suggestions'] ?? ['08:00', '16:00'];
+
+                    $aiContent->update([
+                        'status' => 'active',
+                        'goal' => $request->goal,
+                        'start_date' => now(),
+                        'end_date' => now()->addDays($duration),
+                        'frequency' => $frequency,
+                        'notification_settings' => array_filter($notifications),
+                    ]);
+                    $successCount++;
+                }
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error("Erro ao gerar plano para atleta {$athlete->id}: " . $e->getMessage());
+                $failCount++;
+            }
+        }
+
+        $msg = "Planos coletivos gerados com sucesso para {$successCount} atletas.";
+        if ($failCount > 0) $msg .= " Falha em {$failCount} atletas.";
+
+        return redirect()->back()->with('success', $msg);
     }
 }

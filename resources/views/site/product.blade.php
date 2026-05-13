@@ -2,7 +2,7 @@
 
 @section('title', $product->name)
 @section('description', $product->description ?? 'Produto oficial do clube')
-@section('og-image', $product->image ? asset('storage/' . $product->image) : null)
+@section('og-image', $product->image_url)
 @section('og-type', 'product')
 
 @section('content')
@@ -16,7 +16,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
             <!-- Product Image -->
             <div>
-                <img src="{{ $product->image ? asset('storage/' . $product->image) : 'https://via.placeholder.com/600x600?text=' . urlencode($product->name) }}" 
+                <img src="{{ $product->image_url }}" 
                      alt="{{ $product->name }}" 
                      class="w-full rounded-lg shadow-lg">
             </div>
@@ -95,7 +95,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             @foreach($relatedProducts as $related)
             <a href="{{ route('site.product', $related) }}" class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition">
-                <img src="{{ $related->image ? asset('storage/' . $related->image) : 'https://via.placeholder.com/300' }}" 
+                <img src="{{ $related->image_url }}" 
                      alt="{{ $related->name }}" 
                      class="w-full h-48 object-cover">
                 <div class="p-4">

@@ -4,352 +4,367 @@
 
 @section('content')
 <div class="space-y-6">
+    @if(session('success'))
+    <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-sm mb-4">
+        <div class="flex items-center">
+            <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <p class="font-bold">{{ session('success') }}</p>
+        </div>
+    </div>
+    @endif
+
     <!-- Header -->
     <div class="flex items-center justify-between">
         <div>
             <h1 class="text-2xl font-bold text-gray-900">Editor do Site</h1>
-            <p class="text-sm text-gray-600 mt-1">Personalize o site público do seu clube</p>
+            <p class="text-sm text-gray-600 mt-1">Personalize cada detalhe do seu site</p>
         </div>
         <div class="flex items-center space-x-3">
-            <a href="{{ route('site.home') }}" 
-               target="_blank"
-               class="inline-flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                </svg>
-                Ver Site
-            </a>
-            <button type="button" 
-                    onclick="saveSettings()"
-                    class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                </svg>
-                Salvar Alterações
-            </button>
+            <a href="{{ route('site.home') }}" target="_blank" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition">Ver Site</a>
+            <button type="submit" form="site-settings-form" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition">Salvar Tudo</button>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Editor Panel -->
-        <div class="space-y-6">
-            <!-- General Settings -->
-            <div class="bg-white shadow rounded-lg p-6">
-                <h2 class="text-lg font-semibold text-gray-900 mb-4">Configurações Gerais</h2>
-                <div class="space-y-4">
-                    <div>
-                        <label for="site_name" class="block text-sm font-medium text-gray-700 mb-2">
-                            Nome do Site
-                        </label>
-                        <input type="text" 
-                               name="settings[site_name]" 
-                               id="site_name" 
-                               value="{{ $settings->firstWhere('key', 'site_name')->value ?? '' }}"
-                               oninput="updatePreview()"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    </div>
+    <!-- Tabs Navigation -->
+    <div class="border-b border-gray-200 overflow-x-auto">
+        <nav class="-mb-px flex space-x-8 min-w-max">
+            <button onclick="switchTab('geral')" id="tab-geral" class="tab-btn border-blue-500 text-blue-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Geral</button>
+            <button onclick="switchTab('home')" id="tab-home" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Início</button>
+            <button onclick="switchTab('sobre')" id="tab-sobre" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Sobre</button>
+            <button onclick="switchTab('atletas')" id="tab-atletas" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Atletas</button>
+            <button onclick="switchTab('equipes')" id="tab-equipes" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Equipes</button>
+            <button onclick="switchTab('loja')" id="tab-loja" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Loja</button>
+            <button onclick="switchTab('dominio')" id="tab-dominio" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Domínio</button>
+            <button onclick="switchTab('financeiro')" id="tab-financeiro" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-red-600 font-bold">Financeiro</button>
+        </nav>
+    </div>
 
-                    <div>
-                        <label for="site_description" class="block text-sm font-medium text-gray-700 mb-2">
-                            Descrição
-                        </label>
-                        <textarea name="settings[site_description]" 
-                                  id="site_description" 
-                                  rows="3"
-                                  oninput="updatePreview()"
-                                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ $settings->firstWhere('key', 'site_description')->value ?? '' }}</textarea>
-                    </div>
-
-                    <div>
-                        <label for="site_logo" class="block text-sm font-medium text-gray-700 mb-2">
-                            Logo
-                        </label>
-                        <div class="flex items-center space-x-4">
-                            @if($settings->firstWhere('key', 'site_logo')?->value)
-                            <img id="logo-preview" 
-                                 src="{{ asset('storage/' . $settings->firstWhere('key', 'site_logo')->value) }}" 
-                                 alt="Logo" 
-                                 class="h-16 w-16 object-contain border border-gray-300 rounded">
-                            @else
-                            <div id="logo-preview" class="h-16 w-16 bg-gray-100 border border-gray-300 rounded flex items-center justify-center text-gray-400 text-xs">
-                                Sem logo
-                            </div>
-                            @endif
-                            <input type="file" 
-                                   name="settings[site_logo]" 
-                                   id="site_logo" 
-                                   accept="image/*"
-                                   onchange="handleImageUpload(this, 'logo-preview')"
-                                   class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Colors -->
-            <div class="bg-white shadow rounded-lg p-6">
-                <h2 class="text-lg font-semibold text-gray-900 mb-4">Cores</h2>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label for="color_primary" class="block text-sm font-medium text-gray-700 mb-2">
-                            Cor Primária
-                        </label>
-                        <div class="flex items-center space-x-2">
-                            <input type="color" 
-                                   name="settings[color_primary]" 
-                                   id="color_primary" 
-                                   value="{{ $settings->firstWhere('key', 'color_primary')->value ?? '#2563eb' }}"
-                                   onchange="updatePreview()"
-                                   class="h-10 w-20 border border-gray-300 rounded cursor-pointer">
-                            <input type="text" 
-                                   value="{{ $settings->firstWhere('key', 'color_primary')->value ?? '#2563eb' }}"
-                                   onchange="document.getElementById('color_primary').value = this.value; updatePreview()"
-                                   class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label for="color_secondary" class="block text-sm font-medium text-gray-700 mb-2">
-                            Cor Secundária
-                        </label>
-                        <div class="flex items-center space-x-2">
-                            <input type="color" 
-                                   name="settings[color_secondary]" 
-                                   id="color_secondary" 
-                                   value="{{ $settings->firstWhere('key', 'color_secondary')->value ?? '#16a34a' }}"
-                                   onchange="updatePreview()"
-                                   class="h-10 w-20 border border-gray-300 rounded cursor-pointer">
-                            <input type="text" 
-                                   value="{{ $settings->firstWhere('key', 'color_secondary')->value ?? '#16a34a' }}"
-                                   onchange="document.getElementById('color_secondary').value = this.value; updatePreview()"
-                                   class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Contact Information -->
-            <div class="bg-white shadow rounded-lg p-6">
-                <h2 class="text-lg font-semibold text-gray-900 mb-4">Informações de Contato</h2>
-                <div class="space-y-4">
-                    <div>
-                        <label for="contact_phone" class="block text-sm font-medium text-gray-700 mb-2">
-                            Telefone
-                        </label>
-                        <input type="text" 
-                               name="settings[contact_phone]" 
-                               id="contact_phone" 
-                               value="{{ $settings->firstWhere('key', 'contact_phone')->value ?? '' }}"
-                               oninput="updatePreview()"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-
-                    <div>
-                        <label for="contact_email" class="block text-sm font-medium text-gray-700 mb-2">
-                            E-mail
-                        </label>
-                        <input type="email" 
-                               name="settings[contact_email]" 
-                               id="contact_email" 
-                               value="{{ $settings->firstWhere('key', 'contact_email')->value ?? '' }}"
-                               oninput="updatePreview()"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-
-                    <div>
-                        <label for="contact_address" class="block text-sm font-medium text-gray-700 mb-2">
-                            Endereço
-                        </label>
-                        <textarea name="settings[contact_address]" 
-                                  id="contact_address" 
-                                  rows="2"
-                                  oninput="updatePreview()"
-                                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ $settings->firstWhere('key', 'contact_address')->value ?? '' }}</textarea>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Social Media -->
-            <div class="bg-white shadow rounded-lg p-6">
-                <h2 class="text-lg font-semibold text-gray-900 mb-4">Redes Sociais</h2>
-                <div class="space-y-4">
-                    <div>
-                        <label for="facebook_url" class="block text-sm font-medium text-gray-700 mb-2">
-                            Facebook
-                        </label>
-                        <input type="url" 
-                               name="settings[facebook_url]" 
-                               id="facebook_url" 
-                               value="{{ $settings->firstWhere('key', 'facebook_url')->value ?? '' }}"
-                               placeholder="https://facebook.com/seuclube"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-
-                    <div>
-                        <label for="instagram_url" class="block text-sm font-medium text-gray-700 mb-2">
-                            Instagram
-                        </label>
-                        <input type="url" 
-                               name="settings[instagram_url]" 
-                               id="instagram_url" 
-                               value="{{ $settings->firstWhere('key', 'instagram_url')->value ?? '' }}"
-                               placeholder="https://instagram.com/seuclube"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-
-                    <div>
-                        <label for="youtube_url" class="block text-sm font-medium text-gray-700 mb-2">
-                            YouTube
-                        </label>
-                        <input type="url" 
-                               name="settings[youtube_url]" 
-                               id="youtube_url" 
-                               value="{{ $settings->firstWhere('key', 'youtube_url')->value ?? '' }}"
-                               placeholder="https://youtube.com/seuclube"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Banner -->
-            <div class="bg-white shadow rounded-lg p-6">
-                <h2 class="text-lg font-semibold text-gray-900 mb-4">Banner Principal</h2>
-                <div class="space-y-4">
-                    <div>
-                        <label for="banner_image" class="block text-sm font-medium text-gray-700 mb-2">
-                            Imagem do Banner
-                        </label>
-                        <div class="flex items-center space-x-4">
-                            @if($settings->firstWhere('key', 'banner_image')?->value)
-                            <img id="banner-preview" 
-                                 src="{{ asset('storage/' . $settings->firstWhere('key', 'banner_image')->value) }}" 
-                                 alt="Banner" 
-                                 class="h-32 w-full object-cover border border-gray-300 rounded">
-                            @else
-                            <div id="banner-preview" class="h-32 w-full bg-gray-100 border border-gray-300 rounded flex items-center justify-center text-gray-400 text-sm">
-                                Sem banner
-                            </div>
-                            @endif
-                        </div>
-                        <input type="file" 
-                               name="settings[banner_image]" 
-                               id="banner_image" 
-                               accept="image/*"
-                               onchange="handleImageUpload(this, 'banner-preview')"
-                               class="mt-2 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-
-                    <div>
-                        <label for="banner_title" class="block text-sm font-medium text-gray-700 mb-2">
-                            Título do Banner
-                        </label>
-                        <input type="text" 
-                               name="settings[banner_title]" 
-                               id="banner_title" 
-                               value="{{ $settings->firstWhere('key', 'banner_title')->value ?? '' }}"
-                               oninput="updatePreview()"
-                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-
-                    <div>
-                        <label for="banner_subtitle" class="block text-sm font-medium text-gray-700 mb-2">
-                            Subtítulo do Banner
-                        </label>
-                        <textarea name="settings[banner_subtitle]" 
-                                  id="banner_subtitle" 
-                                  rows="2"
-                                  oninput="updatePreview()"
-                                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ $settings->firstWhere('key', 'banner_subtitle')->value ?? '' }}</textarea>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Preview Panel -->
-        <div class="lg:sticky lg:top-6 lg:h-screen lg:overflow-y-auto">
-            <div class="bg-white shadow rounded-lg p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-lg font-semibold text-gray-900">Preview em Tempo Real</h2>
-                    <a href="{{ route('site.home') }}" 
-                       target="_blank"
-                       class="text-sm text-blue-600 hover:text-blue-800">
-                        Ver Site Completo →
-                    </a>
-                </div>
+    <form id="site-settings-form" action="{{ route('site.update') }}" method="POST" enctype="multipart/form-data">
+        @csrf
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Editor Panel -->
+            <div class="space-y-6">
                 
-                <!-- Live Preview -->
-                <div id="live-preview" class="border-2 border-gray-200 rounded-lg overflow-hidden bg-white">
-                    <!-- Header Preview -->
-                    <div id="preview-header" class="bg-white border-b border-gray-200 p-4">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center space-x-3">
-                                <div id="preview-logo" class="h-10 w-10 bg-gray-200 rounded flex items-center justify-center text-xs text-gray-400">
-                                    Logo
+                <!-- Tab: Geral -->
+                <div id="content-geral" class="tab-content space-y-6">
+                    <div class="bg-white shadow rounded-lg p-6">
+                        <h2 class="text-lg font-semibold mb-4">Configurações Básicas</h2>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Nome do Clube</label>
+                                <input type="text" name="settings[site_name]" id="site_name" value="{{ $settings->firstWhere('key', 'site_name')->value ?? '' }}" oninput="updatePreview()" class="w-full px-4 py-2 border rounded-lg">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Cores do Tema</label>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="space-y-1">
+                                        <span class="text-xs text-gray-500">Primária</span>
+                                        <div class="flex items-center space-x-2">
+                                            <input type="color" name="settings[color_primary]" id="color_primary" value="{{ $settings->firstWhere('key', 'color_primary')->value ?? '#2563eb' }}" oninput="updatePreview()" class="h-10 w-12 border-0 p-0 bg-transparent cursor-pointer">
+                                            <input type="text" value="{{ $settings->firstWhere('key', 'color_primary')->value ?? '#2563eb' }}" class="flex-1 px-2 py-1 border rounded text-xs uppercase" oninput="syncColor(this, 'color_primary')">
+                                        </div>
+                                    </div>
+                                    <div class="space-y-1">
+                                        <span class="text-xs text-gray-500">Secundária</span>
+                                        <div class="flex items-center space-x-2">
+                                            <input type="color" name="settings[color_secondary]" id="color_secondary" value="{{ $settings->firstWhere('key', 'color_secondary')->value ?? '#16a34a' }}" oninput="updatePreview()" class="h-10 w-12 border-0 p-0 bg-transparent cursor-pointer">
+                                            <input type="text" value="{{ $settings->firstWhere('key', 'color_secondary')->value ?? '#16a34a' }}" class="flex-1 px-2 py-1 border rounded text-xs uppercase" oninput="syncColor(this, 'color_secondary')">
+                                        </div>
+                                    </div>
+                                    <div class="space-y-1">
+                                        <span class="text-xs text-gray-500">Rodapé</span>
+                                        <div class="flex items-center space-x-2">
+                                            <input type="color" name="settings[color_footer]" id="color_footer" value="{{ $settings->firstWhere('key', 'color_footer')->value ?? '#1f2937' }}" oninput="updatePreview()" class="h-10 w-12 border-0 p-0 bg-transparent cursor-pointer">
+                                            <input type="text" value="{{ $settings->firstWhere('key', 'color_footer')->value ?? '#1f2937' }}" class="flex-1 px-2 py-1 border rounded text-xs uppercase" oninput="syncColor(this, 'color_footer')">
+                                        </div>
+                                    </div>
                                 </div>
-                                <span id="preview-site-name" class="text-lg font-bold" style="color: var(--preview-primary, #2563eb);">
-                                    {{ $settings->firstWhere('key', 'site_name')->value ?? 'Nome do Clube' }}
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Logo</label>
+                                <div class="flex items-center space-x-4">
+                                    <div class="h-16 w-16 bg-gray-50 border rounded flex items-center justify-center overflow-hidden">
+                                        <img id="logo-preview" src="{{ $settings->firstWhere('key', 'site_logo') ? Storage::url($settings->firstWhere('key', 'site_logo')->value) : '' }}" class="max-w-full max-h-full {{ $settings->firstWhere('key', 'site_logo') ? '' : 'hidden' }}">
+                                        @if(!$settings->firstWhere('key', 'site_logo'))
+                                            <span class="text-[10px] text-gray-400">Sem logo</span>
+                                        @endif
+                                    </div>
+                                    <input type="file" name="settings[site_logo]" onchange="handleImageUpload(this, 'logo-preview')" class="flex-1 text-sm border p-2 rounded-lg">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Home -->
+                <div id="content-home" class="tab-content hidden space-y-6">
+                    <div class="bg-white shadow rounded-lg p-6">
+                        <h3 class="text-md font-bold mb-4 border-b pb-2">Seção Hero (Topo)</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Banner Principal</label>
+                                <div class="mb-2 h-24 w-full bg-gray-50 border rounded flex items-center justify-center overflow-hidden">
+                                    <img id="banner-preview" src="{{ $settings->firstWhere('key', 'banner_image') ? Storage::url($settings->firstWhere('key', 'banner_image')->value) : '' }}" class="w-full h-full object-cover {{ $settings->firstWhere('key', 'banner_image') ? '' : 'hidden' }}">
+                                    @if(!$settings->firstWhere('key', 'banner_image'))
+                                        <span class="text-xs text-gray-400">Sem imagem</span>
+                                    @endif
+                                </div>
+                                <input type="file" name="settings[banner_image]" onchange="handleImageUpload(this, 'banner-preview')" class="w-full text-sm border p-2 rounded-lg">
+                            </div>
+                            <div><label class="text-sm font-medium">Título</label><input type="text" id="hero_title" name="settings[hero_title]" value="{{ $settings->firstWhere('key', 'hero_title')->value ?? '' }}" oninput="updatePreview()" class="w-full p-2 border rounded-lg"></div>
+                            <div><label class="text-sm font-medium">Subtítulo</label><input type="text" id="hero_subtitle" name="settings[hero_subtitle]" value="{{ $settings->firstWhere('key', 'hero_subtitle')->value ?? '' }}" oninput="updatePreview()" class="w-full p-2 border rounded-lg"></div>
+                            <div><label class="text-sm font-medium">Texto de Apoio</label><textarea id="hero_description" name="settings[hero_description]" rows="2" oninput="updatePreview()" class="w-full p-2 border rounded-lg">{{ $settings->firstWhere('key', 'hero_description')->value ?? '' }}</textarea></div>
+                        </div>
+
+                        <h3 class="text-md font-bold mt-8 mb-4 border-b pb-2">Estatísticas</h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div><label class="text-xs text-gray-500 uppercase">Label Atletas</label><input type="text" name="settings[stats_athletes_label]" value="{{ $settings->firstWhere('key', 'stats_athletes_label')->value ?? 'Atletas Ativos' }}" class="w-full p-2 border rounded-lg text-sm"></div>
+                            <div><label class="text-xs text-gray-500 uppercase">Label História</label><input type="text" name="settings[stats_history_label]" value="{{ $settings->firstWhere('key', 'stats_history_label')->value ?? 'Anos de História' }}" class="w-full p-2 border rounded-lg text-sm"></div>
+                            <div><label class="text-xs text-gray-500 uppercase">Label Categorias</label><input type="text" name="settings[stats_teams_label]" value="{{ $settings->firstWhere('key', 'stats_teams_label')->value ?? 'Categorias' }}" class="w-full p-2 border rounded-lg text-sm"></div>
+                            <div><label class="text-xs text-gray-500 uppercase">Label Títulos</label><input type="text" name="settings[stats_titles_label]" value="{{ $settings->firstWhere('key', 'stats_titles_label')->value ?? 'Títulos Conquistados' }}" class="w-full p-2 border rounded-lg text-sm"></div>
+                        </div>
+
+                        <h3 class="text-md font-bold mt-8 mb-4 border-b pb-2">Seção de Equipes</h3>
+                        <div class="space-y-4">
+                            <div><label class="text-sm font-medium">Título da Seção</label><input type="text" name="settings[teams_section_title]" value="{{ $settings->firstWhere('key', 'teams_section_title')->value ?? 'Nossas Equipes' }}" class="w-full p-2 border rounded-lg"></div>
+                            <div><label class="text-sm font-medium">Subtítulo da Seção</label><textarea name="settings[teams_section_subtitle]" rows="2" class="w-full p-2 border rounded-lg">{{ $settings->firstWhere('key', 'teams_section_subtitle')->value ?? '' }}</textarea></div>
+                        </div>
+
+                        <h3 class="text-md font-bold mt-8 mb-4 border-b pb-2">Metodologia e Diferenciais</h3>
+                        <div class="space-y-4">
+                            <div><label class="text-sm font-medium">Título Principal</label><input type="text" name="settings[methodology_title]" value="{{ $settings->firstWhere('key', 'methodology_title')->value ?? 'Nossa Metodologia' }}" class="w-full p-2 border rounded-lg"></div>
+                            <div><label class="text-sm font-medium">Subtítulo Principal</label><textarea name="settings[methodology_subtitle]" rows="2" class="w-full p-2 border rounded-lg">{{ $settings->firstWhere('key', 'methodology_subtitle')->value ?? '' }}</textarea></div>
+                            
+                            <div class="p-4 bg-gray-50 rounded-lg space-y-3">
+                                <p class="text-xs font-bold uppercase text-gray-500">Diferencial 1</p>
+                                <input type="text" name="settings[feature1_title]" value="{{ $settings->firstWhere('key', 'feature1_title')->value ?? 'Treinamento com IA' }}" placeholder="Título" class="w-full p-2 border rounded-lg text-sm">
+                                <textarea name="settings[feature1_text]" rows="2" placeholder="Descrição" class="w-full p-2 border rounded-lg text-sm">{{ $settings->firstWhere('key', 'feature1_text')->value ?? '' }}</textarea>
+                            </div>
+
+                            <div class="p-4 bg-gray-50 rounded-lg space-y-3">
+                                <p class="text-xs font-bold uppercase text-gray-500">Diferencial 2</p>
+                                <input type="text" name="settings[feature2_title]" value="{{ $settings->firstWhere('key', 'feature2_title')->value ?? 'Monitoramento Real' }}" placeholder="Título" class="w-full p-2 border rounded-lg text-sm">
+                                <textarea name="settings[feature2_text]" rows="2" placeholder="Descrição" class="w-full p-2 border rounded-lg text-sm">{{ $settings->firstWhere('key', 'feature2_text')->value ?? '' }}</textarea>
+                            </div>
+
+                            <div class="p-4 bg-gray-50 rounded-lg space-y-3">
+                                <p class="text-xs font-bold uppercase text-gray-500">Diferencial 3</p>
+                                <input type="text" name="settings[feature3_title]" value="{{ $settings->firstWhere('key', 'feature3_title')->value ?? 'Nutrição do Amanhã' }}" placeholder="Título" class="w-full p-2 border rounded-lg text-sm">
+                                <textarea name="settings[feature3_text]" rows="2" placeholder="Descrição" class="w-full p-2 border rounded-lg text-sm">{{ $settings->firstWhere('key', 'feature3_text')->value ?? '' }}</textarea>
+                            </div>
+                        </div>
+
+                        <h3 class="text-md font-bold mt-8 mb-4 border-b pb-2">Contato (Rodapé da Home)</h3>
+                        <div class="space-y-4">
+                            <div><label class="text-sm font-medium">Título</label><input type="text" name="settings[contact_title]" value="{{ $settings->firstWhere('key', 'contact_title')->value ?? 'Fale Conosco' }}" class="w-full p-2 border rounded-lg"></div>
+                            <div><label class="text-sm font-medium">Subtítulo</label><textarea name="settings[contact_subtitle]" rows="2" class="w-full p-2 border rounded-lg">{{ $settings->firstWhere('key', 'contact_subtitle')->value ?? '' }}</textarea></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Sobre -->
+                <div id="content-sobre" class="tab-content hidden space-y-6">
+                    <div class="bg-white shadow rounded-lg p-6">
+                        <h3 class="text-md font-bold mb-4 border-b pb-2">Seção Hero (Topo)</h3>
+                        <div class="space-y-4">
+                            <div><label class="text-sm font-medium">Banner Superior</label><input type="file" name="settings[site_hero_image]" class="w-full border p-2 rounded-lg text-sm"></div>
+                            <div><label class="text-sm font-medium">Título da Página</label><input type="text" name="settings[about_page_title]" value="{{ $settings->firstWhere('key', 'about_page_title')->value ?? 'Sobre Nós' }}" class="w-full p-2 border rounded-lg"></div>
+                            <div><label class="text-sm font-medium">Descrição</label><textarea name="settings[site_description]" rows="2" class="w-full p-2 border rounded-lg">{{ $settings->firstWhere('key', 'site_description')->value ?? '' }}</textarea></div>
+                        </div>
+
+                        <h3 class="text-md font-bold mt-8 mb-4 border-b pb-2">Nossa História</h3>
+                        <div class="space-y-4">
+                            <div><label class="text-sm font-medium">Título</label><input type="text" id="about_title" name="settings[about_title]" value="{{ $settings->firstWhere('key', 'about_title')->value ?? 'Um Legado' }}" oninput="updatePreview()" class="w-full p-2 border rounded-lg"></div>
+                            <div><label class="text-sm font-medium">Subtítulo</label><input type="text" id="about_subtitle" name="settings[about_subtitle]" value="{{ $settings->firstWhere('key', 'about_subtitle')->value ?? 'em cada jogada.' }}" oninput="updatePreview()" class="w-full p-2 border rounded-lg"></div>
+                            <div><label class="text-sm font-medium">História</label><textarea name="settings[about_history]" rows="3" class="w-full border p-2 rounded-lg">{{ $settings->firstWhere('key', 'about_history')->value ?? '' }}</textarea></div>
+                            <div><label class="text-sm font-medium">Frase de Efeito (Citação)</label><textarea name="settings[about_quote]" rows="2" class="w-full border p-2 rounded-lg">{{ $settings->firstWhere('key', 'about_quote')->value ?? '' }}</textarea></div>
+                            <div><label class="text-sm font-medium">Missão/Visão</label><textarea name="settings[about_mission]" rows="3" class="w-full border p-2 rounded-lg">{{ $settings->firstWhere('key', 'about_mission')->value ?? '' }}</textarea></div>
+                            <div><label class="text-sm font-medium">Imagem Lateral</label><input type="file" name="settings[about_image]" class="w-full border p-2 rounded-lg text-sm"></div>
+                        </div>
+
+                        <h3 class="text-md font-bold mt-8 mb-4 border-b pb-2">Nossos Pilares</h3>
+                        <div class="space-y-6">
+                            <div class="p-4 bg-gray-50 rounded-lg space-y-3">
+                                <p class="text-xs font-bold uppercase text-gray-500">Pilar 1</p>
+                                <input type="text" name="settings[about_pillar1_title]" value="{{ $settings->firstWhere('key', 'about_pillar1_title')->value ?? 'Transparência' }}" placeholder="Título" class="w-full p-2 border rounded-lg text-sm">
+                                <textarea name="settings[about_pillar1_text]" rows="2" placeholder="Descrição" class="w-full p-2 border rounded-lg text-sm">{{ $settings->firstWhere('key', 'about_pillar1_text')->value ?? '' }}</textarea>
+                            </div>
+                            <div class="p-4 bg-gray-50 rounded-lg space-y-3">
+                                <p class="text-xs font-bold uppercase text-gray-500">Pilar 2</p>
+                                <input type="text" name="settings[about_pillar2_title]" value="{{ $settings->firstWhere('key', 'about_pillar2_title')->value ?? 'Inovação' }}" placeholder="Título" class="w-full p-2 border rounded-lg text-sm">
+                                <textarea name="settings[about_pillar2_text]" rows="2" placeholder="Descrição" class="w-full p-2 border rounded-lg text-sm">{{ $settings->firstWhere('key', 'about_pillar2_text')->value ?? '' }}</textarea>
+                            </div>
+                            <div class="p-4 bg-gray-50 rounded-lg space-y-3">
+                                <p class="text-xs font-bold uppercase text-gray-500">Pilar 3</p>
+                                <input type="text" name="settings[about_pillar3_title]" value="{{ $settings->firstWhere('key', 'about_pillar3_title')->value ?? 'Família' }}" placeholder="Título" class="w-full p-2 border rounded-lg text-sm">
+                                <textarea name="settings[about_pillar3_text]" rows="2" placeholder="Descrição" class="w-full p-2 border rounded-lg text-sm">{{ $settings->firstWhere('key', 'about_pillar3_text')->value ?? '' }}</textarea>
+                            </div>
+                        </div>
+
+                        <h3 class="text-md font-bold mt-8 mb-4 border-b pb-2">Chamada para Ação (CTA)</h3>
+                        <div class="space-y-4">
+                            <div><label class="text-sm font-medium">Título do CTA</label><input type="text" name="settings[about_cta_title]" value="{{ $settings->firstWhere('key', 'about_cta_title')->value ?? 'Pronto para escrever sua história?' }}" class="w-full p-2 border rounded-lg"></div>
+                            <div><label class="text-sm font-medium">Texto do CTA</label><textarea name="settings[about_cta_text]" rows="2" class="w-full p-2 border rounded-lg">{{ $settings->firstWhere('key', 'about_cta_text')->value ?? '' }}</textarea></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabs: Atletas, Equipes, Loja -->
+                <div id="content-atletas" class="tab-content hidden space-y-6"><div class="bg-white shadow p-6 rounded-lg">
+                    <div class="mb-2 h-24 w-full bg-gray-50 border rounded flex items-center justify-center overflow-hidden" id="athletes-banner-preview">
+                        <img src="{{ $settings->firstWhere('key', 'athletes_banner') ? Storage::url($settings->firstWhere('key', 'athletes_banner')->value) : '' }}" class="w-full h-full object-cover {{ $settings->firstWhere('key', 'athletes_banner') ? '' : 'hidden' }}">
+                        @if(!$settings->firstWhere('key', 'athletes_banner'))
+                            <span class="text-xs text-gray-400">Sem imagem</span>
+                        @endif
+                    </div>
+                    <input type="file" name="settings[athletes_banner]" onchange="handleImageUpload(this, 'athletes-banner-preview')" class="w-full border p-2 mb-4 rounded-lg text-sm">
+                    <input type="text" id="athletes_title" name="settings[athletes_title]" value="{{ $settings->firstWhere('key', 'athletes_title')->value ?? '' }}" oninput="updatePreview()" placeholder="Título" class="w-full border p-2 mb-4 rounded-lg">
+                    <textarea id="athletes_subtitle" name="settings[athletes_subtitle]" rows="2" oninput="updatePreview()" placeholder="Subtítulo" class="w-full border p-2 mb-4 rounded-lg text-sm">{{ $settings->firstWhere('key', 'athletes_subtitle')->value ?? '' }}</textarea>
+                    <textarea name="settings[athletes_description]" rows="3" placeholder="Texto de Descrição" class="w-full border p-2 rounded-lg text-sm">{{ $settings->firstWhere('key', 'athletes_description')->value ?? '' }}</textarea>
+                </div></div>
+                <div id="content-equipes" class="tab-content hidden space-y-6"><div class="bg-white shadow p-6 rounded-lg">
+                    <div class="mb-2 h-24 w-full bg-gray-50 border rounded flex items-center justify-center overflow-hidden" id="teams-banner-preview">
+                        <img src="{{ $settings->firstWhere('key', 'teams_banner') ? Storage::url($settings->firstWhere('key', 'teams_banner')->value) : '' }}" class="w-full h-full object-cover {{ $settings->firstWhere('key', 'teams_banner') ? '' : 'hidden' }}">
+                        @if(!$settings->firstWhere('key', 'teams_banner'))
+                            <span class="text-xs text-gray-400">Sem imagem</span>
+                        @endif
+                    </div>
+                    <input type="file" name="settings[teams_banner]" onchange="handleImageUpload(this, 'teams-banner-preview')" class="w-full border p-2 mb-4 rounded-lg text-sm">
+                    <input type="text" id="teams_title" name="settings[teams_title]" value="{{ $settings->firstWhere('key', 'teams_title')->value ?? '' }}" oninput="updatePreview()" placeholder="Título" class="w-full border p-2 mb-4 rounded-lg">
+                    <textarea id="teams_subtitle" name="settings[teams_subtitle]" rows="2" oninput="updatePreview()" placeholder="Subtítulo" class="w-full border p-2 mb-4 rounded-lg text-sm">{{ $settings->firstWhere('key', 'teams_subtitle')->value ?? '' }}</textarea>
+                    <textarea name="settings[teams_description]" rows="3" placeholder="Texto de Descrição" class="w-full border p-2 rounded-lg text-sm">{{ $settings->firstWhere('key', 'teams_description')->value ?? '' }}</textarea>
+                </div></div>
+                <div id="content-loja" class="tab-content hidden space-y-6"><div class="bg-white shadow p-6 rounded-lg">
+                    <div class="mb-2 h-24 w-full bg-gray-50 border rounded flex items-center justify-center overflow-hidden" id="store-banner-preview">
+                        <img src="{{ $settings->firstWhere('key', 'store_banner') ? Storage::url($settings->firstWhere('key', 'store_banner')->value) : '' }}" class="w-full h-full object-cover {{ $settings->firstWhere('key', 'store_banner') ? '' : 'hidden' }}">
+                        @if(!$settings->firstWhere('key', 'store_banner'))
+                            <span class="text-xs text-gray-400">Sem imagem</span>
+                        @endif
+                    </div>
+                    <input type="file" name="settings[store_banner]" onchange="handleImageUpload(this, 'store-banner-preview')" class="w-full border p-2 mb-4 rounded-lg text-sm">
+                    <input type="text" id="store_title" name="settings[store_title]" value="{{ $settings->firstWhere('key', 'store_title')->value ?? '' }}" oninput="updatePreview()" placeholder="Título" class="w-full border p-2 mb-4 rounded-lg">
+                    <textarea id="store_subtitle" name="settings[store_subtitle]" rows="2" oninput="updatePreview()" placeholder="Subtítulo" class="w-full border p-2 mb-4 rounded-lg text-sm">{{ $settings->firstWhere('key', 'store_subtitle')->value ?? '' }}</textarea>
+                    <textarea name="settings[store_description]" rows="3" placeholder="Texto de Descrição" class="w-full border p-2 rounded-lg text-sm">{{ $settings->firstWhere('key', 'store_description')->value ?? '' }}</textarea>
+                </div></div>
+
+                <div id="content-dominio" class="tab-content hidden space-y-6">
+                    <div class="bg-white shadow p-6 rounded-lg">
+                        <h2 class="text-lg font-bold mb-4">Domínio Customizado</h2>
+                        <p class="text-sm text-gray-600 mb-6">Aponte seu domínio próprio para o nosso sistema.</p>
+                        
+                        <div class="space-y-6">
+                            <div class="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                                <h3 class="text-xs font-bold uppercase text-blue-800 mb-2">Instruções de Apontamento</h3>
+                                <p class="text-xs text-blue-700 leading-relaxed">
+                                    Para usar seu domínio próprio, você deve criar um registro <strong>CNAME</strong> na sua zona de DNS:
+                                    <br><br>
+                                    <strong>Tipo:</strong> CNAME<br>
+                                    <strong>Nome:</strong> @ (ou seu subdomínio)<br>
+                                    <strong>Destino:</strong> {{ tenant()->domains()->where('is_primary', true)->first()->domain ?? 'seu-subdominio.dominio.com' }}
+                                </p>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Seu Domínio</label>
+                                <div class="flex">
+                                    <span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">https://</span>
+                                    <input type="text" name="settings[custom_domain]" value="{{ $customDomain->domain ?? '' }}" class="flex-1 block w-full rounded-none rounded-r-md sm:text-sm border-gray-300 border p-2" placeholder="Ex: www.meuclube.com.br">
+                                </div>
+                                <p class="text-[10px] text-gray-500 mt-1 italic">Não inclua http:// ou https:// no campo acima.</p>
+                            </div>
+
+                            @if($customDomain)
+                            <div class="flex items-center space-x-2 text-sm">
+                                <span class="flex-shrink-0 h-2 w-2 rounded-full {{ $customDomain->is_verified ? 'bg-green-400' : 'bg-yellow-400' }}"></span>
+                                <span class="{{ $customDomain->is_verified ? 'text-green-700' : 'text-yellow-700' }}">
+                                    Status: {{ $customDomain->is_verified ? 'Verificado e Ativo' : 'Aguardando Apontamento/Propagação' }}
                                 </span>
                             </div>
+                            @endif
                         </div>
                     </div>
+                </div>
 
-                    <!-- Hero Section Preview -->
-                    <div id="preview-hero" class="p-8 text-center text-white" style="background: linear-gradient(to right, var(--preview-primary, #2563eb), var(--preview-secondary, #16a34a));">
-                        <h1 id="preview-banner-title" class="text-3xl font-bold mb-4">
-                            {{ $settings->firstWhere('key', 'banner_title')->value ?? 'Bem-vindo ao Nosso Clube' }}
-                        </h1>
-                        <p id="preview-banner-subtitle" class="text-lg opacity-90">
-                            {{ $settings->firstWhere('key', 'banner_subtitle')->value ?? 'Descrição do clube' }}
-                        </p>
+                <div id="content-financeiro" class="tab-content hidden space-y-6">
+                    <div class="bg-white shadow p-6 rounded-lg">
+                        <h2 class="text-lg font-bold mb-4 text-red-600">Configurações de Pagamento (Asaas)</h2>
+                        <p class="text-sm text-gray-600 mb-6">Configure aqui sua integração com o Asaas para receber os pagamentos da sua loja e mensalidades.</p>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Chave de API do Asaas (Tenant)</label>
+                                <input type="password" name="settings[asaas_api_key]" value="{{ $settings->firstWhere('key', 'asaas_api_key')->value ?? '' }}" class="w-full p-2 border rounded-lg focus:ring-red-500" placeholder="Ex: $aact_...">
+                                <p class="text-[10px] text-gray-500 mt-1 italic">Cole aqui a sua chave de API gerada no painel do Asaas.</p>
+                            </div>
+
+                            <div class="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                                <h3 class="text-xs font-bold uppercase text-blue-800 mb-2">Sobre o Split de Pagamentos</h3>
+                                <p class="text-xs text-blue-700">A plataforma está configurada para cobrar uma taxa administrativa automática sobre cada venda. O valor líquido irá diretamente para sua conta Asaas após o desconto da taxa da plataforma.</p>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium mb-1 text-gray-400">ID da Carteira Platform (Somente Leitura)</label>
+                                <input type="text" value="{{ config('services.asaas.wallet_id') }}" disabled class="w-full p-2 border rounded-lg bg-gray-50 text-gray-400 cursor-not-allowed text-xs">
+                            </div>
+                        </div>
                     </div>
+                </div>
 
-                    <!-- Content Preview -->
-                    <div class="p-6 space-y-4">
-                        <div>
-                            <h3 class="text-sm font-medium text-gray-500 mb-2">Descrição do Site</h3>
-                            <p id="preview-description" class="text-gray-700 text-sm">
-                                {{ $settings->firstWhere('key', 'site_description')->value ?? 'Descrição do clube aparecerá aqui' }}
-                            </p>
+            </div>
+
+            <!-- Preview Panel -->
+            <div class="lg:sticky lg:top-6 lg:h-[calc(100vh-2rem)]">
+                <div class="bg-white shadow rounded-lg p-6 border-2 border-blue-50 h-full flex flex-col">
+                    <h2 class="text-lg font-semibold mb-4">Preview</h2>
+                    <div id="live-preview" class="flex-1 border-4 border-gray-800 rounded-3xl overflow-hidden bg-white shadow-2xl scale-[0.9] origin-top">
+                        <div class="bg-white border-b p-3 flex items-center space-x-2">
+                            <div id="preview-logo" class="h-5 w-5 bg-gray-100 rounded"></div>
+                            <span id="preview-site-name" class="text-[10px] font-bold" style="color: var(--preview-primary, #2563eb);">{{ $settings->firstWhere('key', 'site_name')->value ?? 'Clube' }}</span>
                         </div>
-
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="p-4 rounded-lg" style="background-color: var(--preview-primary, #2563eb); opacity: 0.1;">
-                                <div class="text-2xl font-bold mb-1" style="color: var(--preview-primary, #2563eb);">247</div>
-                                <div class="text-xs text-gray-600">Atletas</div>
-                            </div>
-                            <div class="p-4 rounded-lg" style="background-color: var(--preview-secondary, #16a34a); opacity: 0.1;">
-                                <div class="text-2xl font-bold mb-1" style="color: var(--preview-secondary, #16a34a);">15</div>
-                                <div class="text-xs text-gray-600">Anos</div>
-                            </div>
+                        <div id="preview-hero" class="p-6 text-center text-white h-40 flex flex-col justify-center" style="background: linear-gradient(to right, var(--preview-primary, #2563eb), var(--preview-secondary, #16a34a));">
+                            <h1 id="preview-banner-title" class="text-sm font-bold">{{ $settings->firstWhere('key', 'banner_title')->value ?? 'Bem-vindo' }}</h1>
+                            <p id="preview-banner-subtitle" class="text-[7px] opacity-90 line-clamp-2">{{ $settings->firstWhere('key', 'banner_subtitle')->value ?? 'Descrição' }}</p>
                         </div>
-
-                        <!-- Contact Preview -->
-                        <div class="border-t border-gray-200 pt-4">
-                            <h3 class="text-sm font-medium text-gray-500 mb-3">Informações de Contato</h3>
-                            <div class="space-y-2 text-sm">
-                                <div id="preview-phone" class="text-gray-700">
-                                    📞 {{ $settings->firstWhere('key', 'contact_phone')->value ?? '(00) 0000-0000' }}
-                                </div>
-                                <div id="preview-email" class="text-gray-700">
-                                    ✉️ {{ $settings->firstWhere('key', 'contact_email')->value ?? 'contato@clube.com' }}
-                                </div>
-                                <div id="preview-address" class="text-gray-700">
-                                    📍 {{ $settings->firstWhere('key', 'contact_address')->value ?? 'Endereço do clube' }}
-                                </div>
+                        <div class="p-4 space-y-3 bg-gray-50 h-full">
+                            <div class="h-1.5 w-16 bg-gray-200 rounded"></div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <div class="h-12 bg-white rounded shadow-sm border border-gray-100"></div>
+                                <div class="h-12 bg-white rounded shadow-sm border border-gray-100"></div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </form>
 </div>
 
-<form id="settings-form" method="POST" action="{{ route('site.update') }}" enctype="multipart/form-data" style="display: none;">
-    @csrf
-    <div id="form-fields"></div>
-</form>
+<script src="{{ global_asset('js/site-editor.js') }}"></script>
+<script>
+    function switchTab(tab) {
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('border-blue-500', 'text-blue-600');
+            btn.classList.add('border-transparent', 'text-gray-500');
+        });
+        document.getElementById('tab-' + tab).classList.add('border-blue-500', 'text-blue-600');
+        document.getElementById('tab-' + tab).classList.remove('border-transparent', 'text-gray-500');
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
+        document.getElementById('content-' + tab).classList.remove('hidden');
+        
+        // Trigger preview update when tab changes
+        if (typeof updatePreview === 'function') {
+            updatePreview();
+        }
+    }
 
-<script src="{{ asset('js/site-editor.js') }}"></script>
+    function syncColor(textInput, colorInputId) {
+        const colorInput = document.getElementById(colorInputId);
+        if (colorInput && /^#[0-9A-F]{6}$/i.test(textInput.value)) {
+            colorInput.value = textInput.value;
+            updatePreview();
+        }
+    }
+</script>
 @endsection
-

@@ -29,10 +29,10 @@
         <!-- Main Info -->
         <div class="lg:col-span-2 space-y-6">
             <!-- Product Image -->
-            <div class="bg-white shadow rounded-lg p-6">
-                <img src="{{ $product->image ? asset('storage/' . $product->image) : 'https://via.placeholder.com/600x400?text=' . urlencode($product->name) }}" 
+            <div class="bg-white shadow rounded-lg p-6 flex justify-center">
+                <img src="{{ $product->image_url }}" 
                      alt="{{ $product->name }}" 
-                     class="w-full h-96 object-cover rounded-lg">
+                     class="max-w-full h-96 object-contain rounded-lg">
             </div>
 
             <!-- Description -->

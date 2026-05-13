@@ -49,7 +49,7 @@ class Branch extends Model
      */
     public function teams()
     {
-        return $this->hasManyThrough(Team::class, Athlete::class);
+        return $this->hasMany(Team::class);
     }
 
     /**

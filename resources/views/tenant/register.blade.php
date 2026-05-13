@@ -46,9 +46,34 @@
             </div>
         </div>
 
+        <!-- Global Errors -->
+        @if($errors->any())
+            <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-8 rounded-r-lg shadow-sm">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-red-800">Foram encontrados erros no seu cadastro:</h3>
+                        <div class="mt-2 text-sm text-red-700">
+                            <ul class="list-disc pl-5 space-y-1">
+                                @foreach($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <!-- Form -->
         <form id="tenant-registration-form" method="POST" action="{{ route('tenant.register.store') }}" class="bg-white rounded-lg shadow-xl p-8">
             @csrf
+            <input type="hidden" name="current_step" id="current_step_input" value="{{ old('current_step', 1) }}">
+            <input type="hidden" name="plan_id" id="plan_id" value="{{ old('plan_id', $selectedPlanId ?? '') }}" required>
 
             <!-- Step 1: Admin Data -->
             <div class="step-content" data-step="1">
@@ -86,6 +111,40 @@
                         @error('admin_email')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="admin_phone" class="block text-sm font-medium text-gray-700 mb-2">
+                                Telefone/WhatsApp <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" 
+                                   name="admin_phone" 
+                                   id="admin_phone" 
+                                   value="{{ old('admin_phone') }}" 
+                                   required
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('admin_phone') border-red-500 @enderror"
+                                   placeholder="(00) 00000-0000">
+                            @error('admin_phone')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="admin_cpf_cnpj" class="block text-sm font-medium text-gray-700 mb-2">
+                                CPF ou CNPJ <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" 
+                                   name="admin_cpf_cnpj" 
+                                   id="admin_cpf_cnpj" 
+                                   value="{{ old('admin_cpf_cnpj') }}" 
+                                   required
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('admin_cpf_cnpj') border-red-500 @enderror"
+                                   placeholder="000.000.000-00">
+                            @error('admin_cpf_cnpj')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -165,7 +224,7 @@
                                    class="flex-1 px-4 py-3 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('subdomain') border-red-500 @enderror"
                                    placeholder="meuclube">
                             <span class="px-4 py-3 bg-gray-100 border border-l-0 border-gray-300 rounded-r-lg text-gray-600">
-                                .{{ config('tenancy.central_domains')[0] ?? 'meuclube.app' }}
+                                .{{ request()->getHost() }}
                             </span>
                         </div>
                         <div id="subdomain-feedback" class="mt-2 text-sm"></div>
@@ -237,7 +296,7 @@
                     @endforeach
                 </div>
 
-                <input type="hidden" name="plan_id" id="plan_id" value="{{ old('plan_id') }}" required>
+                {{-- Input hidden plan_id movido para o topo do form para consistência --}}
 
                 <div class="mt-6">
                     <label class="flex items-center">
@@ -320,6 +379,14 @@
                         Finalizar Cadastro
                     </button>
                 </div>
+            </div>
+
+            <!-- Login Link -->
+            <div class="mt-8 pt-6 border-t border-gray-100 text-center">
+                <p class="text-gray-600">
+                    Já tem uma conta de clube? 
+                    <a href="{{ route('login') }}" class="text-blue-600 font-bold hover:underline">Faça login aqui</a>
+                </p>
             </div>
         </form>
     </div>

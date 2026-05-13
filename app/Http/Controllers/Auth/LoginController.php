@@ -33,17 +33,16 @@ class LoginController extends Controller
         $remember = $request->boolean('remember');
 
         if (Auth::attempt($credentials, $remember)) {
+            $user = Auth::user();
+            \Log::info('Login success', ['email' => $user->email, 'id' => $user->id, 'tenant' => tenant('id')]);
+            
             $request->session()->regenerate();
-
-            // Log the login
-            // activity()
-            //     ->causedBy(Auth::user())
-            //     ->log('User logged in');
-
-            // Redireciona baseado no role do usuário
-            return CheckRole::redirectByRole();
+            
+            return CheckRole::redirectByRole($user);
         }
 
+        \Log::warning('Login failed', ['email' => $request->email, 'tenant' => tenant('id')]);
+        
         throw ValidationException::withMessages([
             'email' => [trans('auth.failed')],
         ]);
@@ -65,5 +64,29 @@ class LoginController extends Controller
         $request->session()->regenerateToken();
 
         return redirect()->route('login');
+    }
+
+    /**
+     * Impersonate a tenant user (usually admin).
+     */
+    public function impersonate(Request $request)
+    {
+        if (!$request->hasValidSignature()) {
+            abort(403, 'Link de impersonação inválido ou expirado.');
+        }
+
+        // Find the first admin user in this tenant
+        $user = \App\Models\User::where('role', 'admin')->first();
+
+        if (!$user) {
+            abort(404, 'Nenhum administrador encontrado para este clube.');
+        }
+
+        Auth::login($user);
+        
+        $request->session()->put('impersonated_by', $request->admin_id);
+        $request->session()->regenerate();
+
+        return redirect()->route('dashboard')->with('success', 'Você está personificando ' . $user->name);
     }
 }

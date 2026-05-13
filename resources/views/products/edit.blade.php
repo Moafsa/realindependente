@@ -98,6 +98,27 @@
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
                     </div>
+
+                    <div id="cycle-field" style="display: none;">
+                        <label for="cycle" class="block text-sm font-medium text-gray-700 mb-2">
+                            Ciclo de Cobrança <span class="text-red-500">*</span>
+                        </label>
+                        @php
+                            $currentCycle = old('cycle', $product->attributes['cycle'] ?? '');
+                        @endphp
+                        <select name="cycle" 
+                                id="cycle" 
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('cycle') border-red-500 @enderror">
+                            <option value="">Selecione...</option>
+                            <option value="MONTHLY" {{ $currentCycle === 'MONTHLY' ? 'selected' : '' }}>Mensal</option>
+                            <option value="QUARTERLY" {{ $currentCycle === 'QUARTERLY' ? 'selected' : '' }}>Trimestral</option>
+                            <option value="SEMIANNUALLY" {{ $currentCycle === 'SEMIANNUALLY' ? 'selected' : '' }}>Semestral</option>
+                            <option value="YEARLY" {{ $currentCycle === 'YEARLY' ? 'selected' : '' }}>Anual</option>
+                        </select>
+                        @error('cycle')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
                 </div>
             </div>
 
@@ -122,7 +143,7 @@
                 </label>
                 @if($product->image)
                 <div class="mb-4">
-                    <img src="{{ asset('storage/' . $product->image) }}" 
+                    <img src="{{ $product->image_url }}" 
                          alt="{{ $product->name }}" 
                          class="h-32 w-32 object-cover rounded-lg border border-gray-300">
                     <p class="text-sm text-gray-500 mt-2">Imagem atual</p>
@@ -201,15 +222,25 @@
         }
     });
 
-    // Show/hide stock field based on type
+    // Show/hide stock field and cycle field based on type
     document.getElementById('type').addEventListener('change', function() {
         const type = this.value;
         const stockField = document.getElementById('stock-field');
+        const cycleField = document.getElementById('cycle-field');
+        
         if (type === 'service' || type === 'subscription') {
             stockField.style.display = 'none';
             document.getElementById('stock_quantity').value = '';
         } else {
             stockField.style.display = 'block';
+        }
+
+        if (type === 'subscription') {
+            cycleField.style.display = 'block';
+            document.getElementById('cycle').required = true;
+        } else {
+            cycleField.style.display = 'none';
+            document.getElementById('cycle').required = false;
         }
     });
 
@@ -217,8 +248,15 @@
     document.addEventListener('DOMContentLoaded', function() {
         const type = document.getElementById('type').value;
         const stockField = document.getElementById('stock-field');
+        const cycleField = document.getElementById('cycle-field');
+        
         if (type === 'service' || type === 'subscription') {
             stockField.style.display = 'none';
+        }
+        
+        if (type === 'subscription') {
+            cycleField.style.display = 'block';
+            document.getElementById('cycle').required = true;
         }
     });
 </script>

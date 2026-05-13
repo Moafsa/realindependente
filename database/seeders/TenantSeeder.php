@@ -26,7 +26,7 @@ class TenantSeeder extends Seeder
             'id' => 'demo-club-001',
             'name' => 'Real Independent Club',
             'email' => 'admin@realindependent.com',
-            'domain' => 'demo.realindependent.com',
+            'domain' => 'demo.localhost',
             'plan_id' => $plan->id,
             'data' => json_encode([
                 'club_name' => 'Real Independent Club',
@@ -51,7 +51,7 @@ class TenantSeeder extends Seeder
 
         // Create domain for the tenant
         Domain::create([
-            'domain' => 'demo.realindependent.com',
+            'domain' => 'demo.localhost',
             'tenant_id' => $tenant->id,
             'is_primary' => true,
             'is_verified' => true,

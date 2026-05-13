@@ -10,6 +10,8 @@ class Domain extends BaseDomain
 {
     use HasFactory;
 
+    protected $connection = 'pgsql';
+
     protected $fillable = [
         'domain',
         'tenant_id',

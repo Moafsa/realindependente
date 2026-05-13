@@ -6,7 +6,8 @@
 (function() {
     'use strict';
 
-    let currentStep = 1;
+    const stepInput = document.getElementById('current_step_input');
+    let currentStep = stepInput ? parseInt(stepInput.value) : 1;
     const totalSteps = 4;
 
     // Initialize on DOM ready
@@ -22,22 +23,23 @@
      * Initialize form state
      */
     function initializeForm() {
-        // Check if there's a plan in URL
+        // Check if there's a plan in URL or passed from controller
         const urlParams = new URLSearchParams(window.location.search);
-        const planId = urlParams.get('plan');
+        const planId = urlParams.get('plan') || document.getElementById('plan_id')?.value;
+        
         if (planId) {
-            // Auto-select plan and go to step 3
+            // Auto-select plan but STAY on step 1
             setTimeout(() => {
                 const planCard = document.querySelector(`[data-plan-id="${planId}"]`);
                 if (planCard) {
                     selectPlan(planId);
-                    goToStep(3);
+                    // goToStep(3); // REMOVED: Do not skip steps 1 and 2
                 }
             }, 100);
         }
 
-        // Show first step
-        showStep(1);
+        // Show current step
+        showStep(currentStep);
     }
 
     /**
@@ -85,6 +87,9 @@
 
         // Update current step
         currentStep = step;
+        if (stepInput) {
+            stepInput.value = step;
+        }
 
         // Update summary if on last step
         if (step === 4) {
@@ -234,7 +239,11 @@
                 subdomainInput.classList.remove('border-red-500');
                 subdomainInput.classList.add('border-green-500');
             } else {
-                feedback.innerHTML = `<span class="text-red-600">✗ ${data.message || 'Subdomínio não disponível'}</span>`;
+                feedback.innerHTML = '';
+                const errorSpan = document.createElement('span');
+                errorSpan.className = 'text-red-600';
+                errorSpan.textContent = `✗ ${data.message || 'Subdomínio não disponível'}`;
+                feedback.appendChild(errorSpan);
                 subdomainInput.classList.remove('border-green-500');
                 subdomainInput.classList.add('border-red-500');
             }
@@ -333,8 +342,8 @@
      * Get central domain from config
      */
     function getCentralDomain() {
-        // This should match the domain from config/tenancy.php
-        return 'meuclube.app'; // Default, should be dynamic
+        // Dynamically get the current hostname to match the environment (without port)
+        return window.location.hostname;
     }
 
     /**

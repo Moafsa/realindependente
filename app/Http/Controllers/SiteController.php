@@ -7,6 +7,7 @@ use App\Models\Team;
 use App\Models\Product;
 use App\Models\SiteSetting;
 use App\Models\Order;
+use App\Models\Post;
 use App\Services\AsaasService;
 use App\Services\CartService;
 use Illuminate\Http\Request;
@@ -30,9 +31,55 @@ class SiteController extends Controller
      */
     public function home()
     {
-        // For now, return a simple view without database queries
-        // until all migrations are complete
-        return view('site.home');
+        try {
+            // Contagem de atletas ativos
+            $athletesCount = Athlete::where('is_active', true)->count();
+            
+            // Contagem de categorias únicas
+            $categoriesCount = Team::where('is_active', true)->distinct('category')->count('category');
+            
+            // Lista de categorias com soma de atletas
+            $teams = Team::withCount('athletes')
+                ->where('is_active', true)
+                ->get()
+                ->groupBy('category')
+                ->map(function($categoryTeams, $category) {
+                    $firstTeam = $categoryTeams->first();
+                    return (object)[
+                        'id' => $firstTeam->id, // Mantemos o ID do primeiro time para o link por enquanto
+                        'name' => $category, // O nome principal agora é a Categoria
+                        'category' => $category,
+                        'athletes_count' => $categoryTeams->sum('athletes_count'),
+                        'level' => $firstTeam->level,
+                        'description' => $firstTeam->description,
+                    ];
+                })->values();
+                
+            // Estatísticas para a home
+            $stats = [
+                'athletes' => $athletesCount,
+                'teams' => $categoriesCount, // Agora mostra o número real de categorias
+                'history_years' => SiteSetting::get('history_years', 10),
+                'titles' => SiteSetting::get('titles_count', 0),
+            ];
+
+            // Últimos posts do blog
+            $latestPosts = Post::published()->limit(3)->get();
+
+            return view('site.home', compact('teams', 'stats', 'latestPosts'));
+        } catch (\Exception $e) {
+            // Fallback em caso de erro (ex: banco não migrado)
+            Log::error('SiteController@home: ' . $e->getMessage());
+            return view('site.home', [
+                'teams' => collect([]),
+                'stats' => [
+                    'athletes' => 0,
+                    'teams' => 0,
+                    'history_years' => 0,
+                    'titles' => 0,
+                ]
+            ]);
+        }
     }
 
     /**
@@ -51,10 +98,24 @@ class SiteController extends Controller
     public function teams()
     {
         try {
-            $teams = Team::withCount('athletes')
+            $teams = Team::with('coach')->withCount('athletes')
                 ->where('is_active', true)
-                ->orderBy('name')
-                ->get();
+                ->get()
+                ->groupBy('category')
+                ->map(function($categoryTeams, $category) {
+                    $firstTeam = $categoryTeams->first();
+                    return (object)[
+                        'id' => $firstTeam->id,
+                        'name' => $category,
+                        'category' => $category,
+                        'athletes_count' => $categoryTeams->sum('athletes_count'),
+                        'level' => $firstTeam->level,
+                        'description' => $firstTeam->description,
+                        'logo' => $firstTeam->logo,
+                        'color_primary' => $firstTeam->color_primary,
+                        'coach' => $firstTeam->coach,
+                    ];
+                })->values();
         } catch (\Exception $e) {
             // Se não houver tenant ativo ou tabela não existir, retornar array vazio
             $teams = collect([]);
@@ -79,6 +140,31 @@ class SiteController extends Controller
         }
 
         return view('site.team', compact('team', 'athletes'));
+    }
+
+    /**
+     * Show coaches page.
+     */
+    public function coaches()
+    {
+        $coaches = \App\Models\User::where('role', 'coach')
+            ->where('is_active', true)
+            ->with('teams')
+            ->get();
+        
+        return view('site.coaches', compact('coaches'));
+    }
+
+    /**
+     * Show single coach page.
+     */
+    public function coach($id)
+    {
+        $coach = \App\Models\User::where('role', 'coach')
+            ->with(['teams.athletes'])
+            ->findOrFail($id);
+            
+        return view('site.coach_details', compact('coach'));
     }
 
     /**
@@ -111,11 +197,26 @@ class SiteController extends Controller
     {
         try {
             $athlete = Athlete::with(['team', 'branch'])->findOrFail($id);
+            
+            $performanceRecords = $athlete->performanceRecords()
+                ->orderBy('recorded_at', 'asc')
+                ->get();
+                
+            // Group for chart
+            $chartData = $performanceRecords->groupBy('metric')->map(function($records) {
+                return $records->map(function($r) {
+                    return [
+                        'x' => $r->recorded_at->format('Y-m-d'),
+                        'y' => (float)$r->value
+                    ];
+                });
+            });
+
         } catch (\Exception $e) {
             abort(404);
         }
         
-        return view('site.athlete', compact('athlete'));
+        return view('site.athlete', compact('athlete', 'chartData'));
     }
 
     /**
@@ -124,7 +225,8 @@ class SiteController extends Controller
     public function store(Request $request)
     {
         try {
-            $query = Product::where('is_active', true);
+            $query = Product::where('is_active', true)
+                ->where('type', '!=', 'subscription');
 
             // Filter by type
             if ($request->filled('type')) {
@@ -154,6 +256,23 @@ class SiteController extends Controller
     }
 
     /**
+     * Show plans page.
+     */
+    public function plans()
+    {
+        try {
+            $plans = Product::where('is_active', true)
+                ->where('type', 'subscription')
+                ->orderBy('price')
+                ->get();
+        } catch (\Exception $e) {
+            $plans = collect([]);
+        }
+
+        return view('site.plans', compact('plans'));
+    }
+
+    /**
      * Show specific product page.
      */
     public function product(Product $product)
@@ -166,6 +285,34 @@ class SiteController extends Controller
             ->get();
 
         return view('site.product', compact('product', 'relatedProducts'));
+    }
+
+    /**
+     * Handle direct plan subscription.
+     */
+    public function subscribe(Product $product)
+    {
+        if ($product->type !== 'subscription') {
+            return redirect()->route('site.store')->with('error', 'Este produto não é um plano de assinatura.');
+        }
+
+        if (!$product->is_active) {
+            return redirect()->route('site.store')->with('error', 'Este plano não está disponível no momento.');
+        }
+
+        // Clear cart first for subscriptions
+        $this->cartService->clear();
+        $added = $this->cartService->add($product, 1);
+
+        if (!$added) {
+            return redirect()->route('site.store')->with('error', 'Não foi possível adicionar o plano ao carrinho. Verifique se o produto está disponível.');
+        }
+
+        if (!Auth::check()) {
+            return redirect()->route('site.register', ['plan_id' => $product->id]);
+        }
+
+        return redirect()->route('site.checkout');
     }
 
     /**
@@ -264,36 +411,49 @@ class SiteController extends Controller
             'customer_name' => 'required|string|max:255',
             'customer_email' => 'required|email|max:255',
             'customer_phone' => 'required|string|max:20',
+            'customer_document' => 'required|string|max:20',
             'billing_address' => 'required|string|max:500',
         ]);
 
-        $cart = session()->get('cart', []);
+        $items = $this->cartService->getItemsWithProducts();
         
-        if (empty($cart)) {
+        if (empty($items)) {
             return redirect()->route('site.store')->with('error', 'Carrinho vazio.');
         }
 
-        $total = 0;
-        foreach ($cart as $item) {
-            $total += $item['product']->price * $item['quantity'];
-        }
+        $total = $this->cartService->getTotal();
 
         try {
+            $athleteId = null;
+            if (Auth::check()) {
+                $user = Auth::user();
+                if ($user->athlete) {
+                    $athleteId = $user->athlete->id;
+                } elseif ($user->role === 'guardian') {
+                    $firstAthlete = \App\Models\Athlete::where('guardian_email', $user->email)->first();
+                    if ($firstAthlete) {
+                        $athleteId = $firstAthlete->id;
+                    }
+                }
+            }
+
             // Create order
             $order = Order::create([
                 'user_id' => Auth::id(),
+                'athlete_id' => $athleteId,
                 'total_amount' => $total,
                 'status' => 'pending',
                 'billing_address' => [
                     'name' => $request->customer_name,
                     'email' => $request->customer_email,
                     'phone' => $request->customer_phone,
+                    'document' => $request->customer_document,
                     'address' => $request->billing_address,
                 ],
             ]);
 
             // Create order items
-            foreach ($cart as $item) {
+            foreach ($items as $item) {
                 $order->orderItems()->create([
                     'product_id' => $item['product']->id,
                     'quantity' => $item['quantity'],
@@ -312,6 +472,7 @@ class SiteController extends Controller
                     'name' => $request->customer_name,
                     'email' => $request->customer_email,
                     'phone' => $request->customer_phone,
+                    'cpf_cnpj' => $request->customer_document,
                 ];
                 
                 try {
@@ -330,42 +491,115 @@ class SiteController extends Controller
                 }
             }
 
-            // Cria cobrança no Asaas
-            $chargeData = [
-                'customer_id' => $customerId,
-                'value' => $total,
-                'due_date' => now()->addDays(7)->format('Y-m-d'),
-                'description' => "Pedido #{$order->id} - " . implode(', ', array_map(fn($item) => $item['product']->name, $cart)),
-                'external_reference' => "order_{$order->id}",
-                'billing_type' => $request->input('payment_method', 'PIX'),
-            ];
+            // Busca o percentual de taxa administrativa do plano do tenant para a Lojinha
+            $adminFee = 0;
+            if (tenancy()->initialized) {
+                $plan = \App\Models\Plan::find(tenant('plan_id'));
+                if ($plan) {
+                    $adminFee = $plan->admin_fee_percentage;
+                }
+            }
+
+            // Verifica se há alguma assinatura no carrinho
+            $subscriptionPlan = null;
+            foreach ($items as $item) {
+                if ($item['product']->type === 'subscription') {
+                    $subscriptionPlan = $item['product'];
+                    break; // Assumimos que só há uma assinatura por checkout por enquanto
+                }
+            }
 
             try {
-                $charge = $this->asaasService->createCharge($chargeData);
+                if ($subscriptionPlan) {
+                    // Cria assinatura no Asaas
+                    $cycle = $subscriptionPlan->attributes['cycle'] ?? 'MONTHLY';
+                    $subscriptionData = [
+                        'customer_id' => $customerId,
+                        'value' => $total,
+                        'next_due_date' => now()->addDays(7)->format('Y-m-d'),
+                        'description' => "Assinatura: {$subscriptionPlan->name} - " . (tenant('name') ?? ''),
+                        'external_reference' => "order_{$order->id}",
+                        'billing_type' => $request->payment_method === 'asaas' ? 'PIX' : $request->payment_method,
+                        'cycle' => $cycle,
+                    ];
+
+                    $response = $this->asaasService->createSubscription($subscriptionData);
+                    
+                    // Busca a primeira fatura da assinatura para pegar o link de pagamento
+                    $paymentUrl = null;
+                    try {
+                        $payments = $this->asaasService->getSubscriptionPayments($response['id']);
+                        if (!empty($payments['data'])) {
+                            $paymentUrl = $payments['data'][0]['invoiceUrl'] ?? null;
+                        }
+                    } catch (\Exception $e) {
+                        Log::warning("Erro ao buscar faturas da assinatura: " . $e->getMessage());
+                    }
+
+                    // Atualiza order com dados do Asaas
+                    $order->update([
+                        'asaas_payment_id' => $response['id'],
+                        'asaas_payment_url' => $paymentUrl,
+                    ]);
                 
-                // Atualiza order com dados do Asaas
-                $order->update([
-                    'asaas_payment_id' => $charge['id'],
-                    'asaas_payment_url' => $charge['invoiceUrl'] ?? null,
-                ]);
+                // Associa a assinatura ao atleta logado ou do responsável
+                $athlete = null;
+                if (Auth::check()) {
+                    $user = Auth::user();
+                    if ($user->athlete) {
+                        $athlete = $user->athlete;
+                    } elseif ($user->role === 'guardian') {
+                        $athlete = \App\Models\Athlete::where('guardian_email', $user->email)->first();
+                    }
+                }
+
+                if ($athlete) {
+
+                    // Se já existe uma assinatura, cancela a anterior (Upgrade/Downgrade)
+                    if ($athlete->asaas_subscription_id) {
+                        try {
+                            $this->asaasService->cancelSubscription($athlete->asaas_subscription_id);
+                        } catch (\Exception $e) {
+                            Log::warning("Erro ao cancelar assinatura anterior ({$athlete->asaas_subscription_id}): " . $e->getMessage());
+                        }
+                    }
+
+                    $athlete->update([
+                        'asaas_subscription_id' => $response['id'],
+                        'subscription_plan_id' => $subscriptionPlan->id,
+                    ]);
+                }
+                } else {
+                    // Cria cobrança avulsa no Asaas
+                    $chargeData = [
+                        'customer_id' => $customerId,
+                        'value' => $total,
+                        'due_date' => now()->addDays(7)->format('Y-m-d'),
+                        'description' => "Pedido #{$order->id} - Lojinha " . (tenant('name') ?? ''),
+                        'external_reference' => "order_{$order->id}",
+                        'billing_type' => $request->payment_method === 'asaas' ? 'PIX' : $request->payment_method,
+                        'split_percentage' => $adminFee,
+                    ];
+
+                    $charge = $this->asaasService->createCharge($chargeData);
+                    
+                    // Atualiza order com dados do Asaas
+                    $order->update([
+                        'asaas_payment_id' => $charge['id'],
+                        'asaas_payment_url' => $charge['invoiceUrl'] ?? null,
+                    ]);
+                }
             } catch (\Exception $e) {
-                Log::error('SiteController: Erro ao criar cobrança no Asaas', [
+                Log::error('SiteController: Erro ao criar transação no Asaas', [
                     'order_id' => $order->id,
                     'error' => $e->getMessage(),
                 ]);
                 
-                // Order foi criado mas sem cobrança no Asaas
-                // Pode ser processado manualmente depois
+                return redirect()->back()->withInput()->with('error', 'Erro ao gerar cobrança no Asaas: ' . $e->getMessage());
             }
 
-            // Update order with Asaas data
-            $order->update([
-                'asaas_payment_id' => $charge['id'],
-                'asaas_payment_url' => $charge['invoiceUrl'] ?? null,
-            ]);
-
             // Clear cart
-            session()->forget('cart');
+            $this->cartService->clear();
 
             return redirect()->route('site.checkout.success')
                 ->with('order', $order);
@@ -420,13 +654,40 @@ class SiteController extends Controller
     }
 
     /**
+     * Display blog posts.
+     */
+    public function blog()
+    {
+        $posts = Post::published()->orderBy('published_at', 'desc')->paginate(9);
+        return view('site.blog.index', compact('posts'));
+    }
+
+    /**
+     * Display single blog post.
+     */
+    public function post($slug)
+    {
+        $post = Post::published()->where('slug', $slug)->firstOrFail();
+        
+        // Relacionados (recentes)
+        $relatedPosts = Post::published()
+            ->where('id', '!=', $post->id)
+            ->limit(3)
+            ->get();
+
+        return view('site.blog.show', compact('post', 'relatedPosts'));
+    }
+
+    /**
      * Show site editor (admin only).
      */
     public function editor()
     {
-        $settings = SiteSetting::all();
+        $settings = collect(SiteSetting::all());
+        $tenant = tenant();
+        $customDomain = $tenant->domains()->where('is_primary', false)->first();
         
-        return view('site.editor', compact('settings'));
+        return view('site.editor', compact('settings', 'customDomain', 'tenant'));
     }
 
     /**
@@ -439,7 +700,49 @@ class SiteController extends Controller
         ]);
 
         try {
-            foreach ($request->settings as $key => $value) {
+            Log::info('SiteController@update: Recebendo configurações', ['settings' => array_keys($request->settings)]);
+            
+            // Handle Domain Update
+            if (isset($request->settings['custom_domain'])) {
+                $domainName = strtolower(trim($request->settings['custom_domain']));
+                $tenant = tenant();
+                
+                if (!empty($domainName)) {
+                    // Basic validation
+                    if (!preg_match('/^[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}$/', $domainName)) {
+                        return redirect()->back()->withErrors(['error' => 'Formato de domínio inválido.']);
+                    }
+
+                    // Check if already exists for ANOTHER tenant
+                    $exists = \App\Models\Domain::where('domain', $domainName)
+                        ->where('tenant_id', '!=', $tenant->id)
+                        ->exists();
+                    
+                    if ($exists) {
+                        return redirect()->back()->withErrors(['error' => 'Este domínio já está sendo usado por outro clube.']);
+                    }
+
+                    // Update or create
+                    $tenant->domains()->updateOrCreate(
+                        ['is_primary' => false],
+                        ['domain' => $domainName, 'is_verified' => false]
+                    );
+                } else {
+                    // If empty, remove custom domain
+                    $tenant->domains()->where('is_primary', false)->delete();
+                }
+            }
+
+            $settingKeys = array_unique(array_merge(
+                array_keys($request->settings ?? []),
+                array_keys($request->file('settings') ?? [])
+            ));
+
+            foreach ($settingKeys as $key) {
+                if ($key === 'custom_domain') continue; // Handled above
+                
+                $value = $request->input("settings.{$key}");
+                
                 // Determine setting type based on key
                 $type = 'text';
                 $isPublic = true;
@@ -469,17 +772,33 @@ class SiteController extends Controller
                     $file = $request->file("settings.{$key}");
                     $path = $file->store('site', 'public');
                     $value = $path;
+                    Log::info("SiteController@update: Arquivo salvo: {$key} -> {$path}");
+                } elseif ($type === 'image' && empty($value)) {
+                    // Skip updating image if no new file and value is empty (to avoid clearing existing)
+                    continue;
                 }
                 
                 SiteSetting::set($key, $value, $type, null, $isPublic);
+                
+                // If we are updating the site name, also update the tenant's name in the central database
+                if ($key === 'site_name' && !empty($value)) {
+                    $tenantId = tenant('id');
+                    if ($tenantId) {
+                        \App\Models\Tenant::where('id', $tenantId)->update(['name' => $value]);
+                    }
+                }
+                
+                Log::info("SiteController@update: Configuração salva: {$key} = " . (is_string($value) ? $value : 'OBJECT') . " (tipo: {$type})");
             }
 
-            // Clear cache if needed
-            cache()->forget('site_settings');
+            // Clear cache
+            SiteSetting::clearPublicSettingsCache();
+            Log::info('SiteController@update: Cache limpo com sucesso');
 
             return redirect()->back()->with('success', 'Configurações atualizadas com sucesso!');
 
         } catch (\Exception $e) {
+            Log::error('SiteController@update: Erro ao salvar', ['error' => $e->getMessage()]);
             return redirect()->back()
                 ->withErrors(['error' => 'Erro ao atualizar configurações: ' . $e->getMessage()]);
         }

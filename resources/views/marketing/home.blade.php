@@ -4,26 +4,104 @@
 
 @section('content')
 <!-- Header -->
-<header class="bg-white shadow-sm">
+<header id="main-header" class="fixed w-full top-0 z-50 transition-all duration-300 bg-white/0">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center py-6">
+        <div class="flex justify-between items-center py-6 transition-all duration-300" id="header-container">
             <div class="flex items-center">
                 <div class="flex-shrink-0">
-                    <h1 class="text-2xl font-bold text-blue-600">Real Independent</h1>
+                    <h1 class="text-2xl font-bold text-white transition-colors duration-300" id="header-logo">Real Independent</h1>
                 </div>
             </div>
+            
+            <!-- Desktop Nav -->
             <nav class="hidden md:flex space-x-8">
-                <a href="#features" class="text-gray-500 hover:text-gray-900">Funcionalidades</a>
-                <a href="#pricing" class="text-gray-500 hover:text-gray-900">Preços</a>
-                <a href="#contact" class="text-gray-500 hover:text-gray-900">Contato</a>
+                <a href="#features" class="text-white/80 hover:text-white transition-colors nav-link">Funcionalidades</a>
+                <a href="#pricing" class="text-white/80 hover:text-white transition-colors nav-link">Preços</a>
+                <a href="#contact" class="text-white/80 hover:text-white transition-colors nav-link">Contato</a>
             </nav>
-            <div class="flex items-center space-x-4">
-                <a href="{{ route('auth.login') }}" class="text-gray-500 hover:text-gray-900">Login</a>
-                <a href="{{ route('tenant.register') }}" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Começar Grátis</a>
+            
+            <div class="hidden md:flex items-center space-x-4">
+                <a href="{{ route('login') }}" class="text-white/80 hover:text-white transition-colors nav-link">Login</a>
+                <a href="{{ route('tenant.register') }}" class="bg-white text-blue-600 px-4 py-2 rounded-md hover:bg-gray-100 transition-all duration-300 shadow-lg" id="header-cta">Começar Grátis</a>
+            </div>
+
+            <!-- Hamburger Button -->
+            <div class="md:hidden flex items-center">
+                <button id="mobile-menu-button" class="text-white focus:outline-none transition-colors duration-300">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
             </div>
         </div>
     </div>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="hidden md:hidden bg-white shadow-2xl absolute w-full top-full left-0 border-t border-gray-100">
+        <div class="px-4 pt-2 pb-6 space-y-2">
+            <a href="#features" class="mobile-nav-link block px-4 py-3 text-gray-600 font-medium hover:bg-blue-50 hover:text-blue-600 rounded-xl transition">Funcionalidades</a>
+            <a href="#pricing" class="mobile-nav-link block px-4 py-3 text-gray-600 font-medium hover:bg-blue-50 hover:text-blue-600 rounded-xl transition">Preços</a>
+            <a href="#contact" class="mobile-nav-link block px-4 py-3 text-gray-600 font-medium hover:bg-blue-50 hover:text-blue-600 rounded-xl transition">Contato</a>
+            <hr class="border-gray-100 my-2">
+            <a href="{{ route('login') }}" class="block px-4 py-3 text-gray-600 font-medium hover:bg-blue-50 hover:text-blue-600 rounded-xl transition">Login</a>
+            <a href="{{ route('tenant.register') }}" class="block px-4 py-3 bg-blue-600 text-white font-bold text-center rounded-xl shadow-lg shadow-blue-200">Começar Grátis</a>
+        </div>
+    </div>
 </header>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const header = document.getElementById('main-header');
+        const headerContainer = document.getElementById('header-container');
+        const logo = document.getElementById('header-logo');
+        const links = document.querySelectorAll('.nav-link');
+        const cta = document.getElementById('header-cta');
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileLinks = document.querySelectorAll('.mobile-nav-link');
+        
+        // Scroll Effect
+        window.addEventListener('scroll', function() {
+            if (window.scrollY > 50) {
+                header.classList.remove('bg-white/0');
+                header.classList.add('bg-white/95', 'backdrop-blur-md', 'shadow-lg');
+                headerContainer.classList.replace('py-6', 'py-4');
+                logo.classList.replace('text-white', 'text-blue-600');
+                mobileMenuButton.classList.replace('text-white', 'text-blue-600');
+                links.forEach(link => {
+                    link.classList.remove('text-white/80');
+                    link.classList.add('text-gray-600');
+                });
+                cta.classList.remove('bg-white', 'text-blue-600');
+                cta.classList.add('bg-blue-600', 'text-white');
+            } else {
+                header.classList.add('bg-white/0');
+                header.classList.remove('bg-white/95', 'backdrop-blur-md', 'shadow-lg');
+                headerContainer.classList.replace('py-4', 'py-6');
+                logo.classList.replace('text-blue-600', 'text-white');
+                mobileMenuButton.classList.replace('text-blue-600', 'text-white');
+                links.forEach(link => {
+                    link.classList.add('text-white/80');
+                    link.classList.remove('text-gray-600');
+                });
+                cta.classList.add('bg-white', 'text-blue-600');
+                cta.classList.remove('bg-blue-600', 'text-white');
+            }
+        });
+
+        // Mobile Menu Toggle
+        mobileMenuButton.addEventListener('click', function() {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Close menu on link click
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+            });
+        });
+    });
+</script>
 
 <!-- Hero Section -->
 <section class="bg-gradient-to-r from-blue-600 to-blue-800 text-white">

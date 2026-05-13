@@ -12,17 +12,24 @@ class Athlete extends Model
 
     protected $fillable = [
         'full_name',
+        'document',
+        'phone',
+        'address',
         'birth_date',
+        'subcategory',
         'position',
+        'positions',
         'profile_picture_url',
         'bio',
         'guardian_name',
         'guardian_contact',
         'guardian_email',
+        'guardian_document',
         'team_id',
         'branch_id',
         'user_id',
         'is_active',
+        'gender',
         'jersey_number',
         'height',
         'weight',
@@ -30,7 +37,81 @@ class Athlete extends Model
         'medical_conditions',
         'allergies',
         'insurance_info',
+        'terms_accepted',
+        'insurance_accepted',
+        'is_verified',
+        'profile_completion',
+        'medical_certificate_path',
+        'athlete_document_path',
+        'residence_proof_path',
+        'guardian_document_path',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::saving(function ($athlete) {
+            $athlete->profile_completion = $athlete->getProfileCompletionPercentage();
+        });
+    }
+
+    /**
+     * Get the medical certificate URL.
+     */
+    public function getMedicalCertificateUrlAttribute()
+    {
+        if (!$this->medical_certificate_path) return null;
+        
+        // Se já for uma URL absoluta, retorna ela mesma
+        if (filter_var($this->medical_certificate_path, FILTER_VALIDATE_URL)) {
+            return $this->medical_certificate_path;
+        }
+
+        return route('tenant.assets', ['path' => $this->medical_certificate_path]);
+    }
+
+    /**
+     * Get the athlete document URL.
+     */
+    public function getAthleteDocumentUrlAttribute()
+    {
+        if (!$this->athlete_document_path) return null;
+
+        if (filter_var($this->athlete_document_path, FILTER_VALIDATE_URL)) {
+            return $this->athlete_document_path;
+        }
+
+        return route('tenant.assets', ['path' => $this->athlete_document_path]);
+    }
+
+    /**
+     * Get the residence proof URL.
+     */
+    public function getResidenceProofUrlAttribute()
+    {
+        if (!$this->residence_proof_path) return null;
+
+        if (filter_var($this->residence_proof_path, FILTER_VALIDATE_URL)) {
+            return $this->residence_proof_path;
+        }
+
+        return route('tenant.assets', ['path' => $this->residence_proof_path]);
+    }
+
+    /**
+     * Get the guardian document URL.
+     */
+    public function getGuardianDocumentUrlAttribute()
+    {
+        if (!$this->guardian_document_path) return null;
+
+        if (filter_var($this->guardian_document_path, FILTER_VALIDATE_URL)) {
+            return $this->guardian_document_path;
+        }
+
+        return route('tenant.assets', ['path' => $this->guardian_document_path]);
+    }
 
     protected $casts = [
         'birth_date' => 'date',
@@ -39,7 +120,68 @@ class Athlete extends Model
         'weight' => 'decimal:2',
         'medical_conditions' => 'array',
         'allergies' => 'array',
+        'positions' => 'array',
+        'terms_accepted' => 'boolean',
+        'insurance_accepted' => 'boolean',
+        'is_verified' => 'boolean',
     ];
+
+    /**
+     * Calcula a subcategoria CBF baseada no ano de nascimento.
+     */
+    public static function calculateSubcategory($birthDate)
+    {
+        if (!$birthDate) return null;
+        
+        $birthYear = \Carbon\Carbon::parse($birthDate)->year;
+        $currentYear = now()->year;
+        $ageAtEndOfYear = $currentYear - $birthYear;
+
+        if ($ageAtEndOfYear <= 7) return 'Sub-7';
+        if ($ageAtEndOfYear <= 9) return 'Sub-9';
+        if ($ageAtEndOfYear <= 11) return 'Sub-11';
+        if ($ageAtEndOfYear <= 13) return 'Sub-13';
+        if ($ageAtEndOfYear <= 15) return 'Sub-15';
+        if ($ageAtEndOfYear <= 17) return 'Sub-17';
+        if ($ageAtEndOfYear <= 20) return 'Sub-20';
+        
+        return 'Profissional';
+    }
+
+    /**
+     * Atualiza a subcategoria de todos os atletas baseado na data de nascimento atual.
+     */
+    public static function updateAllSubcategories()
+    {
+        self::chunk(100, function ($athletes) {
+            foreach ($athletes as $athlete) {
+                if (!$athlete->birth_date) continue;
+                $newSub = self::calculateSubcategory($athlete->birth_date);
+                if ($athlete->subcategory !== $newSub) {
+                    $athlete->update(['subcategory' => $newSub]);
+                }
+            }
+        });
+    }
+
+    /**
+     * Calcula o percentual de conclusão do perfil.
+     */
+    public function getProfileCompletionPercentage()
+    {
+        $fields = [
+            'document', 'phone', 'address', 'birth_date', 'height', 'weight',
+            'medical_conditions', 'allergies', 'guardian_name', 'guardian_document',
+            'positions', 'profile_picture_url'
+        ];
+
+        $completed = 0;
+        foreach ($fields as $field) {
+            if (!empty($this->$field)) $completed++;
+        }
+
+        return round(($completed / count($fields)) * 100);
+    }
 
     /**
      * Get the team that the athlete belongs to.
@@ -111,11 +253,19 @@ class Athlete extends Model
      */
     public function getProfilePictureUrlAttribute()
     {
-        if ($this->attributes['profile_picture_url']) {
-            return asset('storage/' . $this->attributes['profile_picture_url']);
+        $value = $this->attributes['profile_picture_url'] ?? null;
+        
+        if (!$value) {
+            return 'https://ui-avatars.com/api/?name=' . urlencode($this->full_name) . '&color=7F9CF5&background=EBF4FF';
+        }
+
+        // Se já for uma URL absoluta, retorna ela mesma
+        if (filter_var($value, FILTER_VALIDATE_URL)) {
+            return $value;
         }
         
-        return 'https://ui-avatars.com/api/?name=' . urlencode($this->full_name) . '&color=7F9CF5&background=EBF4FF';
+        // Se for um path relativo, gera a URL via nossa rota de assets
+        return route('tenant.assets', ['path' => $value]);
     }
 
     /**

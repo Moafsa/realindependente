@@ -5,19 +5,19 @@
 
 @section('content')
 <!-- Hero Section -->
-<section class="relative bg-gradient-to-r from-green-600 via-teal-600 to-cyan-600 text-white">
-    <div class="absolute inset-0 bg-black opacity-40"></div>
+<section class="relative text-white" 
+         style="background: {{ ($settings['athletes_banner'] ?? false) ? 'url(' . Storage::url($settings['athletes_banner']) . ')' : 'linear-gradient(to right, var(--primary-color), var(--secondary-color))' }}; background-size: cover; background-position: center;">
+    <div class="absolute inset-0 bg-black opacity-50"></div>
     <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
         <div class="text-center">
             <h1 class="text-4xl md:text-6xl font-bold mb-6">
-                Nossos Atletas
+                {{ $settings['athletes_title'] ?? 'Nossos Atletas' }}
             </h1>
             <p class="text-xl md:text-2xl mb-8 opacity-90">
-                Conheça os talentos do Real Independent
+                {{ $settings['athletes_subtitle'] ?? 'Conheça os talentos do Real Independent' }}
             </p>
             <p class="text-lg mb-12 max-w-3xl mx-auto">
-                Atletas dedicados, comprometidos e em constante evolução. 
-                Nossa seleção representa o futuro do futebol brasileiro.
+                {{ $settings['athletes_description'] ?? 'Atletas dedicados, comprometidos e em constante evolução. Nossa seleção representa o futuro do futebol brasileiro.' }}
             </p>
         </div>
     </div>

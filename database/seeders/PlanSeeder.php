@@ -25,13 +25,13 @@ class PlanSeeder extends Seeder
                 'ai_features' => false,
                 'custom_domain' => false,
                 'priority_support' => false,
-                'features' => json_encode([
+                'features' => [
                     'Dashboard administrativo',
                     'Gestão de atletas e equipes',
                     'Site público básico',
                     'Relatórios básicos',
                     'Suporte por email'
-                ]),
+                ],
                 'is_active' => true,
                 'sort_order' => 1,
             ],
@@ -47,7 +47,7 @@ class PlanSeeder extends Seeder
                 'ai_features' => true,
                 'custom_domain' => true,
                 'priority_support' => true,
-                'features' => json_encode([
+                'features' => [
                     'Tudo do plano Starter',
                     'Inteligência Artificial',
                     'Planos de treino personalizados',
@@ -56,7 +56,7 @@ class PlanSeeder extends Seeder
                     'Integração com Asaas',
                     'Domínio personalizado',
                     'Suporte prioritário'
-                ]),
+                ],
                 'is_active' => true,
                 'sort_order' => 2,
             ],
@@ -72,7 +72,7 @@ class PlanSeeder extends Seeder
                 'ai_features' => true,
                 'custom_domain' => true,
                 'priority_support' => true,
-                'features' => json_encode([
+                'features' => [
                     'Tudo do plano Professional',
                     'Atletas ilimitados',
                     'Equipes ilimitadas',
@@ -81,7 +81,7 @@ class PlanSeeder extends Seeder
                     'Integrações customizadas',
                     'Gerente de conta dedicado',
                     'Suporte 24/7'
-                ]),
+                ],
                 'is_active' => true,
                 'sort_order' => 3,
             ],

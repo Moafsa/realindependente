@@ -10,7 +10,7 @@
     $siteName = \App\Models\SiteSetting::get('site_name', config('app.name'));
     $siteDescription = \App\Models\SiteSetting::get('site_description', '');
     $siteUrl = url('/');
-    $defaultImage = \App\Models\SiteSetting::get('site_logo') ? asset('storage/' . \App\Models\SiteSetting::get('site_logo')) : asset('images/default-og.jpg');
+    $defaultImage = \App\Models\SiteSetting::get('site_logo') ? route('tenant.assets', ['path' => \App\Models\SiteSetting::get('site_logo')]) : asset('images/default-og.jpg');
     
     $finalTitle = $title ? $title . ' - ' . $siteName : $siteName;
     $finalDescription = $description ?? $siteDescription ?? '';

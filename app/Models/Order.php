@@ -169,6 +169,23 @@ class Order extends Model
     }
 
     /**
+     * Record the order as revenue in the cash flow.
+     */
+    public function recordAsRevenue()
+    {
+        return CashFlow::create([
+            'description' => "Pedido #{$this->id} - " . ($this->athlete->full_name ?? $this->user->name ?? 'Cliente'),
+            'amount' => $this->total_amount,
+            'type' => 'entry',
+            'date' => now(),
+            'category' => $this->athlete_id ? 'Assinatura' : 'Loja',
+            'status' => 'completed',
+            'notes' => "Registrado automaticamente ao confirmar pagamento",
+            'created_by' => auth()->id() ?? null,
+        ]);
+    }
+
+    /**
      * Scope to get orders by date range.
      */
     public function scopeByDateRange($query, $startDate, $endDate)

@@ -14,7 +14,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             PlanSeeder::class,
             UserSeeder::class,
-            // TenantSeeder::class, // Uncomment when ready to create demo tenant
+            TenantSeeder::class,
         ]);
     }
 }

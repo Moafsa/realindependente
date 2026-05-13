@@ -55,12 +55,12 @@ return [
 
     'database' => [
         'central_connection' => env('DB_CONNECTION', 'pgsql'),
-        'template_tenant_connection' => null,
+        'template_tenant_connection' => env('DB_CONNECTION', 'pgsql'),
         'prefix_base' => 'tenant_',
         'suffix_base' => '',
-        'database_managers' => [
-            'pgsql' => Stancl\Tenancy\Database\DatabaseManagers\PostgreSQLDatabaseManager::class,
-            'mysql' => Stancl\Tenancy\Database\DatabaseManagers\MySQLDatabaseManager::class,
+        'managers' => [
+            'pgsql' => Stancl\Tenancy\TenantDatabaseManagers\PostgreSQLDatabaseManager::class,
+            'mysql' => Stancl\Tenancy\TenantDatabaseManagers\MySQLDatabaseManager::class,
         ],
     ],
 
@@ -92,8 +92,13 @@ return [
 
     'filesystem' => [
         'suffix_base' => 'tenant',
+        'disks' => [
+            'local',
+            'public',
+        ],
         'root_override' => [
-            'local' => '%storage_path%/app/tenant%tenant_id%',
+            'local' => '%storage_path%/app',
+            'public' => '%storage_path%/app/public',
         ],
     ],
 
@@ -159,7 +164,7 @@ return [
     */
 
     'seeder_parameters' => [
-        '--class' => 'TenantSeeder',
+        '--class' => 'Database\Seeders\Tenant\TenantDatabaseSeeder',
     ],
 
     /*

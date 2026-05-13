@@ -188,7 +188,7 @@
                                 <span class="text-2xl font-bold text-purple-600">89</span>
                             </div>
                         </div>
-                        <a href="{{ route('admin.dashboard') }}" class="mt-4 w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors text-center block">
+                        <a href="{{ route('dashboard') }}" class="mt-4 w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors text-center block">
                             Acessar Dashboard
                         </a>
                     </div>

@@ -25,28 +25,39 @@ class AIUsageService
         $tenant = $this->getTenantFromAthlete($athlete);
         
         if (!$tenant) {
+            Log::warning('AIUsageService: Bloqueio - Tenant não encontrado para o atleta', ['athlete_id' => $athlete->id]);
             return false;
         }
 
         // Busca o plano do tenant
         $plan = $tenant->plan;
         
-        if (!$plan || !$plan->ai_features) {
-            return false;
-        }
-
-        // Verifica limite de gerações por mês
-        $monthlyLimit = $this->getMonthlyLimit($plan);
-        
-        if ($monthlyLimit === null) {
-            // Sem limite
-            return true;
+        // Se não houver plano ou não tiver ai_features, damos um acesso básico por padrão (ou removemos o bloqueio rígido)
+        if (!$plan) {
+            Log::info('AIUsageService: Plano não definido, permitindo acesso básico padrão.');
+            $monthlyLimit = 10;
+        } else {
+            // Verifica se o plano explicitamente proíbe IA
+            if (isset($plan->ai_features) && $plan->ai_features === false) {
+                Log::warning('AIUsageService: Bloqueio - Plano do tenant não permite recursos de IA', ['tenant_id' => $tenant->id]);
+                return false;
+            }
+            $monthlyLimit = $this->getMonthlyLimit($plan);
         }
 
         // Conta gerações do mês atual
         $currentMonthCount = $this->getMonthlyUsageCount($athlete, $type);
 
-        return $currentMonthCount < $monthlyLimit;
+        if ($monthlyLimit !== null && $currentMonthCount >= $monthlyLimit) {
+            Log::warning('AIUsageService: Bloqueio - Limite mensal de gerações atingido', [
+                'athlete_id' => $athlete->id,
+                'count' => $currentMonthCount,
+                'limit' => $monthlyLimit
+            ]);
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -102,15 +113,19 @@ class AIUsageService
      */
     public function getMonthlyUsageCount(Athlete $athlete, ?string $type = null): int
     {
-        $query = AiGeneratedContent::where('athlete_id', $athlete->id)
-            ->whereMonth('generated_at', now()->month)
-            ->whereYear('generated_at', now()->year);
+        try {
+            $query = AiGeneratedContent::where('athlete_id', $athlete->id)
+                ->whereMonth('generated_at', now()->month)
+                ->whereYear('generated_at', now()->year);
 
-        if ($type) {
-            $query->where('type', $type);
+            if ($type) {
+                $query->where('type', $type);
+            }
+
+            return $query->count();
+        } catch (\Exception $e) {
+            return 0;
         }
-
-        return $query->count();
     }
 
     /**
@@ -124,45 +139,56 @@ class AIUsageService
         $cacheKey = "ai_usage:tenant:{$tenant->id}:month:" . now()->format('Y-m');
         
         return Cache::remember($cacheKey, 3600, function () use ($tenant) {
-            // Busca todos os atletas do tenant
-            $athletes = $this->getTenantAthletes($tenant);
-            
-            if ($athletes->isEmpty()) {
+            try {
+                // Busca todos os atletas do tenant
+                $athletes = $this->getTenantAthletes($tenant);
+                
+                if ($athletes->isEmpty()) {
+                    return [
+                        'count' => 0,
+                        'costs' => 0,
+                        'by_type' => [],
+                    ];
+                }
+
+                $athleteIds = $athletes->pluck('id')->toArray();
+
+                // Conta gerações do mês
+                $count = AiGeneratedContent::whereIn('athlete_id', $athleteIds)
+                    ->whereMonth('generated_at', now()->month)
+                    ->whereYear('generated_at', now()->year)
+                    ->count();
+
+                // Soma custos do mês
+                $costs = AiGeneratedContent::whereIn('athlete_id', $athleteIds)
+                    ->whereMonth('generated_at', now()->month)
+                    ->whereYear('generated_at', now()->year)
+                    ->sum('cost');
+
+                // Por tipo
+                $byType = AiGeneratedContent::whereIn('athlete_id', $athleteIds)
+                    ->whereMonth('generated_at', now()->month)
+                    ->whereYear('generated_at', now()->year)
+                    ->select('type', DB::raw('count(*) as count'))
+                    ->groupBy('type')
+                    ->pluck('count', 'type')
+                    ->toArray();
+
+                return [
+                    'count' => $count,
+                    'costs' => (float) $costs,
+                    'by_type' => $byType,
+                ];
+            } catch (\Exception $e) {
+                Log::error('AIUsageService: Erro ao calcular uso do tenant ' . $tenant->id, [
+                    'error' => $e->getMessage()
+                ]);
                 return [
                     'count' => 0,
                     'costs' => 0,
                     'by_type' => [],
                 ];
             }
-
-            $athleteIds = $athletes->pluck('id')->toArray();
-
-            // Conta gerações do mês
-            $count = AiGeneratedContent::whereIn('athlete_id', $athleteIds)
-                ->whereMonth('generated_at', now()->month)
-                ->whereYear('generated_at', now()->year)
-                ->count();
-
-            // Soma custos do mês
-            $costs = AiGeneratedContent::whereIn('athlete_id', $athleteIds)
-                ->whereMonth('generated_at', now()->month)
-                ->whereYear('generated_at', now()->year)
-                ->sum('cost');
-
-            // Por tipo
-            $byType = AiGeneratedContent::whereIn('athlete_id', $athleteIds)
-                ->whereMonth('generated_at', now()->month)
-                ->whereYear('generated_at', now()->year)
-                ->select('type', DB::raw('count(*) as count'))
-                ->groupBy('type')
-                ->pluck('count', 'type')
-                ->toArray();
-
-            return [
-                'count' => $count,
-                'costs' => (float) $costs,
-                'by_type' => $byType,
-            ];
         });
     }
 
@@ -177,18 +203,22 @@ class AIUsageService
         $cacheKey = "ai_costs:tenant:{$tenant->id}:month:" . now()->format('Y-m');
         
         return (float) Cache::remember($cacheKey, 3600, function () use ($tenant) {
-            $athletes = $this->getTenantAthletes($tenant);
-            
-            if ($athletes->isEmpty()) {
+            try {
+                $athletes = $this->getTenantAthletes($tenant);
+                
+                if ($athletes->isEmpty()) {
+                    return 0;
+                }
+
+                $athleteIds = $athletes->pluck('id')->toArray();
+
+                return AiGeneratedContent::whereIn('athlete_id', $athleteIds)
+                    ->whereMonth('generated_at', now()->month)
+                    ->whereYear('generated_at', now()->year)
+                    ->sum('cost');
+            } catch (\Exception $e) {
                 return 0;
             }
-
-            $athleteIds = $athletes->pluck('id')->toArray();
-
-            return AiGeneratedContent::whereIn('athlete_id', $athleteIds)
-                ->whereMonth('generated_at', now()->month)
-                ->whereYear('generated_at', now()->year)
-                ->sum('cost');
         });
     }
 
@@ -226,30 +256,34 @@ class AIUsageService
 
         $athleteIds = $athletes->pluck('id')->toArray();
 
-        $report = [];
-        for ($i = $months - 1; $i >= 0; $i--) {
-            $date = now()->subMonths($i);
-            $month = $date->format('Y-m');
-            
-            $count = AiGeneratedContent::whereIn('athlete_id', $athleteIds)
-                ->whereMonth('generated_at', $date->month)
-                ->whereYear('generated_at', $date->year)
-                ->count();
+        try {
+            $report = [];
+            for ($i = $months - 1; $i >= 0; $i--) {
+                $date = now()->subMonths($i);
+                $month = $date->format('Y-m');
+                
+                $count = AiGeneratedContent::whereIn('athlete_id', $athleteIds)
+                    ->whereMonth('generated_at', $date->month)
+                    ->whereYear('generated_at', $date->year)
+                    ->count();
 
-            $costs = AiGeneratedContent::whereIn('athlete_id', $athleteIds)
-                ->whereMonth('generated_at', $date->month)
-                ->whereYear('generated_at', $date->year)
-                ->sum('cost');
+                $costs = AiGeneratedContent::whereIn('athlete_id', $athleteIds)
+                    ->whereMonth('generated_at', $date->month)
+                    ->whereYear('generated_at', $date->year)
+                    ->sum('cost');
 
-            $report[] = [
-                'month' => $month,
-                'month_name' => $date->format('F Y'),
-                'count' => $count,
-                'costs' => (float) $costs,
-            ];
+                $report[] = [
+                    'month' => $month,
+                    'month_name' => $date->format('F Y'),
+                    'count' => $count,
+                    'costs' => (float) $costs,
+                ];
+            }
+
+            return $report;
+        } catch (\Exception $e) {
+            return [];
         }
-
-        return $report;
     }
 
     /**

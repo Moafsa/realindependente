@@ -1,0 +1,96 @@
+@extends('layouts.admin')
+
+@section('title', 'Editar Plano')
+
+@section('content')
+<div class="p-6 max-w-4xl mx-auto">
+    <div class="mb-8 flex items-center gap-4">
+        <a href="{{ route('admin.plans.index') }}" class="p-3 bg-white rounded-2xl border border-gray-100 shadow-sm hover:bg-gray-50 transition-all">
+            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+        </a>
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Editar: {{ $plan->name }}</h1>
+            <p class="text-gray-600 mt-1">Atualize as regras e limites da assinatura.</p>
+        </div>
+    </div>
+
+    <form action="{{ route('admin.plans.update', $plan) }}" method="POST" class="space-y-6">
+        @csrf
+        @method('PUT')
+        
+        <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+            <div class="p-8 border-b border-gray-50">
+                <h2 class="text-lg font-bold text-gray-900 mb-6">Informações Básicas</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Nome do Plano</label>
+                        <input type="text" name="name" value="{{ old('name', $plan->name) }}" required class="w-full px-4 py-3 bg-gray-50 border-gray-100 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Descrição</label>
+                        <textarea name="description" rows="3" class="w-full px-4 py-3 bg-gray-50 border-gray-100 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all">{{ old('description', $plan->description) }}</textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Preço Mensal (R$)</label>
+                        <input type="number" step="0.01" name="price_monthly" value="{{ old('price_monthly', $plan->price_monthly) }}" required class="w-full px-4 py-3 bg-gray-50 border-gray-100 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Preço Anual (R$ - Opcional)</label>
+                        <input type="number" step="0.01" name="price_yearly" value="{{ old('price_yearly', $plan->price_yearly) }}" class="w-full px-4 py-3 bg-gray-50 border-gray-100 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-8 border-b border-gray-50 bg-gray-50/30">
+                <h2 class="text-lg font-bold text-gray-900 mb-6">Limites & Recursos</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Limite de Atletas</label>
+                        <input type="number" name="max_athletes" value="{{ old('max_athletes', $plan->max_athletes) }}" required class="w-full px-4 py-3 bg-gray-50 border-gray-100 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Limite de Unidades/Filiais</label>
+                        <input type="number" name="max_branches" value="{{ old('max_branches', $plan->max_branches) }}" required class="w-full px-4 py-3 bg-gray-50 border-gray-100 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Recursos (Separados por vírgula)</label>
+                        <input type="text" name="features_raw" value="{{ old('features_raw', implode(', ', $plan->features ?? [])) }}" placeholder="Ex: Suporte 24h, Relatórios PDF, Treinos IA" class="w-full px-4 py-3 bg-gray-50 border-gray-100 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-8 space-y-6">
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
+                    <div>
+                        <p class="font-bold text-gray-900">Acesso a Inteligência Artificial</p>
+                        <p class="text-xs text-gray-500">Habilita a geração de treinos e dietas via IA.</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" name="ai_features" value="1" class="sr-only peer" {{ $plan->ai_features ? 'checked' : '' }}>
+                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+                    </label>
+                </div>
+
+                <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Ordem de Exibição</label>
+                        <input type="number" name="sort_order" value="{{ old('sort_order', $plan->sort_order) }}" required class="w-full px-4 py-3 bg-gray-50 border-gray-100 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+                    </div>
+                    <div class="flex items-end">
+                        <label class="flex items-center gap-3 cursor-pointer p-4 bg-gray-50 rounded-2xl w-full">
+                            <input type="checkbox" name="is_active" value="1" class="w-5 h-5 text-indigo-600 rounded-lg border-gray-300 focus:ring-indigo-500" {{ $plan->is_active ? 'checked' : '' }}>
+                            <span class="font-bold text-gray-900">Plano Ativo</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex justify-end pt-4">
+            <button type="submit" class="px-10 py-4 bg-indigo-600 text-white rounded-2xl font-bold text-lg hover:bg-indigo-700 shadow-xl shadow-indigo-200 transition-all hover:-translate-y-1">
+                Salvar Alterações
+            </button>
+        </div>
+    </form>
+</div>
+@endsection

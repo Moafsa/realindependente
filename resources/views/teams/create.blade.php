@@ -26,9 +26,13 @@
                 
                 <div>
                     <label for="category" class="block text-sm font-medium text-gray-700">Categoria</label>
-                    <input type="text" name="category" id="category" value="{{ old('category') }}" required
-                           class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm @error('category') border-red-300 @enderror"
-                           placeholder="Ex: Juvenil, Adulto, Feminino">
+                    <select name="category" id="category" required
+                            class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm @error('category') border-red-300 @enderror">
+                        <option value="">Selecione uma categoria</option>
+                        @foreach($categories as $category)
+                            <option value="{{ $category }}" {{ old('category') == $category ? 'selected' : '' }}>{{ $category }}</option>
+                        @endforeach
+                    </select>
                     @error('category')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
@@ -46,17 +50,17 @@
             </div>
             
             <div>
-                <label for="coach_user_id" class="block text-sm font-medium text-gray-700">Treinador</label>
-                <select name="coach_user_id" id="coach_user_id"
-                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm @error('coach_user_id') border-red-300 @enderror">
+                <label for="coach_id" class="block text-sm font-medium text-gray-700">Treinador</label>
+                <select name="coach_id" id="coach_id"
+                        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm @error('coach_id') border-red-300 @enderror">
                     <option value="">Selecione um treinador</option>
                     @foreach($coaches as $coach)
-                    <option value="{{ $coach->id }}" {{ old('coach_user_id') == $coach->id ? 'selected' : '' }}>
+                    <option value="{{ $coach->id }}" {{ old('coach_id') == $coach->id ? 'selected' : '' }}>
                         {{ $coach->name }}
                     </option>
                     @endforeach
                 </select>
-                @error('coach_user_id')
+                @error('coach_id')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                 @enderror
             </div>
@@ -65,13 +69,13 @@
                 <div>
                     <label for="color_primary" class="block text-sm font-medium text-gray-700">Cor Primária</label>
                     <div class="mt-1 flex items-center space-x-3">
-                        <input type="color" name="color_primary" id="color_primary" value="{{ old('color_primary', '#3B82F6') }}"
-                               class="h-10 w-20 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 @error('color_primary') border-red-300 @enderror">
-                        <input type="text" value="{{ old('color_primary', '#3B82F6') }}"
+                        <input type="color" name="primary_color" id="primary_color" value="{{ old('primary_color', '#3B82F6') }}"
+                               class="h-10 w-20 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 @error('primary_color') border-red-300 @enderror">
+                        <input type="text" value="{{ old('primary_color', '#3B82F6') }}"
                                class="flex-1 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                               placeholder="#3B82F6">
+                               placeholder="#3B82F6" oninput="this.previousElementSibling.value = this.value">
                     </div>
-                    @error('color_primary')
+                    @error('primary_color')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
@@ -79,13 +83,13 @@
                 <div>
                     <label for="color_secondary" class="block text-sm font-medium text-gray-700">Cor Secundária</label>
                     <div class="mt-1 flex items-center space-x-3">
-                        <input type="color" name="color_secondary" id="color_secondary" value="{{ old('color_secondary', '#1E40AF') }}"
-                               class="h-10 w-20 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 @error('color_secondary') border-red-300 @enderror">
-                        <input type="text" value="{{ old('color_secondary', '#1E40AF') }}"
+                        <input type="color" name="secondary_color" id="secondary_color" value="{{ old('secondary_color', '#1E40AF') }}"
+                               class="h-10 w-20 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 @error('secondary_color') border-red-300 @enderror">
+                        <input type="text" value="{{ old('secondary_color', '#1E40AF') }}"
                                class="flex-1 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                               placeholder="#1E40AF">
+                               placeholder="#1E40AF" oninput="this.previousElementSibling.value = this.value">
                     </div>
-                    @error('color_secondary')
+                    @error('secondary_color')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
                 </div>

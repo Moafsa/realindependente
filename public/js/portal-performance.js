@@ -54,98 +54,79 @@
         // Filter data if specific metric selected
         let filteredData = data;
         if (selectedMetric && selectedMetric !== 'all') {
-            filteredData = { [selectedMetric]: data[selectedMetric] || [] };
+            filteredData = { [selectedMetric]: data[selectedMetric] || { athlete: [], category_avg: [] } };
         }
 
         // Prepare datasets
         const datasets = [];
         const colors = [
-            { border: 'rgb(59, 130, 246)', background: 'rgba(59, 130, 246, 0.1)' },
-            { border: 'rgb(16, 185, 129)', background: 'rgba(16, 185, 129, 0.1)' },
-            { border: 'rgb(168, 85, 247)', background: 'rgba(168, 85, 247, 0.1)' },
-            { border: 'rgb(245, 158, 11)', background: 'rgba(245, 158, 11, 0.1)' },
-            { border: 'rgb(239, 68, 68)', background: 'rgba(239, 68, 68, 0.1)' },
+            { border: 'rgb(59, 130, 246)', background: 'rgba(59, 130, 246, 0.1)', category: 'rgba(59, 130, 246, 0.4)' },
+            { border: 'rgb(16, 185, 129)', background: 'rgba(16, 185, 129, 0.1)', category: 'rgba(16, 185, 129, 0.4)' },
+            { border: 'rgb(168, 85, 247)', background: 'rgba(168, 85, 247, 0.1)', category: 'rgba(168, 85, 247, 0.4)' },
+            { border: 'rgb(245, 158, 11)', background: 'rgba(245, 158, 11, 0.1)', category: 'rgba(245, 158, 11, 0.4)' },
+            { border: 'rgb(239, 68, 68)', background: 'rgba(239, 68, 68, 0.1)', category: 'rgba(239, 68, 68, 0.4)' },
         ];
 
         let colorIndex = 0;
         for (const [metric, values] of Object.entries(filteredData)) {
-            if (!values || values.length === 0) continue;
+            const metricName = metric.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+            const color = colors[colorIndex % colors.length];
 
-            const dates = values.map(v => v.date);
-            const chartValues = values.map(v => v.value);
+            // Athlete Data
+            if (values.athlete && values.athlete.length > 0) {
+                datasets.push({
+                    label: `${metricName} (Você)`,
+                    data: values.athlete.map(v => ({ x: v.date, y: v.value })),
+                    borderColor: color.border,
+                    backgroundColor: color.background,
+                    tension: 0.4,
+                    fill: true,
+                    pointRadius: 4,
+                });
+            }
 
-            datasets.push({
-                label: metric.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()),
-                data: chartValues,
-                borderColor: colors[colorIndex % colors.length].border,
-                backgroundColor: colors[colorIndex % colors.length].background,
-                tension: 0.4,
-                fill: true,
-                pointRadius: 4,
-                pointHoverRadius: 6,
-            });
+            // Category Average Data
+            if (values.category_avg && values.category_avg.length > 0) {
+                datasets.push({
+                    label: `${metricName} (Média Categoria)`,
+                    data: values.category_avg.map(v => ({ x: v.date, y: v.value })),
+                    borderColor: color.category,
+                    backgroundColor: 'transparent',
+                    borderDash: [5, 5],
+                    tension: 0.4,
+                    fill: false,
+                    pointRadius: 0,
+                });
+            }
 
             colorIndex++;
         }
 
-        // Get all unique dates
-        const allDates = new Set();
-        Object.values(filteredData).forEach(values => {
-            if (values) {
-                values.forEach(v => allDates.add(v.date));
-            }
-        });
-        const sortedDates = Array.from(allDates).sort();
-
         performanceChart = new Chart(ctx, {
             type: 'line',
-            data: {
-                labels: sortedDates.map(date => {
-                    const d = new Date(date);
-                    return d.toLocaleDateString('pt-BR', { month: 'short', day: 'numeric' });
-                }),
-                datasets: datasets
-            },
             options: {
                 responsive: true,
                 maintainAspectRatio: true,
                 plugins: {
-                    legend: {
-                        position: 'top',
-                    },
+                    legend: { position: 'top' },
                     tooltip: {
                         mode: 'index',
                         intersect: false,
-                        callbacks: {
-                            label: function(context) {
-                                return context.dataset.label + ': ' + context.parsed.y.toFixed(2);
-                            }
-                        }
                     }
                 },
                 scales: {
                     y: {
                         beginAtZero: false,
-                        grid: {
-                            color: 'rgba(0, 0, 0, 0.05)',
-                        },
-                        ticks: {
-                            callback: function(value) {
-                                return value.toFixed(1);
-                            }
-                        }
+                        grid: { color: 'rgba(0, 0, 0, 0.05)' }
                     },
                     x: {
-                        grid: {
-                            display: false,
-                        }
+                        type: 'category',
+                        grid: { display: false }
                     }
-                },
-                interaction: {
-                    mode: 'nearest',
-                    axis: 'x',
-                    intersect: false
                 }
+            },
+            data: {
+                datasets: datasets
             }
         });
     }
@@ -162,70 +143,64 @@
             comparisonChart.destroy();
         }
 
-        // Calculate averages for each metric
         const metrics = [];
-        const averages = [];
-        const colors = [
-            'rgba(59, 130, 246, 0.8)',
-            'rgba(16, 185, 129, 0.8)',
-            'rgba(168, 85, 247, 0.8)',
-            'rgba(245, 158, 11, 0.8)',
-            'rgba(239, 68, 68, 0.8)',
-        ];
+        const athleteAverages = [];
+        const categoryAverages = [];
 
-        let colorIndex = 0;
         for (const [metric, values] of Object.entries(data)) {
-            if (!values || values.length === 0) continue;
+            const metricName = metric.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+            metrics.push(metricName);
 
-            const avg = values.reduce((sum, v) => sum + v.value, 0) / values.length;
-            metrics.push(metric.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()));
-            averages.push(avg);
-            colorIndex++;
+            const athleteAvg = values.athlete.length > 0 
+                ? values.athlete.reduce((sum, v) => sum + v.value, 0) / values.athlete.length 
+                : 0;
+            
+            const categoryAvg = values.category_avg.length > 0
+                ? values.category_avg.reduce((sum, v) => sum + v.value, 0) / values.category_avg.length
+                : 0;
+
+            athleteAverages.push(athleteAvg);
+            categoryAverages.push(categoryAvg);
         }
 
         comparisonChart = new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: metrics,
-                datasets: [{
-                    label: 'Média',
-                    data: averages,
-                    backgroundColor: colors.slice(0, metrics.length),
-                    borderColor: colors.slice(0, metrics.length).map(c => c.replace('0.8', '1')),
-                    borderWidth: 2
-                }]
+                datasets: [
+                    {
+                        label: 'Seu Desempenho',
+                        data: athleteAverages,
+                        backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                        borderColor: 'rgb(59, 130, 246)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Média da Categoria',
+                        data: categoryAverages,
+                        backgroundColor: 'rgba(156, 163, 175, 0.5)',
+                        borderColor: 'rgb(156, 163, 175)',
+                        borderWidth: 1
+                    }
+                ]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: true,
                 plugins: {
-                    legend: {
-                        display: false
-                    },
+                    legend: { display: true },
                     tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return 'Média: ' + context.parsed.y.toFixed(2);
-                            }
-                        }
+                        mode: 'index',
+                        intersect: false,
                     }
                 },
                 scales: {
                     y: {
                         beginAtZero: true,
-                        grid: {
-                            color: 'rgba(0, 0, 0, 0.05)',
-                        },
-                        ticks: {
-                            callback: function(value) {
-                                return value.toFixed(1);
-                            }
-                        }
+                        grid: { color: 'rgba(0, 0, 0, 0.05)' }
                     },
                     x: {
-                        grid: {
-                            display: false,
-                        }
+                        grid: { display: false }
                     }
                 }
             }

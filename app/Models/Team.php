@@ -9,16 +9,32 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Team extends Model
 {
     use HasFactory, SoftDeletes;
+    
+    protected static function boot()
+    {
+        parent::boot();
+        static::creating(function ($team) {
+            if (empty($team->slug)) {
+                $team->slug = \Illuminate\Support\Str::slug($team->name) . '-' . \Illuminate\Support\Str::random(5);
+            }
+        });
+    }
 
     protected $fillable = [
         'name',
+        'slug',
         'category',
+        'level',
         'description',
-        'coach_user_id',
-        'color_primary',
-        'color_secondary',
+        'coach_id',
+        'branch_id',
+        'primary_color',
+        'secondary_color',
         'logo',
+        'schedule',
+        'competitions',
         'is_active',
+        'is_public',
     ];
 
     protected $casts = [
@@ -30,7 +46,7 @@ class Team extends Model
      */
     public function coach()
     {
-        return $this->belongsTo(User::class, 'coach_user_id');
+        return $this->belongsTo(User::class, 'coach_id');
     }
 
     /**
@@ -63,10 +79,10 @@ class Team extends Model
     public function getLogoUrlAttribute()
     {
         if ($this->logo) {
-            return asset('storage/' . $this->logo);
+            return \Illuminate\Support\Facades\Storage::url($this->logo);
         }
         
-        return 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&color=' . ltrim($this->color_primary, '#') . '&background=' . ltrim($this->color_secondary, '#');
+        return 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&color=' . ltrim($this->primary_color ?? 'FFFFFF', '#') . '&background=' . ltrim($this->secondary_color ?? '000000', '#');
     }
 
     /**

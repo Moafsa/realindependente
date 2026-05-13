@@ -4,24 +4,57 @@
 
 @section('content')
 <!-- Header -->
-<header class="bg-white shadow-sm">
+<header id="main-header" class="fixed w-full top-0 z-50 transition-all duration-300 bg-white/0">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center py-6">
             <div class="flex items-center">
-                <a href="{{ route('marketing.home') }}" class="text-2xl font-bold text-blue-600">Real Independent</a>
+                <a href="{{ route('marketing.home') }}" class="text-2xl font-bold text-white transition-colors duration-300" id="header-logo">Real Independent</a>
             </div>
             <nav class="hidden md:flex space-x-8">
-                <a href="{{ route('marketing.home') }}#features" class="text-gray-500 hover:text-gray-900">Funcionalidades</a>
-                <a href="{{ route('marketing.home') }}#pricing" class="text-gray-500 hover:text-gray-900">Preços</a>
-                <a href="{{ route('marketing.contact') }}" class="text-gray-500 hover:text-gray-900">Contato</a>
+                <a href="{{ route('marketing.home') }}#features" class="text-white/80 hover:text-white transition-colors nav-link">Funcionalidades</a>
+                <a href="{{ route('marketing.home') }}#pricing" class="text-white/80 hover:text-white transition-colors nav-link">Preços</a>
+                <a href="{{ route('marketing.contact') }}" class="text-white/80 hover:text-white transition-colors nav-link">Contato</a>
             </nav>
             <div class="flex items-center space-x-4">
-                <a href="{{ route('login') }}" class="text-gray-500 hover:text-gray-900">Login</a>
-                <a href="{{ route('tenant.register') }}" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Começar Grátis</a>
+                <a href="{{ route('login') }}" class="text-white/80 hover:text-white transition-colors nav-link">Login</a>
+                <a href="{{ route('tenant.register') }}" class="bg-white text-blue-600 px-4 py-2 rounded-md hover:bg-gray-100 transition-all duration-300 shadow-lg" id="header-cta">Começar Grátis</a>
             </div>
         </div>
     </div>
 </header>
+
+<script>
+    window.addEventListener('scroll', function() {
+        const header = document.getElementById('main-header');
+        const logo = document.getElementById('header-logo');
+        const links = document.querySelectorAll('.nav-link');
+        const cta = document.getElementById('header-cta');
+        
+        if (window.scrollY > 50) {
+            header.classList.remove('bg-white/0');
+            header.classList.add('bg-white/80', 'backdrop-blur-md', 'shadow-lg', 'py-4');
+            logo.classList.remove('text-white');
+            logo.classList.add('text-blue-600');
+            links.forEach(link => {
+                link.classList.remove('text-white/80');
+                link.classList.add('text-gray-600');
+            });
+            cta.classList.remove('bg-white', 'text-blue-600');
+            cta.classList.add('bg-blue-600', 'text-white');
+        } else {
+            header.classList.add('bg-white/0');
+            header.classList.remove('bg-white/80', 'backdrop-blur-md', 'shadow-lg', 'py-4');
+            logo.classList.add('text-white');
+            logo.classList.remove('text-blue-600');
+            links.forEach(link => {
+                link.classList.add('text-white/80');
+                link.classList.remove('text-gray-600');
+            });
+            cta.classList.add('bg-white', 'text-blue-600');
+            cta.classList.remove('bg-blue-600', 'text-white');
+        }
+    });
+</script>
 
 <!-- Hero Section -->
 <section class="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-20">

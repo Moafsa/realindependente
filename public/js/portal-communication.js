@@ -135,19 +135,24 @@
         if (!chatMessages) return;
 
         // TODO: Load messages from API when Message model is created
-        chatMessages.innerHTML = `
-            <div class="text-center text-gray-500 py-12">
-                <p>Carregando mensagens...</p>
-            </div>
-        `;
+        // Use a safe way to set static HTML
+        chatMessages.innerHTML = '';
+        const loadingDiv = document.createElement('div');
+        loadingDiv.className = 'text-center text-gray-500 py-12';
+        const loadingP = document.createElement('p');
+        loadingP.textContent = 'Carregando mensagens...';
+        loadingDiv.appendChild(loadingP);
+        chatMessages.appendChild(loadingDiv);
 
         // For now, show empty state
         setTimeout(() => {
-            chatMessages.innerHTML = `
-                <div class="text-center text-gray-500 py-12">
-                    <p>Nenhuma mensagem ainda. Comece a conversar!</p>
-                </div>
-            `;
+            chatMessages.innerHTML = '';
+            const emptyDiv = document.createElement('div');
+            emptyDiv.className = 'text-center text-gray-500 py-12';
+            const emptyP = document.createElement('p');
+            emptyP.textContent = 'Nenhuma mensagem ainda. Comece a conversar!';
+            emptyDiv.appendChild(emptyP);
+            chatMessages.appendChild(emptyDiv);
         }, 500);
     }
 
@@ -165,12 +170,20 @@
 
         const messageDiv = document.createElement('div');
         messageDiv.className = `flex ${isOwn ? 'justify-end' : 'justify-start'} mb-4`;
-        messageDiv.innerHTML = `
-            <div class="max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${isOwn ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-900'}">
-                <p class="text-sm">${message}</p>
-                <p class="text-xs ${isOwn ? 'text-blue-100' : 'text-gray-500'} mt-1">${new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</p>
-            </div>
-        `;
+        const innerWrapper = document.createElement('div');
+        innerWrapper.className = `max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${isOwn ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-900'}`;
+        
+        const messageP = document.createElement('p');
+        messageP.className = 'text-sm';
+        messageP.textContent = message;
+        
+        const timeP = document.createElement('p');
+        timeP.className = `text-xs ${isOwn ? 'text-blue-100' : 'text-gray-500'} mt-1`;
+        timeP.textContent = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        
+        innerWrapper.appendChild(messageP);
+        innerWrapper.appendChild(timeP);
+        messageDiv.appendChild(innerWrapper);
 
         chatMessages.appendChild(messageDiv);
         chatMessages.scrollTop = chatMessages.scrollHeight;

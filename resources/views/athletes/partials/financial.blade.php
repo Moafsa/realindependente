@@ -1,7 +1,7 @@
 <div class="space-y-6">
     <div class="flex items-center justify-between">
         <h3 class="text-lg font-semibold text-gray-900">Histórico Financeiro</h3>
-        <a href="{{ route('athletes.financial-history', $athlete) }}" class="text-sm text-blue-600 hover:text-blue-800 font-medium">
+        <a href="{{ route('portal.invoices', ['athlete_id' => $athlete->id]) }}" class="text-sm text-blue-600 hover:text-blue-800 font-medium">
             Ver detalhes →
         </a>
     </div>
@@ -37,7 +37,7 @@
 
 <script>
     // Load financial history
-    fetch('{{ route("athletes.financial-history", $athlete) }}')
+    fetch('{{ route("admin.athletes.financial-history", $athlete) }}')
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -49,20 +49,36 @@
                 // Render history list
                 const listContainer = document.getElementById('financial-history-list');
                 if (data.orders && data.orders.length > 0) {
-                    listContainer.innerHTML = data.orders.map(order => `
-                        <div class="flex items-center justify-between p-3 bg-white border rounded-lg">
-                            <div>
-                                <div class="font-medium text-gray-900">Pedido #${order.id}</div>
-                                <div class="text-sm text-gray-500">${order.date}</div>
-                            </div>
-                            <div class="text-right">
-                                <div class="font-semibold text-gray-900">R$ ${order.amount.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</div>
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${order.status === 'paid' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">
-                                    ${order.status_label}
-                                </span>
-                            </div>
-                        </div>
-                    `).join('');
+                    listContainer.innerHTML = '';
+                    data.orders.forEach(order => {
+                        const orderDiv = document.createElement('div');
+                        orderDiv.className = 'flex items-center justify-between p-3 bg-white border rounded-lg';
+                        
+                        const leftDiv = document.createElement('div');
+                        const orderIdDiv = document.createElement('div');
+                        orderIdDiv.className = 'font-medium text-gray-900';
+                        orderIdDiv.textContent = `Pedido #${order.id}`;
+                        const orderDateDiv = document.createElement('div');
+                        orderDateDiv.className = 'text-sm text-gray-500';
+                        orderDateDiv.textContent = order.date;
+                        leftDiv.appendChild(orderIdDiv);
+                        leftDiv.appendChild(orderDateDiv);
+                        
+                        const rightDiv = document.createElement('div');
+                        rightDiv.className = 'text-right';
+                        const amountDiv = document.createElement('div');
+                        amountDiv.className = 'font-semibold text-gray-900';
+                        amountDiv.textContent = 'R$ ' + order.amount.toLocaleString('pt-BR', {minimumFractionDigits: 2});
+                        const statusSpan = document.createElement('span');
+                        statusSpan.className = `inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${order.status === 'paid' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`;
+                        statusSpan.textContent = order.status_label;
+                        rightDiv.appendChild(amountDiv);
+                        rightDiv.appendChild(statusSpan);
+                        
+                        orderDiv.appendChild(leftDiv);
+                        orderDiv.appendChild(rightDiv);
+                        listContainer.appendChild(orderDiv);
+                    });
                 } else {
                     listContainer.innerHTML = '<div class="text-center py-8 text-gray-500">Nenhum pedido encontrado</div>';
                 }

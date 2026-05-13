@@ -26,7 +26,7 @@
                     @foreach($order->orderItems as $item)
                     <div class="flex items-center space-x-4 p-4 border border-gray-200 rounded-lg">
                         <div class="flex-shrink-0">
-                            <img src="{{ $item->product->image ? asset('storage/' . $item->product->image) : 'https://via.placeholder.com/100' }}" 
+                            <img src="{{ $item->product->image_url }}" 
                                  alt="{{ $item->product->name }}" 
                                  class="h-16 w-16 object-cover rounded-lg">
                         </div>

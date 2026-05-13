@@ -32,11 +32,12 @@ class TenantRegistrationController extends Controller
     /**
      * Show the tenant registration form.
      */
-    public function create()
+    public function create(Request $request)
     {
         $plans = Plan::active()->ordered()->get();
+        $selectedPlanId = $request->query('plan');
         
-        return view('tenant.register', compact('plans'));
+        return view('tenant.register', compact('plans', 'selectedPlanId'));
     }
 
     /**
@@ -46,17 +47,15 @@ class TenantRegistrationController extends Controller
     {
         $request->validate([
             'club_name' => 'required|string|max:255',
-            'subdomain' => 'required|string|max:255|unique:tenants,subdomain|regex:/^[a-z0-9-]+$/',
+            'subdomain' => 'required|string|max:255|unique:tenants,domain|regex:/^[a-z0-9-]+$/',
             'admin_name' => 'required|string|max:255',
-            'admin_email' => 'required|email|max:255',
+            'admin_email' => 'required|email|max:255|unique:users,email',
             'admin_password' => 'required|string|min:8|confirmed',
             'plan_id' => 'required|exists:plans,id',
-            'admin_phone' => 'nullable|string|max:20',
-            'admin_cpf_cnpj' => 'nullable|string|max:20',
+            'admin_phone' => 'required|string|max:20',
+            'admin_cpf_cnpj' => 'required|string|max:20',
             'terms' => 'required|accepted',
         ]);
-
-        DB::beginTransaction();
 
         try {
             $plan = Plan::findOrFail($request->plan_id);
@@ -102,10 +101,22 @@ class TenantRegistrationController extends Controller
             
             $asaasSubscription = $this->asaasService->createSubscription($subscriptionData);
             
+            // Cria usuário no banco central para permitir login pelo portal principal
+            \App\Models\User::create([
+                'name' => $request->admin_name,
+                'email' => $request->admin_email,
+                'password' => \Illuminate\Support\Facades\Hash::make($request->admin_password),
+                'role' => 'admin',
+                'phone' => $request->admin_phone,
+                'is_active' => true,
+            ]);
+
             // Cria tenant com status 'pending' (aguardando pagamento)
             $tenant = Tenant::create([
+                'id' => $request->subdomain,
                 'name' => $request->club_name,
-                'subdomain' => $request->subdomain,
+                'email' => $request->admin_email,
+                'domain' => $request->subdomain,
                 'database_name' => 'tenant_' . Str::random(10),
                 'plan_id' => $request->plan_id,
                 'status' => 'pending',
@@ -119,23 +130,25 @@ class TenantRegistrationController extends Controller
 
             // Cria domínio
             $domain = Domain::create([
-                'domain' => $request->subdomain . '.' . config('tenancy.central_domains')[0],
+                'domain' => $request->subdomain . '.' . request()->getHost(),
                 'tenant_id' => $tenant->id,
                 'is_primary' => true,
-                'is_verified' => false, // Será verificado após pagamento
+                'is_verified' => false,
             ]);
 
-            DB::commit();
+            // [NOVO] Cria banco de dados e admin IMEDIATAMENTE (mesmo pendente)
+            // para permitir acesso restrito ao dashboard
+            CreateTenantDatabase::dispatch($tenant);
+            CreateTenantAdmin::dispatch($tenant, [
+                'name' => $request->admin_name,
+                'email' => $request->admin_email,
+                'password' => $request->admin_password,
+            ]);
 
-            // Redireciona para página de pagamento ou instruções
-            return redirect()->route('tenant.payment', [
-                'tenant' => $tenant->id,
-                'subscription_id' => $asaasSubscription['id'],
-            ])->with('info', 'Por favor, realize o pagamento da primeira mensalidade para ativar seu clube.');
+            // Redireciona para o dashboard do subdomínio (SSO via .localhost)
+            return redirect()->to($tenant->url . '/dashboard')->with('info', 'Bem-vindo! Seu clube foi criado. Realize o pagamento para desbloquear todas as funcionalidades.');
 
         } catch (\Exception $e) {
-            DB::rollBack();
-            
             Log::error('TenantRegistrationController: Erro ao criar tenant', [
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
@@ -166,10 +179,25 @@ class TenantRegistrationController extends Controller
         try {
             $subscription = $this->asaasService->getSubscription($subscriptionId);
             
+            // Log do objeto para debug se necessário
+            Log::info('Pagamento: Assinatura recuperada', ['subscription_id' => $subscriptionId]);
+            
+            // Tenta encontrar a URL de pagamento (pode variar dependendo do tipo de cobrança ou ambiente)
+            $paymentUrl = $subscription['invoiceUrl'] ?? 
+                         $subscription['bankSlipUrl'] ?? 
+                         ($subscription['externalReference'] ? "https://sandbox.asaas.com/i/{$subscription['id']}" : null);
+
+            if (!$paymentUrl) {
+                Log::warning('Pagamento: URL de faturamento não encontrada na assinatura', [
+                    'subscription_id' => $subscriptionId,
+                    'subscription_data' => $subscription
+                ]);
+            }
+
             return view('tenant.payment', [
                 'tenant' => $tenant,
                 'subscription' => $subscription,
-                'payment_url' => $subscription['invoiceUrl'] ?? null,
+                'payment_url' => $paymentUrl,
             ]);
         } catch (\Exception $e) {
             return redirect()->route('tenant.register')
@@ -272,7 +300,7 @@ class TenantRegistrationController extends Controller
 
             // Envia e-mail de boas-vindas
             Mail::to($registrationData['admin_email'])->send(
-                new TenantWelcomeMail($tenant, $tenant->subdomain, $registrationData['admin_email'])
+                new TenantWelcomeMail($tenant, $tenant->domain, $registrationData['admin_email'])
             );
 
             // Remove dados do cache
@@ -343,7 +371,7 @@ class TenantRegistrationController extends Controller
         }
 
         // Check if subdomain is already taken
-        $exists = Tenant::where('subdomain', $subdomain)->exists();
+        $exists = Tenant::where('domain', $subdomain)->exists();
         
         if ($exists) {
             return response()->json(['available' => false, 'message' => 'Subdomínio já está em uso']);

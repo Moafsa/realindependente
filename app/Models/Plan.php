@@ -9,6 +9,8 @@ class Plan extends Model
 {
     use HasFactory;
 
+    protected $connection = 'pgsql';
+
     protected $fillable = [
         'name',
         'description',
@@ -19,6 +21,7 @@ class Plan extends Model
         'max_branches',
         'ai_features',
         'ecommerce_tax_rate',
+        'admin_fee_percentage',
         'is_active',
         'sort_order',
     ];
@@ -30,6 +33,7 @@ class Plan extends Model
         'price_monthly' => 'decimal:2',
         'price_yearly' => 'decimal:2',
         'ecommerce_tax_rate' => 'decimal:2',
+        'admin_fee_percentage' => 'decimal:2',
     ];
 
     /**

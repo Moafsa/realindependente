@@ -1,199 +1,210 @@
 @extends('layouts.portal')
 
-@section('title', 'Comunicação')
+@section('title', 'Mensagens')
 
 @section('content')
-<div class="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
+<div class="h-[calc(100vh-10rem)] flex flex-col bg-white rounded-3xl shadow-xl border border-gray-200 overflow-hidden mx-auto max-w-4xl">
+    
     <!-- Header -->
-    <div class="bg-white shadow-sm border-b border-gray-200">
-        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h1 class="text-3xl font-bold text-gray-900">Comunicação</h1>
-                    <p class="mt-1 text-sm text-gray-600">Mural, mensagens e notificações</p>
-                </div>
+    <div class="p-4 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
+        <div class="flex items-center">
+            <div class="h-10 w-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold mr-3">
+                {{ substr($coach->name ?? 'T', 0, 1) }}
+            </div>
+            <div>
+                <h3 class="text-sm font-bold text-gray-900">{{ $coach->name ?? 'Treinador' }}</h3>
+                <span class="text-[10px] text-green-600 font-bold">Online Agora</span>
             </div>
         </div>
+        <button onclick="window.location.reload()" class="p-2 text-gray-400 hover:text-blue-600 transition-all">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+        </button>
     </div>
 
-    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <!-- Tabs -->
-        <div class="bg-white shadow-lg rounded-lg mb-6">
-            <div class="border-b border-gray-200">
-                <nav class="flex -mb-px" aria-label="Tabs">
-                    <button onclick="showTab('announcements')" 
-                            id="tab-announcements"
-                            class="tab-button active px-6 py-4 text-sm font-medium text-center border-b-2 border-blue-500 text-blue-600">
-                        Mural
-                    </button>
-                    <button onclick="showTab('messages')" 
-                            id="tab-messages"
-                            class="tab-button px-6 py-4 text-sm font-medium text-center border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
-                        Mensagens
-                    </button>
-                    <button onclick="showTab('notifications')" 
-                            id="tab-notifications"
-                            class="tab-button px-6 py-4 text-sm font-medium text-center border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
-                        Notificações
-                    </button>
-                </nav>
-            </div>
-        </div>
-
-        <!-- Announcements Tab -->
-        <div id="content-announcements" class="tab-content">
-            <div class="bg-white shadow-lg rounded-lg">
-                <div class="px-6 py-4 border-b border-gray-200">
-                    <h3 class="text-lg font-medium text-gray-900">Mural de Avisos</h3>
-                    <p class="text-sm text-gray-600">Avisos e comunicados do clube</p>
-                </div>
-                <div class="p-6">
-                    <div class="space-y-4" id="announcements-list">
-                        <!-- Sample Announcement -->
-                        <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                            <div class="flex items-start justify-between">
-                                <div class="flex-1">
-                                    <div class="flex items-center space-x-2 mb-2">
-                                        <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
-                                            Importante
-                                        </span>
-                                        <span class="text-xs text-gray-500">{{ now()->format('d/m/Y H:i') }}</span>
-                                    </div>
-                                    <h4 class="text-sm font-semibold text-gray-900 mb-1">Treino Cancelado</h4>
-                                    <p class="text-sm text-gray-600">
-                                        O treino de hoje foi cancelado devido às condições climáticas. 
-                                        Retomaremos as atividades amanhã no horário normal.
-                                    </p>
-                                </div>
+    <!-- Tab Content Container -->
+    <div class="flex-1 flex flex-col min-h-0 relative">
+        
+        <!-- View 1: Chat -->
+        <div id="chat-view" class="flex-1 flex flex-col min-h-0">
+            <!-- Messages Area -->
+            <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-100/50">
+                @foreach($messages as $msg)
+                <div class="flex {{ $msg->sender_id === auth()->id() ? 'justify-end' : 'justify-start' }}">
+                    <div class="max-w-[85%] rounded-2xl px-4 py-2 shadow-sm {{ $msg->sender_id === auth()->id() ? 'bg-blue-600 text-white rounded-tr-none' : 'bg-white text-gray-800 rounded-tl-none' }}">
+                        @if($msg->attachment_path)
+                            <div class="mb-2">
+                                @if($msg->attachment_type === 'image')
+                                    <img src="{{ Storage::url($msg->attachment_path) }}" class="max-w-full rounded-lg shadow-sm" onclick="window.open(this.src)">
+                                @else
+                                    <a href="{{ Storage::url($msg->attachment_path) }}" target="_blank" class="flex items-center p-2 bg-black/5 rounded text-[10px] font-bold">📎 ARQUIVO</a>
+                                @endif
                             </div>
-                        </div>
-
-                        <!-- Empty State (hidden by default) -->
-                        <div id="announcements-empty" class="text-center py-12 hidden">
-                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                            </svg>
-                            <h3 class="mt-2 text-sm font-medium text-gray-900">Nenhum aviso</h3>
-                            <p class="mt-1 text-sm text-gray-500">Não há avisos no momento.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Messages Tab -->
-        <div id="content-messages" class="tab-content hidden">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Messages List -->
-                <div class="lg:col-span-1 bg-white shadow-lg rounded-lg">
-                    <div class="px-6 py-4 border-b border-gray-200">
-                        <h3 class="text-lg font-medium text-gray-900">Conversas</h3>
-                    </div>
-                    <div class="divide-y divide-gray-200">
-                        @if($coach)
-                        <div class="p-4 hover:bg-gray-50 cursor-pointer transition" onclick="selectConversation({{ $coach->id }}, '{{ $coach->name }}')">
-                            <div class="flex items-center space-x-3">
-                                <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                                    <span class="text-blue-600 font-semibold">{{ substr($coach->name, 0, 1) }}</span>
-                                </div>
-                                <div class="flex-1 min-w-0">
-                                    <p class="text-sm font-medium text-gray-900">{{ $coach->name }}</p>
-                                    <p class="text-xs text-gray-500">Técnico</p>
-                                </div>
-                            </div>
-                        </div>
                         @endif
-                        <div class="p-4 text-center text-gray-500 text-sm">
-                            <p>Nenhuma outra conversa</p>
+                        <p class="text-sm leading-relaxed">{{ $msg->content }}</p>
+                        <div class="flex justify-end mt-1 space-x-1 opacity-50">
+                            <span class="text-[9px]">{{ $msg->created_at->format('H:i') }}</span>
+                            @if($msg->sender_id === auth()->id())
+                                <span class="text-[10px]">{{ $msg->read_at ? '✓✓' : '✓' }}</span>
+                            @endif
                         </div>
                     </div>
                 </div>
-
-                <!-- Chat Area -->
-                <div class="lg:col-span-2 bg-white shadow-lg rounded-lg flex flex-col">
-                    <div class="px-6 py-4 border-b border-gray-200">
-                        <h3 id="chat-title" class="text-lg font-medium text-gray-900">Selecione uma conversa</h3>
-                    </div>
-                    <div id="chat-messages" class="flex-1 p-6 overflow-y-auto" style="max-height: 500px;">
-                        <div class="text-center text-gray-500 py-12">
-                            <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-                            </svg>
-                            <p>Selecione uma conversa para começar</p>
-                        </div>
-                    </div>
-                    <div id="chat-input-container" class="hidden px-6 py-4 border-t border-gray-200">
-                        <form id="message-form" class="flex items-center space-x-4">
-                            @csrf
-                            <input type="hidden" id="recipient-id" name="recipient_id">
-                            <input type="text" 
-                                   id="message-input" 
-                                   name="message" 
-                                   placeholder="Digite sua mensagem..."
-                                   required
-                                   class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                            <button type="submit" 
-                                    class="px-6 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition">
-                                Enviar
-                            </button>
-                        </form>
-                    </div>
-                </div>
+                @endforeach
             </div>
-        </div>
 
-        <!-- Notifications Tab -->
-        <div id="content-notifications" class="tab-content hidden">
-            <div class="bg-white shadow-lg rounded-lg">
-                <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-                    <div>
-                        <h3 class="text-lg font-medium text-gray-900">Notificações</h3>
-                        <p class="text-sm text-gray-600">Suas notificações e alertas</p>
-                    </div>
-                    <button onclick="markAllAsRead()" class="text-sm text-blue-600 hover:text-blue-800">
-                        Marcar todas como lidas
+            <!-- Input Area -->
+            <div class="p-3 bg-white border-t border-gray-200">
+                <form id="chat-form" onsubmit="sendMessage(event)" class="flex items-center space-x-2">
+                    @csrf
+                    <input type="hidden" name="receiver_id" id="receiver_id" value="{{ $chatTarget->id ?? '' }}">
+                    <input type="file" name="attachment" id="attachment" class="hidden" onchange="handleFileSelect(this)">
+                    <button type="button" onclick="document.getElementById('attachment').click()" class="p-2 text-gray-400 hover:text-blue-600 transition-colors">
+                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                     </button>
-                </div>
-                <div class="divide-y divide-gray-200">
-                    <!-- Sample Notification -->
-                    <div class="p-6 hover:bg-gray-50 transition cursor-pointer" onclick="markAsRead(1)">
-                        <div class="flex items-start space-x-4">
-                            <div class="flex-shrink-0">
-                                <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                    </svg>
-                                </div>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <div class="flex items-center justify-between">
-                                    <p class="text-sm font-medium text-gray-900">Novo plano de treino disponível</p>
-                                    <span class="text-xs text-gray-500">{{ now()->subHours(2)->format('d/m/Y H:i') }}</span>
-                                </div>
-                                <p class="text-sm text-gray-600 mt-1">
-                                    Seu novo plano de treino personalizado foi gerado e está disponível para visualização.
-                                </p>
-                            </div>
-                            <div class="flex-shrink-0">
-                                <div class="w-2 h-2 bg-blue-600 rounded-full"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Empty State -->
-                    <div id="notifications-empty" class="text-center py-12 hidden">
-                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
-                        </svg>
-                        <h3 class="mt-2 text-sm font-medium text-gray-900">Nenhuma notificação</h3>
-                        <p class="mt-1 text-sm text-gray-500">Você está em dia!</p>
-                    </div>
-                </div>
+                    <input type="text" name="content" id="message-content" placeholder="Escreva sua mensagem..." autocomplete="off"
+                           class="flex-1 bg-gray-100 border-none rounded-full px-4 py-2 text-sm text-black focus:ring-2 focus:ring-blue-500 outline-none" style="color: black !important;">
+                    <button type="submit" class="p-2 text-blue-600 transform hover:scale-110 transition-all">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"></path></svg>
+                    </button>
+                </form>
             </div>
         </div>
+
+        <!-- View 2: Mural -->
+        <div id="mural-view" class="hidden absolute inset-0 bg-white flex flex-col z-10">
+            <div class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+                <h3 class="text-xs font-black text-gray-400 uppercase tracking-[0.2em] mb-4">Histórico de Avisos</h3>
+                @forelse($notices as $notice)
+                    <div class="p-4 bg-white rounded-2xl border border-gray-100 shadow-sm relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-1 h-full {{ $notice->priority === 'important' ? 'bg-red-500' : 'bg-blue-500' }}"></div>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-[9px] font-bold uppercase {{ $notice->priority === 'important' ? 'text-red-500' : 'text-blue-500' }}">{{ $notice->priority }}</span>
+                            <span class="text-[10px] text-gray-400">{{ $notice->created_at->diffForHumans() }}</span>
+                        </div>
+                        <h4 class="font-bold text-gray-900 text-sm mb-1">{{ $notice->title }}</h4>
+                        <p class="text-xs text-gray-500 leading-relaxed">{{ $notice->content }}</p>
+                    </div>
+                @empty
+                    <div class="h-full flex flex-col items-center justify-center opacity-20 text-center">
+                        <svg class="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path></svg>
+                        <p class="text-xs font-bold uppercase tracking-widest">Nenhum aviso no momento</p>
+                    </div>
+                @endforelse
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Bottom Navigation (Simplified Tabs) -->
+    <div class="h-16 bg-gray-50 border-t border-gray-200 flex items-center justify-around flex-shrink-0 px-6">
+        <button onclick="switchTab('chat')" id="tab-chat" class="flex flex-col items-center space-y-1 text-blue-600">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+            <span class="text-[10px] font-black uppercase tracking-widest">Chat</span>
+        </button>
+        <button onclick="switchTab('mural')" id="tab-mural" class="flex flex-col items-center space-y-1 text-gray-400">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path></svg>
+            <span class="text-[10px] font-black uppercase tracking-widest">Mural</span>
+        </button>
     </div>
 </div>
 
-<script src="{{ asset('js/portal-communication.js') }}"></script>
-@endsection
+<script>
+    function switchTab(tab) {
+        const chatView = document.getElementById('chat-view');
+        const muralView = document.getElementById('mural-view');
+        const tabChat = document.getElementById('tab-chat');
+        const tabMural = document.getElementById('tab-mural');
 
+        if (tab === 'chat') {
+            chatView.classList.remove('hidden');
+            muralView.classList.add('hidden');
+            tabChat.classList.add('text-blue-600');
+            tabChat.classList.remove('text-gray-400');
+            tabMural.classList.add('text-gray-400');
+            tabMural.classList.remove('text-blue-600');
+        } else {
+            muralView.classList.remove('hidden');
+            chatView.classList.add('hidden');
+            tabMural.classList.add('text-blue-600');
+            tabMural.classList.remove('text-gray-400');
+            tabChat.classList.add('text-gray-400');
+            tabChat.classList.remove('text-blue-600');
+            
+            // Mark mural as read
+            fetch("{{ route('portal.notifications.mural-read') }}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            }).then(() => {
+                // Update global badge immediately if possible
+                const badge = document.getElementById('notification-badge');
+                if (badge) badge.classList.add('hidden');
+            });
+        }
+    }
+
+    function sendMessage(e) {
+        e.preventDefault();
+        const form = e.target;
+        const content = document.getElementById('message-content').value.trim();
+        if (!content && !document.getElementById('attachment').files.length) return;
+
+        fetch("{{ route('communication.store') }}", {
+            method: 'POST',
+            body: new FormData(form),
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+            }
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('message-content').value = '';
+                pollMessages();
+            }
+        });
+    }
+
+    function pollMessages() {
+        const id = document.getElementById('receiver_id')?.value;
+        if (!id) return;
+        fetch(`{{ route('communication.messages') }}?target_id=${id}`, {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) renderMessages(data.messages);
+        });
+    }
+
+    function renderMessages(messages) {
+        const container = document.getElementById('chat-messages');
+        if (!container) return;
+        let html = '';
+        messages.forEach(msg => {
+            html += `
+            <div class="flex ${msg.is_own ? 'justify-end' : 'justify-start'} mb-4">
+                <div class="max-w-[85%] rounded-2xl px-4 py-2 shadow-sm ${msg.is_own ? 'bg-blue-600 text-white rounded-tr-none' : 'bg-white text-gray-800 rounded-tl-none'}">
+                    ${msg.attachment_url ? `<div class="mb-2"><img src="${msg.attachment_url}" class="rounded-lg max-w-full"></div>` : ''}
+                    <p class="text-sm">${msg.content || ''}</p>
+                    <div class="flex justify-end mt-1 space-x-1 opacity-50">
+                        <span class="text-[9px]">${msg.time}</span>
+                        ${msg.is_own ? `<span class="text-[10px]">${msg.read_at ? '✓✓' : '✓'}</span>` : ''}
+                    </div>
+                </div>
+            </div>`;
+        });
+        container.innerHTML = html;
+        container.scrollTop = container.scrollHeight;
+    }
+
+    setInterval(pollMessages, 5000);
+    window.onload = () => {
+        const m = document.getElementById('chat-messages');
+        if (m) m.scrollTop = m.scrollHeight;
+    };
+</script>
+@endsection

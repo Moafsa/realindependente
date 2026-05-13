@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Athlete;
 use App\Models\Team;
 use App\Models\Order;
+use App\Models\CashFlow;
+use App\Models\User;
 use App\Services\AsaasService;
 use App\Events\ChargeGenerated;
 use Illuminate\Http\Request;
@@ -25,6 +27,8 @@ class FinancialController extends Controller
     public function index()
     {
         try {
+            $totalSalaries = User::where('role', 'coach')->where('is_active', true)->sum('salary');
+
             // Get financial statistics
             $stats = [
                 'total_revenue' => Order::where('status', 'paid')->sum('total_amount'),
@@ -33,6 +37,8 @@ class FinancialController extends Controller
                 'total_orders' => Order::count(),
                 'paid_orders' => Order::where('status', 'paid')->count(),
                 'pending_orders' => Order::where('status', 'pending')->count(),
+                'total_expenses' => CashFlow::where('type', 'exit')->where('status', 'completed')->sum('amount'),
+                'estimated_salaries' => $totalSalaries,
             ];
 
             // Get monthly revenue (last 6 months)
@@ -103,6 +109,15 @@ class FinancialController extends Controller
         $chargesCreated = 0;
         $errors = [];
 
+        // Busca o percentual de taxa administrativa do plano do tenant
+        $adminFee = 0;
+        if (tenancy()->initialized) {
+            $plan = \App\Models\Plan::find(tenant('plan_id'));
+            if ($plan) {
+                $adminFee = $plan->admin_fee_percentage;
+            }
+        }
+
         foreach ($athletes as $athlete) {
             try {
                 // Create order in database
@@ -126,6 +141,7 @@ class FinancialController extends Controller
                     'description' => $request->description ?? "Mensalidade - {$athlete->team->name} - {$request->month}",
                     'external_reference' => $order->id,
                     'billing_type' => 'PIX',
+                    'split_percentage' => $adminFee,
                 ];
 
                 if (!$athlete->user || !$athlete->user->asaas_customer_id) {
@@ -319,6 +335,18 @@ class FinancialController extends Controller
                         'status' => 'paid',
                         'paid_at' => now(),
                         'asaas_payment_id' => $payment['id'],
+                    ]);
+
+                    // Registra como receita no fluxo de caixa
+                    CashFlow::create([
+                        'description' => "Pedido #{$order->id} - " . ($order->athlete->full_name ?? $order->user->name ?? 'Cliente'),
+                        'amount' => $order->total_amount,
+                        'type' => 'entry',
+                        'date' => now(),
+                        'category' => $order->athlete_id ? 'Assinatura' : 'Loja',
+                        'status' => 'completed',
+                        'notes' => "Registrado automaticamente via webhook de pagamento",
+                        'created_by' => null,
                     ]);
                     
                     // Dispara evento de cobrança confirmada se for mensalidade

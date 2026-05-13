@@ -4,9 +4,25 @@ namespace App\Services;
 
 use App\Models\Product;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Auth;
 
 class CartService
 {
+    protected string $cartKey;
+
+    public function __construct()
+    {
+        $this->cartKey = $this->generateCartKey();
+    }
+
+    /**
+     * Gera uma chave única para o carrinho baseada no tenant e session/user.
+     */
+    protected function generateCartKey(): string
+    {
+        return 'cart';
+    }
+
     /**
      * Get cart items.
      *
@@ -14,7 +30,15 @@ class CartService
      */
     public function getCart(): array
     {
-        return Session::get('cart', []);
+        return Session::get($this->cartKey, []);
+    }
+
+    /**
+     * Save cart to session.
+     */
+    protected function saveCart(array $cart): void
+    {
+        Session::put($this->cartKey, $cart);
     }
 
     /**
@@ -31,8 +55,8 @@ class CartService
             return false;
         }
 
-        // Check stock
-        if ($product->stock_quantity !== null && $product->stock_quantity < $quantity) {
+        // Check stock (skip for subscriptions and services)
+        if ($product->type !== 'subscription' && $product->type !== 'service' && $product->stock_quantity !== null && $product->stock_quantity < $quantity) {
             return false;
         }
 
@@ -42,7 +66,7 @@ class CartService
             $newQuantity = $cart[$product->id]['quantity'] + $quantity;
             
             // Check stock again for updated quantity
-            if ($product->stock_quantity !== null && $product->stock_quantity < $newQuantity) {
+            if ($product->type !== 'subscription' && $product->type !== 'service' && $product->stock_quantity !== null && $product->stock_quantity < $newQuantity) {
                 return false;
             }
             
@@ -51,10 +75,11 @@ class CartService
             $cart[$product->id] = [
                 'product_id' => $product->id,
                 'quantity' => $quantity,
+                'added_at' => now()->toDateTimeString(),
             ];
         }
 
-        Session::put('cart', $cart);
+        $this->saveCart($cart);
         
         return true;
     }
@@ -71,7 +96,7 @@ class CartService
         
         if (isset($cart[$product->id])) {
             unset($cart[$product->id]);
-            Session::put('cart', $cart);
+            $this->saveCart($cart);
             return true;
         }
         
@@ -100,7 +125,7 @@ class CartService
             }
             
             $cart[$product->id]['quantity'] = $quantity;
-            Session::put('cart', $cart);
+            $this->saveCart($cart);
             return true;
         }
         
@@ -114,7 +139,7 @@ class CartService
      */
     public function clear(): void
     {
-        Session::forget('cart');
+        Session::forget($this->cartKey);
     }
 
     /**
@@ -134,7 +159,7 @@ class CartService
             }
         }
 
-        return $total;
+        return (float) $total;
     }
 
     /**
@@ -151,7 +176,7 @@ class CartService
             $count += $item['quantity'];
         }
 
-        return $count;
+        return (int) $count;
     }
 
     /**
@@ -170,7 +195,7 @@ class CartService
                 $items[] = [
                     'product' => $product,
                     'quantity' => $item['quantity'],
-                    'subtotal' => $product->price * $item['quantity'],
+                    'subtotal' => (float) $product->price * $item['quantity'],
                 ];
             }
         }
@@ -211,7 +236,7 @@ class CartService
                 continue;
             }
 
-            if ($product->stock_quantity !== null && $product->stock_quantity < $item['quantity']) {
+            if ($product->type !== 'subscription' && $product->type !== 'service' && $product->stock_quantity !== null && $product->stock_quantity < $item['quantity']) {
                 $errors[] = "Produto '{$product->name}' não possui estoque suficiente.";
             }
         }

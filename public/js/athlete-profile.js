@@ -6,14 +6,30 @@
     'use strict';
 
     let performanceChart = null;
+    let currentChartType = 'radar';
 
     // Initialize on DOM ready
     document.addEventListener('DOMContentLoaded', function() {
         initializeTabs();
-        if (window.athleteId) {
-            initializePerformanceChart();
-        }
     });
+
+    window.changeChartType = function(type) {
+        currentChartType = type;
+        
+        // Update UI buttons
+        document.querySelectorAll('.chart-type-btn').forEach(btn => {
+            btn.classList.remove('bg-white', 'shadow-sm', 'text-blue-600');
+            btn.classList.add('text-gray-500');
+        });
+        
+        const activeBtn = document.getElementById('btn-' + type);
+        if (activeBtn) {
+            activeBtn.classList.add('bg-white', 'shadow-sm', 'text-blue-600');
+            activeBtn.classList.remove('text-gray-500');
+        }
+        
+        initializePerformanceChart();
+    };
 
     /**
      * Initialize tab navigation
@@ -21,7 +37,7 @@
     function initializeTabs() {
         // Get initial tab from URL hash or default to profile
         const hash = window.location.hash.replace('#', '');
-        const initialTab = hash && ['profile', 'performance', 'financial', 'ai-plans'].includes(hash) 
+        const initialTab = hash && ['profile', 'performance', 'financial', 'ai-plans', 'documents'].includes(hash) 
             ? hash 
             : 'profile';
         
@@ -62,6 +78,7 @@
         // Initialize chart if performance tab
         if (tabName === 'performance' && !performanceChart) {
             initializePerformanceChart();
+            initializeSparklines();
         }
     }
 
@@ -115,75 +132,180 @@
     }
 
     /**
-     * Create performance chart
+     * Create performance chart using ApexCharts
      */
     function createPerformanceChart(data) {
         const ctx = document.getElementById('performanceChart');
-        if (!ctx || !window.Chart) return;
+        if (!ctx || typeof ApexCharts === 'undefined') return;
 
-        // Group data by metric
-        const metrics = {};
-        const labels = new Set();
+        // Process data based on chart type
+        let series = [];
+        let sortedLabels = [];
+        const metricsList = Object.keys(data);
 
-        Object.keys(data).forEach(metric => {
-            metrics[metric] = [];
-            data[metric].forEach(point => {
-                labels.add(point.date);
+        if (currentChartType === 'line') {
+            // Group data by date for Line chart
+            const labelsSet = new Set();
+            metricsList.forEach(metric => {
+                if (data[metric] && data[metric].athlete) {
+                    data[metric].athlete.forEach(point => labelsSet.add(point.date));
+                }
             });
-        });
+            
+            sortedLabels = Array.from(labelsSet).sort();
+            
+            series = metricsList.map(metric => ({
+                name: metric,
+                data: sortedLabels.map(date => {
+                    const point = data[metric].athlete.find(p => p.date === date);
+                    return point ? parseFloat(point.value) : null;
+                })
+            }));
+        } else {
+            // Radar or Bar
+            const latestValues = [];
+            const averageValues = [];
 
-        const sortedLabels = Array.from(labels).sort();
-
-        // Prepare datasets
-        const datasets = Object.keys(metrics).map((metric, index) => {
-            const values = sortedLabels.map(label => {
-                const point = data[metric].find(p => p.date === label);
-                return point ? parseFloat(point.value) : null;
+            metricsList.forEach(metric => {
+                const athletePoints = data[metric].athlete.sort((a, b) => new Date(b.date) - new Date(a.date));
+                const categoryPoints = data[metric].category_avg.sort((a, b) => new Date(b.date) - new Date(a.date));
+                
+                latestValues.push(athletePoints[0] ? parseFloat(athletePoints[0].value) : 0);
+                averageValues.push(categoryPoints[0] ? parseFloat(categoryPoints[0].value) : 0);
             });
 
-            const colors = [
-                'rgb(59, 130, 246)',   // blue
-                'rgb(16, 185, 129)',   // green
-                'rgb(245, 101, 101)',  // red
-                'rgb(251, 191, 36)',   // yellow
-                'rgb(139, 92, 246)',   // purple
+            series = [
+                { name: 'Nível do Atleta', data: latestValues },
+                { name: 'Média da Equipe', data: averageValues }
             ];
+            sortedLabels = metricsList;
+        }
 
-            return {
-                label: metric,
-                data: values,
-                borderColor: colors[index % colors.length],
-                backgroundColor: colors[index % colors.length].replace('rgb', 'rgba').replace(')', ', 0.1)'),
-                tension: 0.4,
-                fill: false,
-            };
-        });
-
-        performanceChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: sortedLabels,
-                datasets: datasets
+        const options = {
+            series: series,
+            chart: {
+                height: 400,
+                type: currentChartType,
+                fontFamily: 'Figtree, sans-serif',
+                toolbar: { show: false },
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top',
-                    },
-                    tooltip: {
-                        mode: 'index',
-                        intersect: false,
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
+            colors: currentChartType === 'line' ? ['#3B82F6', '#10B981', '#F56565', '#FBBF24', '#8B5CF6'] : ['#3B82F6', '#94A3B8'],
+            stroke: { 
+                width: currentChartType === 'line' ? 3 : [3, 2],
+                curve: 'smooth',
+                dashArray: currentChartType === 'line' ? 0 : [0, 4]
+            },
+            fill: { 
+                opacity: currentChartType === 'line' ? 1 : [0.3, 0.1] 
+            },
+            dataLabels: {
+                enabled: false
+            },
+            markers: { 
+                size: currentChartType === 'line' ? 4 : [4, 0] 
+            },
+            xaxis: {
+                categories: sortedLabels,
+                labels: {
+                    style: {
+                        colors: Array(sortedLabels.length).fill('#64748b'),
+                        fontSize: '11px',
+                        fontWeight: 600
                     }
                 }
+            },
+            yaxis: {
+                show: true,
+                min: 0,
+                max: 100,
+                tickAmount: 5,
+                labels: {
+                    formatter: function(val) { return val; },
+                    style: { colors: '#cbd5e1', fontSize: '10px' }
+                }
+            },
+            plotOptions: {
+                radar: {
+                    size: 140,
+                    polygons: {
+                        strokeColors: '#e2e8f0',
+                        connectorColors: '#e2e8f0',
+                        fill: { colors: ['#f8fafc', '#fff'] }
+                    }
+                },
+                bar: {
+                    borderRadius: 4,
+                    horizontal: false,
+                    columnWidth: '55%'
+                }
+            },
+            grid: { show: currentChartType !== 'radar' },
+            legend: {
+                position: 'bottom',
+                horizontalAlign: 'center',
+                offsetY: 0
+            },
+            tooltip: {
+                y: {
+                    formatter: function(val) { return val + '%' }
+                }
             }
+        };
+
+        if(performanceChart) performanceChart.destroy();
+        
+        // Hide placeholder message if exists
+        const placeholder = document.querySelector('.performance-tab-content p.text-gray-500.italic');
+        if (placeholder) placeholder.style.display = 'none';
+
+        performanceChart = new ApexCharts(document.querySelector("#performanceChart"), options);
+        performanceChart.render();
+    }
+
+    /**
+     * Initialize Sparklines for each indicator
+     */
+    function initializeSparklines() {
+        const sparklineData = window.sparklineData;
+        if (!sparklineData) return;
+
+        Object.keys(sparklineData).forEach(metric => {
+            const slug = metric.toLowerCase().replace(/[^a-z0-9]/g, '-');
+            const container = document.getElementById('sparkline-' + slug);
+            if (!container) return;
+
+            const options = {
+                series: [{
+                    data: sparklineData[metric].map(p => p.y)
+                }],
+                chart: {
+                    type: 'area',
+                    height: 50,
+                    sparkline: { enabled: true },
+                    animations: { enabled: true }
+                },
+                stroke: { curve: 'smooth', width: 2 },
+                fill: {
+                    type: 'gradient',
+                    gradient: {
+                        shadeIntensity: 1,
+                        opacityFrom: 0.4,
+                        opacityTo: 0.1,
+                    }
+                },
+                colors: ['#3B82F6'],
+                tooltip: {
+                    fixed: { enabled: false },
+                    x: { show: false },
+                    y: {
+                        title: { formatter: () => metric }
+                    },
+                    marker: { show: false }
+                }
+            };
+
+            const chart = new ApexCharts(container, options);
+            chart.render();
         });
     }
 
@@ -196,44 +318,30 @@
             return;
         }
 
-        // Similar logic to createPerformanceChart but update existing chart
-        const metrics = {};
-        const labels = new Set();
-
-        Object.keys(data).forEach(metric => {
-            data[metric].forEach(point => {
-                labels.add(point.date);
-            });
+        const metricsList = Object.keys(data);
+        const latestValues = metricsList.map(metric => {
+            const points = data[metric].athlete;
+            const latestPoint = points.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+            return latestPoint ? parseFloat(latestPoint.value) : 0;
         });
 
-        const sortedLabels = Array.from(labels).sort();
-        const datasets = Object.keys(data).map((metric, index) => {
-            const values = sortedLabels.map(label => {
-                const point = data[metric].find(p => p.date === label);
-                return point ? parseFloat(point.value) : null;
-            });
-
-            const colors = [
-                'rgb(59, 130, 246)',
-                'rgb(16, 185, 129)',
-                'rgb(245, 101, 101)',
-                'rgb(251, 191, 36)',
-                'rgb(139, 92, 246)',
-            ];
-
-            return {
-                label: metric,
-                data: values,
-                borderColor: colors[index % colors.length],
-                backgroundColor: colors[index % colors.length].replace('rgb', 'rgba').replace(')', ', 0.1)'),
-                tension: 0.4,
-                fill: false,
-            };
+        const averageValues = metricsList.map(metric => {
+            const points = data[metric].category_avg;
+            const latestAvg = points.sort((a, b) => new Date(b.date) - new Date(a.date))[0];
+            return latestAvg ? parseFloat(latestAvg.value) : 0;
         });
 
-        performanceChart.data.labels = sortedLabels;
-        performanceChart.data.datasets = datasets;
-        performanceChart.update();
+        const series = [
+            { name: 'Nível do Atleta', data: latestValues },
+            { name: 'Média da Equipe', data: averageValues }
+        ];
+
+        const sortedLabels = metricsList;
+
+        performanceChart.updateOptions({
+            xaxis: { categories: sortedLabels }
+        });
+        performanceChart.updateSeries(series);
     }
 })();
 

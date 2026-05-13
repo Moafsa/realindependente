@@ -125,7 +125,15 @@
             <!-- Quick Actions -->
             <div class="bg-white rounded-lg shadow p-6">
                 <h2 class="text-xl font-bold text-gray-900 mb-4">Ações Rápidas</h2>
-                <div class="space-y-2">
+                    <form method="POST" action="{{ route('admin.tenants.impersonate', $tenant) }}" class="inline-block w-full">
+                        @csrf
+                        <button type="submit" class="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-bold mb-4 shadow-lg shadow-indigo-100 transition-all">
+                            Entrar como Admin
+                        </button>
+                    </form>
+
+                    <div class="h-px bg-gray-100 my-4"></div>
+
                     @if($tenant->status !== 'active')
                         <form method="POST" action="{{ route('admin.tenants.activate', $tenant) }}" class="inline-block w-full">
                             @csrf
@@ -153,6 +161,29 @@
                             </button>
                         </form>
                     @endif
+                </div>
+            </div>
+
+            <!-- Usage Metrics -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-xl font-bold text-gray-900 mb-4">Métricas de Uso</h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="p-3 bg-gray-50 rounded-xl">
+                        <div class="text-[10px] font-black text-gray-400 uppercase">Atletas</div>
+                        <div class="text-lg font-black text-gray-900">{{ $usageStats['athletes_count'] ?? 0 }}</div>
+                    </div>
+                    <div class="p-3 bg-gray-50 rounded-xl">
+                        <div class="text-[10px] font-black text-gray-400 uppercase">Equipes</div>
+                        <div class="text-lg font-black text-gray-900">{{ $usageStats['teams_count'] ?? 0 }}</div>
+                    </div>
+                    <div class="p-3 bg-gray-50 rounded-xl">
+                        <div class="text-[10px] font-black text-gray-400 uppercase">Planos IA</div>
+                        <div class="text-lg font-black text-gray-900">{{ $usageStats['ai_content_count'] ?? 0 }}</div>
+                    </div>
+                    <div class="p-3 bg-gray-50 rounded-xl">
+                        <div class="text-[10px] font-black text-gray-400 uppercase">Usuários</div>
+                        <div class="text-lg font-black text-gray-900">{{ $usageStats['users_count'] ?? 0 }}</div>
+                    </div>
                 </div>
             </div>
 

@@ -46,14 +46,17 @@ class CreateTenantAdmin implements ShouldQueue
             // Inicializa o contexto do tenant
             tenancy()->initialize($this->tenant);
 
-            // Cria o usuário admin
-            $admin = User::create([
-                'name' => $this->adminData['name'],
-                'email' => $this->adminData['email'],
-                'password' => Hash::make($this->adminData['password']),
-                'role' => 'admin',
-                'is_active' => true,
-            ]);
+            // Cria ou atualiza o usuário admin
+            $admin = User::updateOrCreate(
+                ['email' => $this->adminData['email']],
+                [
+                    'name' => $this->adminData['name'],
+                    'password' => Hash::make($this->adminData['password']),
+                    'role' => 'admin',
+                    'is_active' => true,
+                    'is_super_admin' => false,
+                ]
+            );
 
             Log::info('CreateTenantAdmin: Usuário admin criado com sucesso', [
                 'tenant_id' => $this->tenant->id,

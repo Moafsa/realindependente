@@ -40,6 +40,16 @@
                         </dd>
                     </div>
                 </dl>
+                
+                @if($order->asaas_payment_url)
+                <div class="mt-8">
+                    <a href="{{ $order->asaas_payment_url }}" target="_blank" 
+                       class="inline-block w-full px-6 py-4 bg-green-600 text-white rounded-xl font-bold hover:bg-green-700 transition shadow-lg shadow-green-600/20">
+                        PAGAR AGORA (ASAAS)
+                    </a>
+                    <p class="mt-2 text-sm text-gray-500 italic">Você será redirecionado para o ambiente seguro de pagamento do Asaas.</p>
+                </div>
+                @endif
             </div>
             @endif
 

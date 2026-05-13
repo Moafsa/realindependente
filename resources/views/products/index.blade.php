@@ -86,9 +86,9 @@
                     <tr class="hover:bg-gray-50 transition">
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center">
-                                <div class="flex-shrink-0 h-12 w-12">
-                                    <img class="h-12 w-12 rounded-lg object-cover" 
-                                         src="{{ $product->image ? asset('storage/' . $product->image) : 'https://via.placeholder.com/150' }}" 
+                                <div class="flex-shrink-0 h-12 w-12 bg-gray-50 rounded-lg flex items-center justify-center overflow-hidden">
+                                    <img class="h-12 w-12 object-contain" 
+                                         src="{{ $product->image_url }}" 
                                          alt="{{ $product->name }}">
                                 </div>
                                 <div class="ml-4">

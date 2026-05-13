@@ -10,18 +10,26 @@ use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable; // HasRoles temporariamente removido
+    use HasApiTokens, HasFactory, Notifiable;
 
     protected $fillable = [
         'name',
         'email',
         'password',
         'role',
+        'is_super_admin',
         'athlete_id',
         'phone',
         'avatar',
         'is_active',
         'last_login_at',
+        'salary',
+        'payment_frequency',
+        'bio',
+        'education',
+        'experience',
+        'certificates',
+        'specialties',
     ];
 
     protected $hidden = [
@@ -33,6 +41,9 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'last_login_at' => 'datetime',
         'is_active' => 'boolean',
+        'is_super_admin' => 'boolean',
+        'salary' => 'decimal:2',
+        'certificates' => 'array',
     ];
 
     /**
@@ -40,7 +51,7 @@ class User extends Authenticatable
      */
     public function athlete()
     {
-        return $this->belongsTo(Athlete::class);
+        return $this->hasOne(Athlete::class);
     }
 
     /**
@@ -57,6 +68,14 @@ class User extends Authenticatable
     public function aiGeneratedContent()
     {
         return $this->hasManyThrough(AiGeneratedContent::class, Athlete::class);
+    }
+
+    /**
+     * Get the teams managed by this coach.
+     */
+    public function teams()
+    {
+        return $this->hasMany(Team::class, 'coach_id');
     }
 
     /**
@@ -92,6 +111,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Check if the user is a super admin.
+     */
+    public function isSuperAdmin()
+    {
+        return $this->is_super_admin === true;
+    }
+
+    /**
      * Get the user's full name with role.
      */
     public function getFullNameWithRoleAttribute()
@@ -105,10 +132,14 @@ class User extends Authenticatable
     public function getAvatarUrlAttribute()
     {
         if ($this->avatar) {
-            return asset('storage/' . $this->avatar);
+            // Se o avatar começa com http, retorna direto
+            if (str_starts_with($this->avatar, 'http')) {
+                return $this->avatar;
+            }
+            return route('tenant.assets', ['path' => $this->avatar]);
         }
         
-        return 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&color=7F9CF5&background=EBF4FF';
+        return 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&color=FFFFFF&background=6366F1&bold=true&format=svg';
     }
 
     /**
