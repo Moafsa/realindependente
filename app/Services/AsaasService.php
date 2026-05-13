@@ -14,13 +14,16 @@ class AsaasService
 
     public function __construct()
     {
-        // Prioritize tenant-specific API key if available
-        $tenantApiKey = \App\Models\SiteSetting::get('asaas_api_key');
+        // Prioritize tenant/central-specific settings if available in database
+        $dbApiKey = \App\Models\SiteSetting::get('asaas_api_key');
+        $dbBaseUrl = \App\Models\SiteSetting::get('asaas_api_url');
+        $dbEnv = \App\Models\SiteSetting::get('asaas_environment');
+        $dbWalletId = \App\Models\SiteSetting::get('asaas_wallet_id');
         
-        $this->apiKey = $tenantApiKey ?: config('services.asaas.api_key');
-        $this->baseUrl = config('services.asaas.base_url', 'https://sandbox.asaas.com/api/v3');
-        $this->environment = config('services.asaas.environment', 'sandbox');
-        $this->walletId = config('services.asaas.wallet_id');
+        $this->apiKey = $dbApiKey ?: config('services.asaas.api_key');
+        $this->baseUrl = $dbBaseUrl ?: config('services.asaas.base_url', 'https://sandbox.asaas.com/api/v3');
+        $this->environment = $dbEnv ?: config('services.asaas.environment', 'sandbox');
+        $this->walletId = $dbWalletId ?: config('services.asaas.wallet_id');
     }
 
     /**

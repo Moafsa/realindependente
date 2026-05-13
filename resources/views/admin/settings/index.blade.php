@@ -59,6 +59,50 @@
         </div>
 
 
+        <!-- Asaas Gateway -->
+        <div class="bg-white/[0.02] border border-white/5 rounded-[2.5rem] p-8 backdrop-blur-xl">
+            <div class="flex items-center gap-4 mb-8">
+                <div class="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-emerald-400">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                </div>
+                <div>
+                    <h2 class="text-xl font-black text-white">Gateway de Pagamento (Asaas)</h2>
+                    <p class="text-[10px] text-gray-500 font-black uppercase tracking-widest mt-1">Cobrança de Assinaturas dos Clubes (Super Admin)</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3 ml-1">Asaas API Key</label>
+                    <input type="password" name="asaas_api_key" value="{{ old('asaas_api_key', $asaas_api_key) }}" 
+                           class="w-full px-6 py-4 bg-white/[0.03] border border-white/5 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all font-mono text-sm"
+                           placeholder="$... (Sua chave secreta)">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3 ml-1">Ambiente</label>
+                    <select name="asaas_environment" class="w-full px-6 py-4 bg-[#0F1423] border border-white/5 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all appearance-none cursor-pointer">
+                        <option value="sandbox" {{ $asaas_environment == 'sandbox' ? 'selected' : '' }}>Sandbox (Testes)</option>
+                        <option value="production" {{ $asaas_environment == 'production' ? 'selected' : '' }}>Produção (Real)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3 ml-1">API URL</label>
+                    <input type="text" name="asaas_api_url" value="{{ old('asaas_api_url', $asaas_api_url) }}" 
+                           class="w-full px-6 py-4 bg-white/[0.03] border border-white/5 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all text-sm"
+                           placeholder="https://sandbox.asaas.com/api/v3">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3 ml-1">Wallet ID (Split)</label>
+                    <input type="text" name="asaas_wallet_id" value="{{ old('asaas_wallet_id', $asaas_wallet_id) }}" 
+                           class="w-full px-6 py-4 bg-white/[0.03] border border-white/5 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all text-sm font-mono"
+                           placeholder="00000000-0000-0000-0000-000000000000">
+                </div>
+            </div>
+        </div>
+
         <!-- Geo & Analytics -->
         <div class="bg-white/[0.02] border border-white/5 rounded-[2.5rem] p-8 backdrop-blur-xl">
             <div class="flex items-center gap-4 mb-8">

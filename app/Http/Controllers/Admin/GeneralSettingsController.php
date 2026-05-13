@@ -22,6 +22,12 @@ class GeneralSettingsController extends Controller
         $wuzapi_api_key = SiteSetting::get('wuzapi_api_key', 'admin');
         $wuzapi_base_url = SiteSetting::get('wuzapi_base_url', 'http://wuzapi:8080');
         $superadmin_whatsapp = SiteSetting::get('superadmin_whatsapp', '');
+
+        // Asaas Settings
+        $asaas_api_key = SiteSetting::get('asaas_api_key', '');
+        $asaas_api_url = SiteSetting::get('asaas_api_url', 'https://sandbox.asaas.com/api/v3');
+        $asaas_environment = SiteSetting::get('asaas_environment', 'sandbox');
+        $asaas_wallet_id = SiteSetting::get('asaas_wallet_id', '');
         
         return view('admin.settings.index', compact(
             'mapbox_token', 
@@ -31,7 +37,11 @@ class GeneralSettingsController extends Controller
             'openai_base_url',
             'wuzapi_api_key',
             'wuzapi_base_url',
-            'superadmin_whatsapp'
+            'superadmin_whatsapp',
+            'asaas_api_key',
+            'asaas_api_url',
+            'asaas_environment',
+            'asaas_wallet_id'
         ));
     }
 
@@ -46,6 +56,10 @@ class GeneralSettingsController extends Controller
             'wuzapi_api_key' => 'nullable|string',
             'wuzapi_base_url' => 'nullable|string|url',
             'superadmin_whatsapp' => 'nullable|string',
+            'asaas_api_key' => 'nullable|string',
+            'asaas_api_url' => 'nullable|string|url',
+            'asaas_environment' => 'nullable|string|in:sandbox,production',
+            'asaas_wallet_id' => 'nullable|string',
         ]);
 
         SiteSetting::set('mapbox_public_token', $request->mapbox_public_token, 'text', 'Mapbox Public Token', true);
@@ -55,7 +69,14 @@ class GeneralSettingsController extends Controller
         SiteSetting::set('openai_model', $request->openai_model, 'text', 'OpenAI Model', true);
         SiteSetting::set('openai_base_url', $request->openai_base_url, 'text', 'OpenAI Base URL', true);
         
+        SiteSetting::set('wuzapi_api_key', $request->wuzapi_api_key, 'text', 'Wuzapi API Key', true);
+        SiteSetting::set('wuzapi_base_url', $request->wuzapi_base_url, 'text', 'Wuzapi Base URL', true);
         SiteSetting::set('superadmin_whatsapp', $request->superadmin_whatsapp, 'text', 'SuperAdmin WhatsApp', true);
+
+        SiteSetting::set('asaas_api_key', $request->asaas_api_key, 'text', 'Asaas API Key', false);
+        SiteSetting::set('asaas_api_url', $request->asaas_api_url, 'text', 'Asaas API URL', false);
+        SiteSetting::set('asaas_environment', $request->asaas_environment, 'text', 'Asaas Environment', false);
+        SiteSetting::set('asaas_wallet_id', $request->asaas_wallet_id, 'text', 'Asaas Wallet ID', false);
 
         return redirect()->back()->with('success', 'Configurações atualizadas com sucesso!');
     }
