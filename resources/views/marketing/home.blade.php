@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Real Independent - Gestão Completa para Clubes de Futebol')
+@section('title', 'Nexts - Gestão Completa para Clubes de Futebol')
 
 @section('content')
 <!-- Header -->
@@ -9,7 +9,7 @@
         <div class="flex justify-between items-center py-6 transition-all duration-300" id="header-container">
             <div class="flex items-center">
                 <div class="flex-shrink-0">
-                    <h1 class="text-2xl font-bold text-white transition-colors duration-300" id="header-logo">Real Independent</h1>
+                    <h1 class="text-2xl font-bold text-white transition-colors duration-300" id="header-logo">Nexts</h1>
                 </div>
             </div>
             
@@ -251,7 +251,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid md:grid-cols-4 gap-8">
             <div>
-                <h3 class="text-xl font-bold mb-4">Real Independent</h3>
+                <h3 class="text-xl font-bold mb-4">Nexts</h3>
                 <p class="text-gray-400">A plataforma completa para gestão de clubes de futebol.</p>
             </div>
             <div>
@@ -280,7 +280,7 @@
             </div>
         </div>
         <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 Real Independent. Todos os direitos reservados.</p>
+            <p>&copy; 2024 Nexts. Todos os direitos reservados.</p>
         </div>
     </div>
 </footer>

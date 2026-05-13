@@ -1,4 +1,4 @@
-# Real Independent Club Management System
+# Nexts Club Management System
 
 Sistema completo de gestão para clubes de futebol com funcionalidades de IA, multi-tenancy e integração financeira.
 
@@ -54,7 +54,7 @@ Sistema completo de gestão para clubes de futebol com funcionalidades de IA, mu
 ### 1. Clone o repositório
 ```bash
 git clone <repository-url>
-cd realindependente
+cd nexts
 ```
 
 ### 2. Configure as variáveis de ambiente
@@ -67,7 +67,7 @@ Edite o arquivo `.env` com suas configurações:
 # Database
 DB_HOST=postgres
 DB_PORT=5432
-DB_DATABASE=real_independent_central
+DB_DATABASE=nexts_central
 DB_USERNAME=postgres
 DB_PASSWORD=postgres123
 
@@ -95,7 +95,7 @@ docker-compose exec app php artisan migrate
 ## 📁 Estrutura do Projeto
 
 ```
-realindependente/
+nexts/
 ├── app/
 │   ├── Http/Controllers/     # Controllers da aplicação
 │   ├── Models/              # Modelos Eloquent
@@ -168,7 +168,7 @@ Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalh
 ## 🆘 Suporte
 
 Para suporte técnico, entre em contato:
-- Email: suporte@realindependent.com
+- Email: suporte@Nexts.com
 - WhatsApp: (11) 99999-9999
 
 ## 🔄 Roadmap

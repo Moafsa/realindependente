@@ -14,7 +14,7 @@
             <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
                 <span class="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">RI</span>
             </div>
-            <h1 class="text-3xl font-bold text-white mb-2">Real Independent</h1>
+            <h1 class="text-3xl font-bold text-white mb-2">Nexts</h1>
             <p class="text-blue-100">Crie sua nova senha</p>
         </div>
 

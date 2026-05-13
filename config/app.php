@@ -16,7 +16,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Real Independent Club Management'),
+    'name' => env('APP_NAME', 'Nexts Club Management'),
 
     /*
     |--------------------------------------------------------------------------

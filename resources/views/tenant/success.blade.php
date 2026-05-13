@@ -66,7 +66,7 @@
                         Central de Ajuda
                     </a>
                     <span class="text-gray-300">|</span>
-                    <a href="mailto:suporte@realindependent.com" class="text-blue-600 hover:text-blue-700 font-medium">
+                    <a href="mailto:suporte@Nexts.com" class="text-blue-600 hover:text-blue-700 font-medium">
                         E-mail de Suporte
                     </a>
                 </div>

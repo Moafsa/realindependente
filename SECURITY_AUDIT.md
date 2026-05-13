@@ -1,4 +1,4 @@
-# 🔒 Relatório de Auditoria de Segurança - Real Independent
+# 🔒 Relatório de Auditoria de Segurança - Nexts
 
 ## Data: 08/10/2025
 
@@ -6,7 +6,7 @@
 
 ## 📋 Resumo Executivo
 
-Este documento apresenta uma auditoria completa de segurança do sistema Real Independent Club Management, identificando vulnerabilidades e implementando correções.
+Este documento apresenta uma auditoria completa de segurança do sistema Nexts Club Management, identificando vulnerabilidades e implementando correções.
 
 ---
 
@@ -203,9 +203,9 @@ Este documento apresenta uma auditoria completa de segurança do sistema Real In
 
 ## 📞 Contato de Segurança
 
-**Security Team:** security@realindependent.com
+**Security Team:** security@Nexts.com
 **Incident Response:** +55 11 3456-7890
-**Bug Bounty:** https://bugbounty.realindependent.com
+**Bug Bounty:** https://bugbounty.Nexts.com
 
 ---
 

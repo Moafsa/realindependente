@@ -1,4 +1,4 @@
-# ✅ Checklist de Segurança - Real Independent
+# ✅ Checklist de Segurança - Nexts
 
 ## 🚀 Checklist Pré-Deploy
 
@@ -349,9 +349,9 @@ Use este checklist antes de fazer deploy em produção.
 
 ## 📞 Contatos de Emergência
 
-- **Security Team**: security@realindependent.com | +55 11 3456-7890
-- **DevOps**: devops@realindependent.com | +55 11 3456-7891
-- **DPO**: dpo@realindependent.com | +55 11 3456-7892
+- **Security Team**: security@Nexts.com | +55 11 3456-7890
+- **DevOps**: devops@Nexts.com | +55 11 3456-7891
+- **DPO**: dpo@Nexts.com | +55 11 3456-7892
 
 ---
 

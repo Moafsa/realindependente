@@ -26,7 +26,7 @@ class TournamentTestDataSeeder extends Seeder
 
         // 2. Criar 6 Times de Teste (para o algoritmo Round-Robin)
         $teamNames = [
-            'Real Independente FC',
+            'Nextse FC',
             'Academia de Craques',
             'Estrela do Norte',
             'Titãs do Futebol',

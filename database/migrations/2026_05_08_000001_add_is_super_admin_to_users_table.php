@@ -18,7 +18,7 @@ return new class extends Migration
         // Define o administrador principal como Super Admin
         // Substitua pelo e-mail correto se necessário
         DB::table('users')
-            ->where('email', 'admin@realindependent.com')
+            ->where('email', 'admin@Nexts.com')
             ->update(['is_super_admin' => true]);
     }
 

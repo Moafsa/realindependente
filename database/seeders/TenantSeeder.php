@@ -24,12 +24,12 @@ class TenantSeeder extends Seeder
 
         $tenant = Tenant::create([
             'id' => 'demo-club-001',
-            'name' => 'Real Independent Club',
-            'email' => 'admin@realindependent.com',
+            'name' => 'Nexts Club',
+            'email' => 'admin@Nexts.com',
             'domain' => 'demo.localhost',
             'plan_id' => $plan->id,
             'data' => json_encode([
-                'club_name' => 'Real Independent Club',
+                'club_name' => 'Nexts Club',
                 'founded_year' => 2010,
                 'description' => 'Clube de futebol profissional com foco no desenvolvimento de atletas',
                 'logo' => '/images/logo.png',
@@ -40,9 +40,9 @@ class TenantSeeder extends Seeder
                 'state' => 'SP',
                 'phone' => '(11) 3456-7890',
                 'social_media' => [
-                    'instagram' => '@realindependent',
-                    'facebook' => 'RealIndependentClub',
-                    'twitter' => '@realindependent'
+                    'instagram' => '@Nexts',
+                    'facebook' => 'NextsClub',
+                    'twitter' => '@Nexts'
                 ]
             ]),
             'is_active' => true,

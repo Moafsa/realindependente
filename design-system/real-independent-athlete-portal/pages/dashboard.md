@@ -1,6 +1,6 @@
 # Dashboard Page Overrides
 
-> **PROJECT:** Real Independent Athlete Portal
+> **PROJECT:** Nexts Athlete Portal
 > **Generated:** 2026-05-08 16:37:05
 > **Page Type:** Dashboard / Data View
 

@@ -16,10 +16,10 @@ class UserSeeder extends Seeder
     {
         // Admin user
         User::updateOrCreate(
-            ['email' => 'admin@realindependent.com'],
+            ['email' => 'admin@Nexts.com'],
             [
                 'name' => 'Administrador',
-                'email' => 'admin@realindependent.com',
+                'email' => 'admin@Nexts.com',
                 'password' => Hash::make('password'),
                 'role' => 'admin',
                 'is_active' => true,
@@ -28,10 +28,10 @@ class UserSeeder extends Seeder
 
         // Coach user
         User::updateOrCreate(
-            ['email' => 'coach@realindependent.com'],
+            ['email' => 'coach@Nexts.com'],
             [
                 'name' => 'Treinador',
-                'email' => 'coach@realindependent.com',
+                'email' => 'coach@Nexts.com',
                 'password' => Hash::make('password'),
                 'role' => 'coach',
                 'is_active' => true,

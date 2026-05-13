@@ -1,4 +1,4 @@
-const CACHE_NAME = 'real-independent-v1';
+const CACHE_NAME = 'nexts-v1';
 const urlsToCache = [
   '/'
 ];

@@ -1,7 +1,7 @@
 @extends('layouts.site')
 
 @section('title', 'Nossa Identidade')
-@section('description', 'Conheça a história e os valores por trás do Real Independent')
+@section('description', 'Conheça a história e os valores por trás do Nexts')
 
 @section('content')
 <!-- Hero Section Premium -->
@@ -19,7 +19,7 @@
                 Nossa Identidade
             </span>
             <h1 class="text-5xl md:text-7xl font-black mb-8 leading-tight anim-slide-up">
-                {{ $settings['site_name'] ?? 'Real Independent' }}
+                {{ $settings['site_name'] ?? 'Nexts' }}
             </h1>
             <p class="text-xl text-gray-400 font-medium leading-relaxed mb-8 anim-slide-up-delay">
                 {{ $settings['site_description'] ?? 'Formando não apenas atletas de elite, mas cidadãos comprometidos com a excelência.' }}
@@ -47,7 +47,7 @@
                 </h2>
                 <div class="space-y-6 text-lg text-gray-600 leading-relaxed font-medium">
                     <p>
-                        {{ $settings['about_history'] ?? 'O Real Independent nasceu da visão de que o esporte é a ferramenta mais poderosa de transformação social. Nossa trajetória é pavimentada por suor, técnica e uma fé inabalável no potencial humano.' }}
+                        {{ $settings['about_history'] ?? 'O Nexts nasceu da visão de que o esporte é a ferramenta mais poderosa de transformação social. Nossa trajetória é pavimentada por suor, técnica e uma fé inabalável no potencial humano.' }}
                     </p>
                     <div class="pl-6 border-l-4 border-primary">
                         "{{ $settings['about_quote'] ?? 'Onde outros veem apenas jogadores, nós enxergamos o futuro campeão e o cidadão exemplar.' }}"
@@ -143,7 +143,7 @@
         <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
         <div class="relative z-10 max-w-2xl mx-auto">
             <h2 class="text-4xl md:text-5xl font-black mb-6">{{ $settings['about_cta_title'] ?? 'Pronto para escrever sua história?' }}</h2>
-            <p class="text-gray-100 text-lg mb-10 font-medium">{{ $settings['about_cta_text'] ?? 'Junte-se ao Real Independent e transforme seu talento em excelência tecnológica e esportiva.' }}</p>
+            <p class="text-gray-100 text-lg mb-10 font-medium">{{ $settings['about_cta_text'] ?? 'Junte-se ao Nexts e transforme seu talento em excelência tecnológica e esportiva.' }}</p>
             <div class="flex flex-col sm:flex-row gap-4 justify-center">
                 <a href="{{ route('site.contact') }}" class="px-8 py-4 bg-white text-primary font-black rounded-2xl hover:bg-gray-50 transition shadow-xl">Quero ser Avaliado</a>
                 <a href="{{ route('site.teams') }}" class="px-8 py-4 bg-white/10 text-white font-black rounded-2xl hover:bg-white/20 transition">Ver Equipes</a>

@@ -1,4 +1,4 @@
-# 🔐 Política de Segurança - Real Independent
+# 🔐 Política de Segurança - Nexts
 
 ## Versão 1.0 | Última Atualização: 08/10/2025
 
@@ -20,7 +20,7 @@
 
 ## 🎯 Visão Geral
 
-Esta política de segurança define os padrões e práticas de segurança para o sistema Real Independent Club Management. Todos os usuários, desenvolvedores e administradores devem seguir estas diretrizes.
+Esta política de segurança define os padrões e práticas de segurança para o sistema Nexts Club Management. Todos os usuários, desenvolvedores e administradores devem seguir estas diretrizes.
 
 ### Princípios Fundamentais
 
@@ -396,7 +396,7 @@ Valorizamos pesquisadores de segurança que reportam vulnerabilidades de forma r
 
 ### Como Reportar
 
-1. **Email**: security@realindependent.com
+1. **Email**: security@Nexts.com
 2. **Assunto**: [SECURITY] Descrição breve
 3. **Incluir**:
    - Descrição detalhada
@@ -424,16 +424,16 @@ Valorizamos pesquisadores de segurança que reportam vulnerabilidades de forma r
 ## 📞 Contatos de Segurança
 
 **Security Team**
-- Email: security@realindependent.com
+- Email: security@Nexts.com
 - Telefone: +55 11 3456-7890 (24/7)
 - PGP Key: [Link para chave pública]
 
 **Data Protection Officer (DPO)**
-- Email: dpo@realindependent.com
+- Email: dpo@Nexts.com
 - Telefone: +55 11 3456-7891
 
 **Incident Response Team**
-- Email: incident@realindependent.com
+- Email: incident@Nexts.com
 - Telefone: +55 11 3456-7892 (24/7)
 
 ---

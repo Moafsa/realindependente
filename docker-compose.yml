@@ -2,9 +2,9 @@ services:
   # PostgreSQL Database
   postgres:
     image: postgres:15-alpine
-    container_name: real-independent-db
+    container_name: nexts-db
     environment:
-      POSTGRES_DB: real_independent_central
+      POSTGRES_DB: nexts_central
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres123
     ports:
@@ -13,32 +13,32 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./database/init:/docker-entrypoint-initdb.d
     networks:
-      - real-independent-network
+      - nexts-network
 
   # Redis for caching and sessions
   redis:
     image: redis:7-alpine
-    container_name: real-independent-redis
+    container_name: nexts-redis
     ports:
       - "6381:6379"
     volumes:
       - redis_data:/data
     networks:
-      - real-independent-network
+      - nexts-network
 
   # Laravel Application
   app:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: real-independent-app
+    container_name: nexts-app
     environment:
       APP_ENV: local
       APP_DEBUG: true
       DB_CONNECTION: pgsql
       DB_HOST: postgres
       DB_PORT: 5432
-      DB_DATABASE: real_independent_central
+      DB_DATABASE: nexts_central
       DB_USERNAME: postgres
       DB_PASSWORD: postgres123
       REDIS_HOST: redis
@@ -56,23 +56,23 @@ services:
       - postgres
       - redis
     networks:
-      - real-independent-network
+      - nexts-network
     command: php artisan serve --host=0.0.0.0 --port=8001
 
   # Mailpit for local email testing
   mailpit:
     image: axllent/mailpit
-    container_name: real-independent-mailpit
+    container_name: nexts-mailpit
     ports:
       - "8025:8025"
       - "1025:1025"
     networks:
-      - real-independent-network
+      - nexts-network
 
   # Nginx Web Server
   nginx:
     image: nginx:alpine
-    container_name: real-independent-nginx
+    container_name: nexts-nginx
     ports:
       - "8090:80"
       - "8443:443"
@@ -83,12 +83,12 @@ services:
       - app
       - mailpit
     networks:
-      - real-independent-network
+      - nexts-network
 
   # MinIO for object storage
   minio:
     image: minio/minio
-    container_name: real-independent-minio
+    container_name: nexts-minio
     ports:
       - "9000:9000"
       - "9001:9001"
@@ -98,7 +98,7 @@ services:
     volumes:
       - minio_data:/data
     networks:
-      - real-independent-network
+      - nexts-network
     command: server /data --console-address ":9001"
 
   # MinIO Client to create bucket
@@ -107,18 +107,18 @@ services:
     depends_on:
       - minio
     networks:
-      - real-independent-network
+      - nexts-network
     entrypoint: >
       /bin/sh -c "
       until /usr/bin/mc alias set local http://minio:9000 minioadmin minioadmin123; do echo 'Waiting for MinIO...'; sleep 1; done;
-      /usr/bin/mc mb local/real-independent;
-      /usr/bin/mc anonymous set public local/real-independent;
+      /usr/bin/mc mb local/nexts;
+      /usr/bin/mc anonymous set public local/nexts;
       exit 0;
       "
 
   wuzapi:
     image: asternic/wuzapi:latest
-    container_name: real-independent-wuzapi
+    container_name: nexts-wuzapi
     environment:
       WUZAPI_ADMIN_TOKEN: admin123456
       API_KEY: admin123456
@@ -133,7 +133,7 @@ services:
     depends_on:
       - postgres
     networks:
-      - real-independent-network
+      - nexts-network
 
 volumes:
   postgres_data:
@@ -143,5 +143,5 @@ volumes:
   minio_data:
 
 networks:
-  real-independent-network:
+  nexts-network:
     driver: bridge

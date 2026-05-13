@@ -14,7 +14,7 @@
             <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
                 <span class="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">RI</span>
             </div>
-            <h1 class="text-3xl font-bold text-white mb-2">Real Independent</h1>
+            <h1 class="text-3xl font-bold text-white mb-2">Nexts</h1>
             <p class="text-blue-100">Faça login em sua conta</p>
         </div>
 
@@ -95,8 +95,8 @@
         <div class="mt-6 bg-white bg-opacity-10 backdrop-blur-sm rounded-lg p-4">
             <h3 class="text-white font-semibold mb-2">Credenciais de Demonstração:</h3>
             <div class="text-blue-100 text-sm space-y-1">
-                <p><strong>Admin:</strong> admin@realindependent.com / password</p>
-                <p><strong>Coach:</strong> coach@realindependent.com / password</p>
+                <p><strong>Admin:</strong> admin@Nexts.com / password</p>
+                <p><strong>Coach:</strong> coach@Nexts.com / password</p>
             </div>
         </div>
     </div>

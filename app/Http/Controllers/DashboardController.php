@@ -31,7 +31,7 @@ class DashboardController extends Controller
 
         // 2. Se estivermos em um subdomínio (qualquer coisa que não seja exatamente localhost ou o domínio central configurado)
         // Tentamos forçar a inicialização.
-        $centralDomains = config('tenancy.central_domains', ['localhost', 'realindependent.test']);
+        $centralDomains = config('tenancy.central_domains', ['localhost', 'Nexts.test']);
         
         if (!in_array($host, $centralDomains)) {
             $domain = \Stancl\Tenancy\Database\Models\Domain::where('domain', $host)->first();

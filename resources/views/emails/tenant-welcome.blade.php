@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bem-vindo ao Real Independent</title>
+    <title>Bem-vindo ao Nexts</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -51,13 +51,13 @@
 </head>
 <body>
     <div class="header">
-        <h1>🏆 Bem-vindo ao Real Independent!</h1>
+        <h1>🏆 Bem-vindo ao Nexts!</h1>
     </div>
     
     <div class="content">
         <p>Olá!</p>
         
-        <p>É com grande prazer que damos as boas-vindas ao <strong>{{ $tenant->name }}</strong> ao Real Independent!</p>
+        <p>É com grande prazer que damos as boas-vindas ao <strong>{{ $tenant->name }}</strong> ao Nexts!</p>
         
         <div class="info-box">
             <h3>Seus dados de acesso:</h3>
@@ -88,12 +88,12 @@
         <p>Boa sorte com seu clube!</p>
         
         <p>Atenciosamente,<br>
-        <strong>Equipe Real Independent</strong></p>
+        <strong>Equipe Nexts</strong></p>
     </div>
     
     <div class="footer">
         <p>Este é um e-mail automático, por favor não responda.</p>
-        <p>&copy; {{ date('Y') }} Real Independent. Todos os direitos reservados.</p>
+        <p>&copy; {{ date('Y') }} Nexts. Todos os direitos reservados.</p>
     </div>
 </body>
 </html>

@@ -1,4 +1,4 @@
-# 📊 Relatório de Build e Deploy - Real Independent
+# 📊 Relatório de Build e Deploy - Nexts
 
 ## Data: 08/10/2025 | Hora: 16:45
 
@@ -10,7 +10,7 @@
 
 **Tempo Total de Build:** ~5 minutos
 
-**Imagem Docker:** `realindependente-app:latest`
+**Imagem Docker:** `nexts-app:latest`
 
 ---
 
@@ -18,10 +18,10 @@
 
 | Container | Imagem | Status | Porta | Health |
 |-----------|--------|--------|-------|--------|
-| **real-independent-app** | realindependente-app | ✅ Running | 8001 | Healthy |
-| **real-independent-db** | postgres:15-alpine | ✅ Running | 5434 | Healthy |
-| **real-independent-redis** | redis:7-alpine | ✅ Running | 6380 | Healthy |
-| **real-independent-nginx** | nginx:alpine | ⚠️ Not Started | 8090 | - |
+| **nexts-app** | nexts-app | ✅ Running | 8001 | Healthy |
+| **nexts-db** | postgres:15-alpine | ✅ Running | 5434 | Healthy |
+| **nexts-redis** | redis:7-alpine | ✅ Running | 6380 | Healthy |
+| **nexts-nginx** | nginx:alpine | ⚠️ Not Started | 8090 | - |
 
 ---
 
@@ -304,7 +304,7 @@ docker-compose up -d
 1. Verificar logs: `docker-compose logs app`
 2. Verificar status: `docker-compose ps`
 3. Reiniciar: `docker-compose restart`
-4. Contato: devops@realindependent.com
+4. Contato: devops@Nexts.com
 
 ---
 
@@ -321,5 +321,5 @@ docker-compose up -d
 ---
 
 **Última Atualização:** 08/10/2025 16:45
-**Build ID:** realindependente-app-20251008-1645
+**Build ID:** nexts-app-20251008-1645
 **Environment:** Development (Local Docker)

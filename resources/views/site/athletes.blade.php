@@ -14,7 +14,7 @@
                 {{ $settings['athletes_title'] ?? 'Nossos Atletas' }}
             </h1>
             <p class="text-xl md:text-2xl mb-8 opacity-90">
-                {{ $settings['athletes_subtitle'] ?? 'Conheça os talentos do Real Independent' }}
+                {{ $settings['athletes_subtitle'] ?? 'Conheça os talentos do Nexts' }}
             </p>
             <p class="text-lg mb-12 max-w-3xl mx-auto">
                 {{ $settings['athletes_description'] ?? 'Atletas dedicados, comprometidos e em constante evolução. Nossa seleção representa o futuro do futebol brasileiro.' }}

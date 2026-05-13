@@ -37,7 +37,7 @@
                 <div class="flex items-center flex-shrink-0 px-4">
                     @php
                         $siteLogo = \App\Models\SiteSetting::get('site_logo');
-                        $siteName = $settings['site_name'] ?? tenant('name') ?? 'Real Independent';
+                        $siteName = $settings['site_name'] ?? tenant('name') ?? 'Nexts';
                     @endphp
                     @if($siteLogo)
                         <img src="{{ \Storage::url($siteLogo) }}" alt="{{ $siteName }}" class="h-10 w-auto">

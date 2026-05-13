@@ -6,7 +6,7 @@
 
 ---
 
-**Project:** Real Independent Athlete Portal
+**Project:** Nexts Athlete Portal
 **Generated:** 2026-05-08 16:37:05
 **Category:** Financial Dashboard
 

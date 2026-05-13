@@ -56,7 +56,7 @@
                     <div class="flex items-center gap-4">
                         @php
                             $siteLogo = \App\Models\SiteSetting::get('site_logo') ?? tenant('logo');
-                            $siteName = \App\Models\SiteSetting::get('site_name') ?? tenant('name') ?? 'Real Independent';
+                            $siteName = \App\Models\SiteSetting::get('site_name') ?? tenant('name') ?? 'Nexts';
                         @endphp
                         
                         <div class="relative group">
@@ -124,7 +124,7 @@
                     <div>
                         <h2 class="text-xl font-black text-white tracking-tight">@yield('title')</h2>
                         <div class="flex items-center gap-2 mt-1">
-                            <span class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Real Independente</span>
+                            <span class="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Nextse</span>
                             <span class="w-1 h-1 bg-white/10 rounded-full"></span>
                             <span class="text-[10px] text-indigo-400 font-bold uppercase tracking-widest">{{ now()->translatedFormat('l, d \d\e F') }}</span>
                         </div>

@@ -84,9 +84,9 @@
                     <div class="flex-shrink-0 flex items-center">
                         <a href="{{ route('site.home') }}" class="text-2xl font-bold text-primary">
                             @if($settings['site_logo'] ?? false)
-                                <img src="{{ Storage::url($settings['site_logo']) }}" alt="{{ $settings['site_name'] ?? 'Real Independent' }}" class="h-12 w-auto transition-all" id="site-logo">
+                                <img src="{{ Storage::url($settings['site_logo']) }}" alt="{{ $settings['site_name'] ?? 'Nexts' }}" class="h-12 w-auto transition-all" id="site-logo">
                             @else
-                                {{ $settings['site_name'] ?? 'Real Independent' }}
+                                {{ $settings['site_name'] ?? 'Nexts' }}
                             @endif
                         </a>
                     </div>
@@ -242,7 +242,7 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
                 <!-- Company Info -->
                 <div class="col-span-1 md:col-span-2">
-                    <h3 class="text-lg font-semibold mb-4">{{ $settings['site_name'] ?? 'Real Independent' }}</h3>
+                    <h3 class="text-lg font-semibold mb-4">{{ $settings['site_name'] ?? 'Nexts' }}</h3>
                     <p class="text-gray-300 mb-4">{{ $settings['site_description'] ?? 'Clube de futebol dedicado ao desenvolvimento de atletas.' }}</p>
                     <div class="flex space-x-4">
                         @if($settings['facebook_url'] ?? false)
@@ -303,7 +303,7 @@
             
             <div class="mt-8 pt-8 border-t border-gray-700">
                 <p class="text-center text-gray-400">
-                    © {{ date('Y') }} {{ $settings['site_name'] ?? 'Real Independent' }}. Todos os direitos reservados.
+                    © {{ date('Y') }} {{ $settings['site_name'] ?? 'Nexts' }}. Todos os direitos reservados.
                 </p>
             </div>
         </div>

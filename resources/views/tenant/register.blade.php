@@ -204,7 +204,7 @@
                                value="{{ old('club_name') }}" 
                                required
                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('club_name') border-red-500 @enderror"
-                               placeholder="Ex: Real Independent FC">
+                               placeholder="Ex: Nexts FC">
                         @error('club_name')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror

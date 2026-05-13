@@ -103,7 +103,7 @@
                 <div class="bg-gradient-to-br from-blue-600 to-blue-800 rounded-3xl p-8 shadow-2xl relative overflow-hidden group">
                     <div class="relative z-10">
                         <h3 class="text-blue-200 text-xs font-black uppercase tracking-[0.2em] mb-2">Equipe Atual</h3>
-                        <div class="text-3xl font-black uppercase italic tracking-tighter mb-4">{{ $athlete->team->name ?? 'Independente' }}</div>
+                        <div class="text-3xl font-black uppercase italic tracking-tighter mb-4">{{ $athlete->team->name ?? 'Nexts' }}</div>
                         <a href="{{ $athlete->team ? route('site.team', $athlete->team->id) : '#' }}" class="inline-flex items-center text-sm font-bold uppercase tracking-widest bg-white/20 hover:bg-white/30 px-6 py-3 rounded-2xl transition-all">
                             Ver Equipe <svg class="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
                         </a>

@@ -1,5 +1,5 @@
 {
-    "name": "real-independent/club-management",
+    "name": "nexts/club-management",
     "type": "project",
     "description": "SaaS platform for football club management",
     "keywords": ["laravel", "saas", "football", "club", "management"],

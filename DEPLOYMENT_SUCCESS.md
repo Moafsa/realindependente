@@ -1,4 +1,4 @@
-# 🎉 DEPLOYMENT SUCCESS - Real Independent
+# 🎉 DEPLOYMENT SUCCESS - Nexts
 
 ## Data: 09/10/2025 | Status: ✅ SISTEMA NO AR
 
@@ -38,9 +38,9 @@
 - Criptografia configurada
 
 ### 4. ✅ Containers
-- ✅ **real-independent-app** (Laravel 11) - Porta 8001
-- ✅ **real-independent-db** (PostgreSQL 15) - Porta 5434
-- ✅ **real-independent-redis** (Redis 7) - Porta 6380
+- ✅ **nexts-app** (Laravel 11) - Porta 8001
+- ✅ **nexts-db** (PostgreSQL 15) - Porta 5434
+- ✅ **nexts-redis** (Redis 7) - Porta 6380
 
 ---
 
@@ -60,9 +60,9 @@
 ### Containers
 ```
 NAME                     STATUS         PORTS
-real-independent-app     Up 6 minutes   0.0.0.0:8001->8001/tcp
-real-independent-db      Up 6 minutes   0.0.0.0:5434->5432/tcp
-real-independent-redis   Up 6 minutes   0.0.0.0:6380->6379/tcp
+nexts-app     Up 6 minutes   0.0.0.0:8001->8001/tcp
+nexts-db      Up 6 minutes   0.0.0.0:5434->5432/tcp
+nexts-redis   Up 6 minutes   0.0.0.0:6380->6379/tcp
 ```
 
 ### Banco de Dados
@@ -217,13 +217,13 @@ docker-compose exec app php artisan route:list
 ### Banco de Dados
 ```bash
 # Acessar PostgreSQL
-docker-compose exec postgres psql -U postgres -d real_independent_central
+docker-compose exec postgres psql -U postgres -d nexts_central
 
 # Backup
-docker-compose exec postgres pg_dump -U postgres real_independent_central > backup.sql
+docker-compose exec postgres pg_dump -U postgres nexts_central > backup.sql
 
 # Restore
-docker-compose exec -T postgres psql -U postgres real_independent_central < backup.sql
+docker-compose exec -T postgres psql -U postgres nexts_central < backup.sql
 ```
 
 ---
@@ -296,7 +296,7 @@ Algumas rotas do Laravel ainda precisam ser configuradas. Por enquanto, use as p
 ### Banco de Dados
 - **Host:** localhost
 - **Porta:** 5434
-- **Database:** real_independent_central
+- **Database:** nexts_central
 - **Usuário:** postgres
 - **Senha:** postgres123 (⚠️ Alterar em produção!)
 
@@ -339,7 +339,7 @@ Algumas rotas do Laravel ainda precisam ser configuradas. Por enquanto, use as p
 
 **Status:** ✅ **SISTEMA COMPLETO E OPERACIONAL!**
 
-O sistema Real Independent Club Management está:
+O sistema Nexts Club Management está:
 - ✅ Buildado e deployado com sucesso
 - ✅ Rodando em Docker
 - ✅ Banco de dados configurado e populado
@@ -352,6 +352,6 @@ O sistema Real Independent Club Management está:
 ---
 
 **Última Atualização:** 09/10/2025 15:59
-**Build ID:** realindependente-20251009-1559
+**Build ID:** nexts-20251009-1559
 **Environment:** Development (Local Docker)
 **Status:** 🟢 ONLINE

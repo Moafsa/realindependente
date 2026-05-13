@@ -70,11 +70,11 @@ class TenantDatabaseSeeder extends Seeder
 
         // 4. Create default Site Settings
         $settings = [
-            'site_name' => 'Real Independent - ' . tenant('id'),
+            'site_name' => 'Nexts - ' . tenant('id'),
             'site_description' => 'Clube de Futebol Profissional focado em formação de talentos.',
             'hero_title' => 'Formando Campeões do Futuro',
             'hero_subtitle' => 'Excelência em cada passe, paixão em cada gol.',
-            'about_text' => 'O Real Independent é mais do que um clube, é uma família dedicada ao desenvolvimento integral de jovens atletas através do esporte.',
+            'about_text' => 'O Nexts é mais do que um clube, é uma família dedicada ao desenvolvimento integral de jovens atletas através do esporte.',
             'contact_phone' => '(11) 99999-9999',
             'contact_email' => 'contato@' . tenant('id') . '.com.br',
             'contact_address' => 'Rua do Esporte, 100 - Sede',

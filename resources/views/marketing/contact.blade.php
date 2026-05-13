@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Contato - Real Independent')
+@section('title', 'Contato - Nexts')
 
 @section('content')
 <!-- Header -->
@@ -8,7 +8,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center py-6">
             <div class="flex items-center">
-                <a href="{{ route('marketing.home') }}" class="text-2xl font-bold text-white transition-colors duration-300" id="header-logo">Real Independent</a>
+                <a href="{{ route('marketing.home') }}" class="text-2xl font-bold text-white transition-colors duration-300" id="header-logo">Nexts</a>
             </div>
             <nav class="hidden md:flex space-x-8">
                 <a href="{{ route('marketing.home') }}#features" class="text-white/80 hover:text-white transition-colors nav-link">Funcionalidades</a>
@@ -188,8 +188,8 @@
                         </div>
                         <div class="ml-4">
                             <h3 class="text-lg font-semibold text-gray-900 mb-2">E-mail</h3>
-                            <p class="text-gray-600">suporte@realindependent.com</p>
-                            <p class="text-gray-600">comercial@realindependent.com</p>
+                            <p class="text-gray-600">suporte@Nexts.com</p>
+                            <p class="text-gray-600">comercial@Nexts.com</p>
                         </div>
                     </div>
 
@@ -253,7 +253,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid md:grid-cols-4 gap-8">
             <div>
-                <h3 class="text-xl font-bold mb-4">Real Independent</h3>
+                <h3 class="text-xl font-bold mb-4">Nexts</h3>
                 <p class="text-gray-400">A plataforma completa para gestão de clubes de futebol.</p>
             </div>
             <div>
@@ -278,7 +278,7 @@
             </div>
         </div>
         <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; {{ date('Y') }} Real Independent. Todos os direitos reservados.</p>
+            <p>&copy; {{ date('Y') }} Nexts. Todos os direitos reservados.</p>
         </div>
     </div>
 </footer>
