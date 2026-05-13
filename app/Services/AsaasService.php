@@ -18,7 +18,16 @@ class AsaasService
         $dbApiKey = \App\Models\SiteSetting::get('asaas_api_key');
         $dbBaseUrl = \App\Models\SiteSetting::get('asaas_api_url');
         $dbEnv = \App\Models\SiteSetting::get('asaas_environment');
-        $dbWalletId = \App\Models\SiteSetting::get('asaas_wallet_id');
+        
+        // The wallet ID for splits should always be the platform owner's wallet (from central DB)
+        $dbWalletId = null;
+        if (function_exists('tenancy') && tenancy()->initialized) {
+            $dbWalletId = tenancy()->central(function () {
+                return \App\Models\SiteSetting::get('asaas_wallet_id');
+            });
+        } else {
+            $dbWalletId = \App\Models\SiteSetting::get('asaas_wallet_id');
+        }
         
         $this->apiKey = $dbApiKey ?: config('services.asaas.api_key');
         $this->baseUrl = $dbBaseUrl ?: config('services.asaas.base_url', 'https://sandbox.asaas.com/api/v3');
@@ -207,10 +216,7 @@ class AsaasService
      */
     public function createSubscription(array $data): array
     {
-        $response = Http::withHeaders([
-            'access_token' => $this->apiKey,
-            'Content-Type' => 'application/json',
-        ])->post($this->baseUrl . '/subscriptions', [
+        $payload = [
             'customer' => $data['customer_id'],
             'billingType' => $data['billing_type'] ?? 'PIX',
             'value' => $data['value'],
@@ -218,7 +224,22 @@ class AsaasService
             'description' => $data['description'] ?? null,
             'externalReference' => $data['external_reference'] ?? null,
             'cycle' => $data['cycle'] ?? 'MONTHLY',
-        ]);
+        ];
+
+        // Adiciona split se houver configuração de taxa administrativa
+        if (isset($data['split_percentage']) && $data['split_percentage'] > 0 && $this->walletId) {
+            $payload['split'] = [
+                [
+                    'walletId' => $this->walletId,
+                    'percentualValue' => $data['split_percentage'],
+                ]
+            ];
+        }
+
+        $response = Http::withHeaders([
+            'access_token' => $this->apiKey,
+            'Content-Type' => 'application/json',
+        ])->post($this->baseUrl . '/subscriptions', $payload);
 
         if ($response->successful()) {
             return $response->json();

@@ -491,12 +491,14 @@ class SiteController extends Controller
                 }
             }
 
-            // Busca o percentual de taxa administrativa do plano do tenant para a Lojinha
+            // Busca as taxas administrativas do plano do tenant
             $adminFee = 0;
+            $ecommerceTax = 0;
             if (tenancy()->initialized) {
                 $plan = \App\Models\Plan::find(tenant('plan_id'));
                 if ($plan) {
                     $adminFee = $plan->admin_fee_percentage;
+                    $ecommerceTax = $plan->ecommerce_tax_rate;
                 }
             }
 
@@ -521,6 +523,7 @@ class SiteController extends Controller
                         'external_reference' => "order_{$order->id}",
                         'billing_type' => $request->payment_method === 'asaas' ? 'PIX' : $request->payment_method,
                         'cycle' => $cycle,
+                        'split_percentage' => $adminFee,
                     ];
 
                     $response = $this->asaasService->createSubscription($subscriptionData);
@@ -578,7 +581,7 @@ class SiteController extends Controller
                         'description' => "Pedido #{$order->id} - Lojinha " . (tenant('name') ?? ''),
                         'external_reference' => "order_{$order->id}",
                         'billing_type' => $request->payment_method === 'asaas' ? 'PIX' : $request->payment_method,
-                        'split_percentage' => $adminFee,
+                        'split_percentage' => $ecommerceTax,
                     ];
 
                     $charge = $this->asaasService->createCharge($chargeData);
