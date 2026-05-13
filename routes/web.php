@@ -88,6 +88,15 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     // General Settings
     Route::get('/settings', [\App\Http\Controllers\Admin\GeneralSettingsController::class, 'index'])->name('settings.index');
     Route::put('/settings', [\App\Http\Controllers\Admin\GeneralSettingsController::class, 'update'])->name('settings.update');
+
+    // WhatsApp Session Management (Super Admin)
+    Route::prefix('whatsapp')->name('whatsapp.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\WhatsAppController::class, 'index'])->name('index');
+        Route::get('/qr', [\App\Http\Controllers\WhatsAppController::class, 'qrCode'])->name('qr');
+        Route::get('/status', [\App\Http\Controllers\WhatsAppController::class, 'status'])->name('status');
+        Route::post('/disconnect', [\App\Http\Controllers\WhatsAppController::class, 'disconnect'])->name('disconnect');
+        Route::post('/settings', [\App\Http\Controllers\WhatsAppController::class, 'saveSettings'])->name('settings.save');
+    });
 });
 
 // Alias for tenant routes to allow generation from central app
