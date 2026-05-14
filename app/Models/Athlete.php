@@ -265,7 +265,8 @@ class Athlete extends Model
         }
         
         // Se for um path relativo, gera a URL
-        return \Illuminate\Support\Facades\Storage::url($value);
+        $disk = config('filesystems.default') === 's3' ? 's3' : 'public';
+        return \Illuminate\Support\Facades\Storage::disk($disk)->url($value);
     }
 
     /**

@@ -64,13 +64,28 @@ Route::get('/register', [TenantRegistrationController::class, 'create'])->name('
 Route::post('/register', [TenantRegistrationController::class, 'store']);
 
 // Super Admin - Tenant Management
-Route::get('/debug-tenant/{id}', function ($id) {
-    $tenant = \App\Models\Tenant::find($id);
+Route::get('/debug-system', function () {
+    $tenants = \App\Models\Tenant::all()->map(function($t) {
+        return [
+            'id' => $t->id,
+            'name' => $t->name,
+            'data' => $t->data,
+        ];
+    });
+    
+    $superadmins = \App\Models\User::where('role', 'admin')->orWhere('is_super_admin', true)->get()->map(function($u) {
+        return [
+            'id' => $u->id,
+            'name' => $u->name,
+            'email' => $u->email,
+            'role' => $u->role,
+            'is_super_admin' => $u->is_super_admin ?? false,
+        ];
+    });
+
     return response()->json([
-        'id' => $tenant->id,
-        'name' => $tenant->name,
-        'data' => $tenant->data,
-        'all_attributes' => $tenant->getAttributes(),
+        'tenants' => $tenants,
+        'superadmins' => $superadmins,
     ]);
 });
 

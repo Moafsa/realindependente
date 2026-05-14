@@ -271,7 +271,7 @@ class CommunicationController extends Controller
                     'is_own' => $m->sender_id === $user->id,
                     'time' => $m->created_at->format('H:i'),
                     'full_date' => $m->created_at->format('Y-m-d'),
-                    'attachment_url' => $m->attachment_path ? \Storage::url($m->attachment_path) : null,
+                    'attachment_url' => $m->attachment_path ? \Illuminate\Support\Facades\Storage::disk(config('filesystems.default') === 's3' ? 's3' : 'public')->url($m->attachment_path) : null,
                     'attachment_type' => $m->attachment_type,
                     'read_at' => $m->read_at
                 ];
@@ -360,7 +360,7 @@ class CommunicationController extends Controller
                 'data' => [
                     'id' => $message->id,
                     'content' => $message->content,
-                    'attachment_url' => $attachmentPath ? \Storage::url($attachmentPath) : null,
+                    'attachment_url' => $attachmentPath ? \Illuminate\Support\Facades\Storage::disk(config('filesystems.default') === 's3' ? 's3' : 'public')->url($attachmentPath) : null,
                     'attachment_type' => $attachmentType,
                     'created_at' => $message->created_at->format('H:i')
                 ]

@@ -137,7 +137,8 @@ class User extends Authenticatable
                 return $this->avatar;
             }
             
-            return \Illuminate\Support\Facades\Storage::url($this->avatar);
+            $disk = config('filesystems.default') === 's3' ? 's3' : 'public';
+            return \Illuminate\Support\Facades\Storage::disk($disk)->url($this->avatar);
         }
         
         return 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&color=FFFFFF&background=6366F1&bold=true&format=svg';

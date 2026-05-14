@@ -79,7 +79,8 @@ class Team extends Model
     public function getLogoUrlAttribute()
     {
         if ($this->logo) {
-            return \Illuminate\Support\Facades\Storage::url($this->logo);
+            $disk = config('filesystems.default') === 's3' ? 's3' : 'public';
+            return \Illuminate\Support\Facades\Storage::disk($disk)->url($this->logo);
         }
         
         return 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&color=' . ltrim($this->primary_color ?? 'FFFFFF', '#') . '&background=' . ltrim($this->secondary_color ?? '000000', '#');
