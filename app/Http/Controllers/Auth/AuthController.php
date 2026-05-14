@@ -117,7 +117,7 @@ class AuthController extends Controller
     }
 
     /**
-     * Handle password reset request.
+     * Handle the password reset link request.
      */
     public function passwordReset(Request $request)
     {
@@ -125,34 +125,12 @@ class AuthController extends Controller
             'email' => 'required|email|exists:users,email',
         ]);
 
-        // TODO: Implement password reset logic
-        // This would typically involve sending an email with a reset link
-
-        return back()->with('success', 'Se o email existir, você receberá um link para redefinir sua senha.');
-    }
-
-    /**
-     * Show the password reset form.
-     */
-    public function showPasswordResetForm(Request $request, $token)
-    {
-        // TODO: Implement password reset form
-        return view('auth.reset-password', ['token' => $token]);
-    }
-
-    /**
-     * Handle the password reset link request.
-     */
-    public function passwordReset(Request $request)
-    {
-        $request->validate(['email' => 'required|email']);
-
         $status = \Illuminate\Support\Facades\Password::sendResetLink(
             $request->only('email')
         );
 
         return $status === \Illuminate\Support\Facades\Password::RESET_LINK_SENT
-                    ? back()->with(['status' => __($status)])
+                    ? back()->with(['success' => 'Se o email existir, você receberá um link para redefinir sua senha.'])
                     : back()->withErrors(['email' => __($status)]);
     }
 
