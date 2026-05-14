@@ -15,6 +15,7 @@ class TenantSeeder extends Seeder
     public function run(): void
     {
         // Create a demo tenant
+        /*
         $plan = Plan::where('slug', 'professional')->first();
         
         if (!$plan) {
@@ -58,5 +59,6 @@ class TenantSeeder extends Seeder
         ]);
 
         $this->command->info('Demo tenant created successfully!');
+        */
     }
 }

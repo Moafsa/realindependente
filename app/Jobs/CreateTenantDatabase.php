@@ -53,7 +53,7 @@ class CreateTenantDatabase implements ShouldQueue
 
             // Executa os seeders do tenant
             Artisan::call('db:seed', [
-                '--class' => 'TenantSeeder',
+                '--class' => 'Database\\Seeders\\Tenant\\TenantDatabaseSeeder',
                 '--force' => true,
             ]);
 
