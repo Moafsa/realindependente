@@ -36,8 +36,9 @@ class TenantRegistrationController extends Controller
     {
         $plans = Plan::active()->ordered()->get();
         $selectedPlanId = $request->query('plan');
+        $frequency = $request->query('frequency', 'monthly');
         
-        return view('tenant.register', compact('plans', 'selectedPlanId'));
+        return view('tenant.register', compact('plans', 'selectedPlanId', 'frequency'));
     }
 
     /**

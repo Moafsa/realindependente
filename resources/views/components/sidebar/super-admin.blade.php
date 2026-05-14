@@ -76,4 +76,15 @@
         </div>
         <span>WhatsApp Global</span>
     </a>
+
+    <div class="px-6 py-6 text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] opacity-50">Conta</div>
+
+    <a href="{{ route('admin.profile.index') }}" class="group flex items-center px-6 py-4 text-sm font-bold rounded-2xl {{ request()->routeIs('admin.profile.*') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'text-gray-400 hover:bg-white/5 hover:text-white' }} transition-all duration-300">
+        <div class="p-2 rounded-xl {{ request()->routeIs('admin.profile.*') ? 'bg-white/20' : 'bg-white/5 group-hover:bg-white/10' }} mr-4 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+            </svg>
+        </div>
+        <span>Perfil SuperAdmin</span>
+    </a>
 </nav>

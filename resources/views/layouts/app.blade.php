@@ -14,12 +14,22 @@
     <!-- Favicon -->
     @php
         $favicon = null;
-        if (tenant()) {
-            $favicon = \App\Models\SiteSetting::get('site_logo');
+        if (tenancy()->initialized) {
+            $favicon = \App\Models\SiteSetting::get('site_logo') ?? tenant('logo');
         } else {
             $favicon = \App\Models\SiteSetting::getCentral('site_logo');
         }
-        $faviconUrl = $favicon ? \Illuminate\Support\Facades\Storage::url($favicon) : asset('favicons/nexts_favicon.png');
+        
+        $faviconUrl = asset('favicons/nexts_favicon.png');
+        if ($favicon) {
+            if (str_starts_with($favicon, 'http')) {
+                $faviconUrl = $favicon;
+            } elseif (tenancy()->initialized) {
+                $faviconUrl = route('tenant.assets', ['path' => $favicon]);
+            } else {
+                $faviconUrl = \Illuminate\Support\Facades\Storage::url($favicon);
+            }
+        }
     @endphp
     <link rel="icon" type="image/png" href="{{ $faviconUrl }}">
 

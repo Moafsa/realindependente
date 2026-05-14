@@ -64,6 +64,16 @@ Route::get('/register', [TenantRegistrationController::class, 'create'])->name('
 Route::post('/register', [TenantRegistrationController::class, 'store']);
 
 // Super Admin - Tenant Management
+Route::get('/debug-tenant/{id}', function ($id) {
+    $tenant = \App\Models\Tenant::find($id);
+    return response()->json([
+        'id' => $tenant->id,
+        'name' => $tenant->name,
+        'data' => $tenant->data,
+        'all_attributes' => $tenant->getAttributes(),
+    ]);
+});
+
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
     Route::prefix('tenants')->name('tenants.')->group(function () {
         Route::get('/', [TenantManagementController::class, 'index'])->name('index');

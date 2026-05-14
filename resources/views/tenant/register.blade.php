@@ -252,14 +252,30 @@
             </div>
 
             <!-- Step 3: Plan Selection -->
-            <div class="step-content hidden" data-step="3">
+            <div class="step-content hidden" data-step="3" x-data="{ frequency: '{{ $frequency }}' }">
+                <input type="hidden" name="frequency" :value="frequency">
+                
                 <h2 class="text-2xl font-semibold text-gray-900 mb-6">Escolha seu Plano</h2>
-                <p class="text-gray-600 mb-6">Selecione o plano ideal para o tamanho do seu clube</p>
+                
+                <!-- Frequency Toggle -->
+                <div class="flex justify-center mb-10">
+                    <div class="inline-flex p-1 bg-gray-100 rounded-2xl">
+                        <button type="button" @click="frequency = 'monthly'" :class="frequency === 'monthly' ? 'bg-white text-blue-600 shadow-md' : 'text-gray-500 hover:text-gray-700'" class="px-4 py-2 rounded-xl font-bold transition-all text-xs uppercase tracking-widest">Mensal</button>
+                        <button type="button" @click="frequency = 'quarterly'" :class="frequency === 'quarterly' ? 'bg-white text-blue-600 shadow-md' : 'text-gray-500 hover:text-gray-700'" class="px-4 py-2 rounded-xl font-bold transition-all text-xs uppercase tracking-widest">Trimestral</button>
+                        <button type="button" @click="frequency = 'semiannual'" :class="frequency === 'semiannual' ? 'bg-white text-blue-600 shadow-md' : 'text-gray-500 hover:text-gray-700'" class="px-4 py-2 rounded-xl font-bold transition-all text-xs uppercase tracking-widest">Semestral</button>
+                        <button type="button" @click="frequency = 'yearly'" :class="frequency === 'yearly' ? 'bg-white text-blue-600 shadow-md' : 'text-gray-500 hover:text-gray-700'" class="px-4 py-2 rounded-xl font-bold transition-all text-xs uppercase tracking-widest">Anual</button>
+                    </div>
+                </div>
 
                 <div class="grid md:grid-cols-3 gap-6 mb-6">
                     @foreach($plans as $plan)
                     <div class="plan-card border-2 rounded-lg p-6 cursor-pointer transition hover:shadow-lg {{ $plan->name === 'Profissional' ? 'border-blue-500 ring-2 ring-blue-500' : 'border-gray-200' }}"
-                         data-plan-id="{{ $plan->id }}">
+                         data-plan-id="{{ $plan->id }}"
+                         data-plan-name="{{ $plan->name }}"
+                         data-price-monthly="{{ number_format($plan->price_monthly, 2, ',', '.') }}"
+                         data-price-quarterly="{{ number_format($plan->getCalculatedPrice('quarterly'), 2, ',', '.') }}"
+                         data-price-semiannual="{{ number_format($plan->getCalculatedPrice('semiannual'), 2, ',', '.') }}"
+                         data-price-yearly="{{ number_format($plan->getCalculatedPrice('yearly'), 2, ',', '.') }}">
                         @if($plan->name === 'Profissional')
                         <div class="bg-blue-500 text-white text-xs font-semibold px-3 py-1 rounded-full inline-block mb-4">
                             Mais Popular
@@ -269,19 +285,64 @@
                         <h3 class="text-xl font-bold text-gray-900 mb-2">{{ $plan->name }}</h3>
                         <p class="text-gray-600 text-sm mb-4">{{ $plan->description }}</p>
 
-                        <div class="mb-4">
-                            <span class="text-3xl font-bold text-gray-900">R$ {{ number_format($plan->price_monthly, 2, ',', '.') }}</span>
-                            <span class="text-gray-600">/mês</span>
+                        <div class="mb-4 h-24">
+                            <!-- Prices with Alpine -->
+                            <div x-show="frequency === 'monthly'" class="animate__animated animate__fadeIn">
+                                <span class="text-3xl font-bold text-gray-900">R$ {{ number_format($plan->price_monthly, 2, ',', '.') }}</span>
+                                <span class="text-gray-600 text-xs">/mês</span>
+                            </div>
+
+                            <div x-show="frequency === 'quarterly'" class="animate__animated animate__fadeIn">
+                                @php 
+                                    $priceQ = $plan->getCalculatedPrice('quarterly');
+                                    $origQ = $plan->getOriginalPrice('quarterly');
+                                @endphp
+                                @if($origQ > $priceQ)
+                                    <span class="text-sm font-bold text-rose-500 line-through opacity-60">R$ {{ number_format($origQ, 0, ',', '.') }}</span>
+                                @endif
+                                <div class="flex items-baseline">
+                                    <span class="text-3xl font-bold text-gray-900">R$ {{ number_format($priceQ, 2, ',', '.') }}</span>
+                                    <span class="text-gray-600 text-xs ml-1">/trim.</span>
+                                </div>
+                            </div>
+
+                            <div x-show="frequency === 'semiannual'" class="animate__animated animate__fadeIn">
+                                @php 
+                                    $priceS = $plan->getCalculatedPrice('semiannual');
+                                    $origS = $plan->getOriginalPrice('semiannual');
+                                @endphp
+                                @if($origS > $priceS)
+                                    <span class="text-sm font-bold text-rose-500 line-through opacity-60">R$ {{ number_format($origS, 0, ',', '.') }}</span>
+                                @endif
+                                <div class="flex items-baseline">
+                                    <span class="text-3xl font-bold text-gray-900">R$ {{ number_format($priceS, 2, ',', '.') }}</span>
+                                    <span class="text-gray-600 text-xs ml-1">/sem.</span>
+                                </div>
+                            </div>
+
+                            <div x-show="frequency === 'yearly'" class="animate__animated animate__fadeIn">
+                                @php 
+                                    $priceY = $plan->getCalculatedPrice('yearly');
+                                    $origY = $plan->getOriginalPrice('yearly');
+                                @endphp
+                                @if($origY > $priceY)
+                                    <span class="text-sm font-bold text-rose-500 line-through opacity-60">R$ {{ number_format($origY, 0, ',', '.') }}</span>
+                                @endif
+                                <div class="flex items-baseline">
+                                    <span class="text-3xl font-bold text-gray-900">R$ {{ number_format($priceY, 2, ',', '.') }}</span>
+                                    <span class="text-gray-600 text-xs ml-1">/ano</span>
+                                </div>
+                            </div>
                         </div>
 
                         <ul class="space-y-2 mb-6 text-sm">
                             @if(is_array($plan->features))
                                 @foreach($plan->features as $feature)
                                 <li class="flex items-center">
-                                    <svg class="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                    <svg class="w-5 h-5 text-green-500 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                                     </svg>
-                                    <span class="text-gray-700">{{ $feature }}</span>
+                                    <span class="text-gray-700 leading-tight">{{ $feature }}</span>
                                 </li>
                                 @endforeach
                             @endif
@@ -295,8 +356,6 @@
                     </div>
                     @endforeach
                 </div>
-
-                {{-- Input hidden plan_id movido para o topo do form para consistência --}}
 
                 <div class="mt-6">
                     <label class="flex items-center">
@@ -357,6 +416,14 @@
                         <div class="flex justify-between border-t pt-2 mt-2">
                             <span class="text-gray-600">Plano:</span>
                             <span class="font-medium text-gray-900" id="summary-plan">-</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Frequência:</span>
+                            <span class="font-medium text-gray-900 capitalize" id="summary-frequency">-</span>
+                        </div>
+                        <div class="flex justify-between font-bold text-blue-600">
+                            <span>Valor:</span>
+                            <span id="summary-price">-</span>
                         </div>
                     </div>
                 </div>

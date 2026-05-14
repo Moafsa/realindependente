@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Nexts - Gestão Completa para Clubes de Futebol')
+@section('title', ($settings['site_name'] ?? 'Nexts') . ' - Gestão Completa para Clubes de Futebol')
 
 @section('content')
 <!-- Header -->
@@ -9,7 +9,7 @@
         <div class="flex justify-between items-center py-6 transition-all duration-300" id="header-container">
             <div class="flex items-center">
                 <div class="flex-shrink-0">
-                    <h1 class="text-2xl font-bold text-white transition-colors duration-300" id="header-logo">Nexts</h1>
+                    <h1 class="text-2xl font-bold text-white transition-colors duration-300" id="header-logo">{{ $settings['site_name'] ?? 'Nexts' }}</h1>
                 </div>
             </div>
             
@@ -229,7 +229,7 @@
                         @endphp
                         @if($origQ > $priceQ)
                             <div class="flex flex-col mb-1">
-                                <span class="text-lg font-bold text-rose-500 line-through opacity-60">R$ {{ number_format($origQ, 0, ',', '.') }}</span>
+                                <span class="text-lg font-bold text-red-600 line-through opacity-80">R$ {{ number_format($origQ, 0, ',', '.') }}</span>
                             </div>
                         @endif
                         <span class="text-5xl font-black text-gray-900 tracking-tighter">R$ {{ number_format($priceQ, 0, ',', '.') }}</span>
@@ -246,7 +246,7 @@
                         @endphp
                         @if($origS > $priceS)
                             <div class="flex flex-col mb-1">
-                                <span class="text-lg font-bold text-rose-500 line-through opacity-60">R$ {{ number_format($origS, 0, ',', '.') }}</span>
+                                <span class="text-lg font-bold text-red-600 line-through opacity-80">R$ {{ number_format($origS, 0, ',', '.') }}</span>
                             </div>
                         @endif
                         <span class="text-5xl font-black text-gray-900 tracking-tighter">R$ {{ number_format($priceS, 0, ',', '.') }}</span>
@@ -263,7 +263,7 @@
                         @endphp
                         @if($origY > $priceY)
                             <div class="flex flex-col mb-1">
-                                <span class="text-lg font-bold text-rose-500 line-through opacity-60">R$ {{ number_format($origY, 0, ',', '.') }}</span>
+                                <span class="text-lg font-bold text-red-600 line-through opacity-80">R$ {{ number_format($origY, 0, ',', '.') }}</span>
                             </div>
                         @endif
                         <span class="text-5xl font-black text-gray-900 tracking-tighter">R$ {{ number_format($priceY, 0, ',', '.') }}</span>
@@ -333,13 +333,105 @@
     </div>
 </section>
 
+    <!-- Contact Section -->
+    <section id="contact" class="py-24 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-2 gap-16 items-center">
+                <div>
+                    <h2 class="text-4xl font-black text-gray-900 mb-6 tracking-tighter">Entre em <span class="text-blue-600">Contato</span></h2>
+                    <p class="text-xl text-gray-600 mb-8 font-medium">Tem alguma dúvida sobre a plataforma ou precisa de uma solução personalizada? Nossa equipe está pronta para ajudar.</p>
+                    
+                    <div class="space-y-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-gray-400 uppercase tracking-widest">E-mail</p>
+                                <p class="text-lg font-bold text-gray-900">{{ $contact['email'] }}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-green-50 rounded-2xl flex items-center justify-center text-green-600">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-gray-400 uppercase tracking-widest">WhatsApp</p>
+                                <p class="text-lg font-bold text-gray-900">{{ $contact['whatsapp'] ?: $contact['phone'] }}</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-gray-50 rounded-2xl flex items-center justify-center text-gray-600">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-gray-400 uppercase tracking-widest">Endereço</p>
+                                <p class="text-lg font-bold text-gray-900">{{ $contact['address'] }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4 mt-12">
+                        @if($contact['instagram'] !== '#')
+                        <a href="{{ $contact['instagram'] }}" class="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center text-gray-900 hover:bg-blue-600 hover:text-white transition-all"><i class="fab fa-instagram text-xl"></i></a>
+                        @endif
+                        @if($contact['facebook'] !== '#')
+                        <a href="{{ $contact['facebook'] }}" class="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center text-gray-900 hover:bg-blue-600 hover:text-white transition-all"><i class="fab fa-facebook-f text-xl"></i></a>
+                        @endif
+                        @if($contact['linkedin'] !== '#')
+                        <a href="{{ $contact['linkedin'] }}" class="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center text-gray-900 hover:bg-blue-600 hover:text-white transition-all"><i class="fab fa-linkedin-in text-xl"></i></a>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 rounded-[3rem] p-10 shadow-2xl">
+                    <form action="{{ route('marketing.contact.submit') }}" method="POST" class="space-y-6">
+                        @csrf
+                        <div>
+                            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Seu Nome</label>
+                            <input type="text" name="name" required class="w-full px-6 py-4 bg-white border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none">
+                        </div>
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">E-mail</label>
+                                <input type="email" name="email" required class="w-full px-6 py-4 bg-white border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">WhatsApp</label>
+                                <input type="text" name="whatsapp" required class="w-full px-6 py-4 bg-white border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Mensagem</label>
+                            <textarea name="message" rows="4" required class="w-full px-6 py-4 bg-white border border-gray-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"></textarea>
+                        </div>
+                        <button type="submit" class="w-full bg-blue-600 text-white py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-blue-700 shadow-xl shadow-blue-200 transition-all">Enviar Mensagem</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
 <!-- Footer -->
 <footer class="bg-gray-900 text-white py-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid md:grid-cols-4 gap-8">
             <div>
-                <h3 class="text-xl font-bold mb-4">Nexts</h3>
+                <h3 class="text-xl font-bold mb-4">{{ $settings['site_name'] ?? 'Nexts' }}</h3>
                 <p class="text-gray-400">A plataforma completa para gestão de clubes de futebol.</p>
+                <div class="flex gap-4 mt-6">
+                    @if($contact['instagram'] !== '#')
+                    <a href="{{ $contact['instagram'] }}" class="text-gray-400 hover:text-white transition-all"><i class="fab fa-instagram text-xl"></i></a>
+                    @endif
+                    @if($contact['facebook'] !== '#')
+                    <a href="{{ $contact['facebook'] }}" class="text-gray-400 hover:text-white transition-all"><i class="fab fa-facebook-f text-xl"></i></a>
+                    @endif
+                    @if($contact['linkedin'] !== '#')
+                    <a href="{{ $contact['linkedin'] }}" class="text-gray-400 hover:text-white transition-all"><i class="fab fa-linkedin-in text-xl"></i></a>
+                    @endif
+                </div>
             </div>
             <div>
                 <h4 class="font-semibold mb-4">Produto</h4>
@@ -352,9 +444,11 @@
             <div>
                 <h4 class="font-semibold mb-4">Suporte</h4>
                 <ul class="space-y-2 text-gray-400">
-                    <li><a href="#" class="hover:text-white">Central de Ajuda</a></li>
-                    <li><a href="#" class="hover:text-white">Documentação</a></li>
-                    <li><a href="#" class="hover:text-white">Contato</a></li>
+                    <li><a href="#contact" class="hover:text-white">Contato</a></li>
+                    <li class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                        <span class="text-sm">{{ $contact['email'] }}</span>
+                    </li>
                 </ul>
             </div>
             <div>
@@ -367,7 +461,7 @@
             </div>
         </div>
         <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 Nexts. Todos os direitos reservados.</p>
+            <p>&copy; {{ date('Y') }} {{ $settings['site_name'] ?? 'Nexts' }}. Todos os direitos reservados.</p>
         </div>
     </div>
 </footer>

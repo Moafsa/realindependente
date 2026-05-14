@@ -35,7 +35,7 @@
             <div class="bg-white rounded-lg shadow p-6">
                 <h2 class="text-xl font-bold text-gray-900 mb-4">Informações Básicas</h2>
                 
-                <form method="POST" action="{{ route('admin.tenants.update', $tenant) }}">
+                <form id="tenant-update-form" method="POST" action="{{ route('admin.tenants.update', $tenant) }}">
                     @csrf
                     @method('PUT')
                     
@@ -90,11 +90,8 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="w-full px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                            Salvar Alterações
-                        </button>
                     </div>
-                </form>
+                {{-- Form remains open --}}
             </div>
 
             <!-- Domains -->
@@ -118,6 +115,57 @@
                     @endforelse
                 </div>
             </div>
+
+            <!-- Registration Data -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-xl font-bold text-gray-900 mb-4">Dados de Registro</h2>
+                @php
+                    $regData = $tenant->registration_data ?? $tenant->data['registration_data'] ?? null;
+                @endphp
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 uppercase text-[10px] font-black">Responsável</label>
+                        <input type="text" name="registration_data[admin_name]" value="{{ old('registration_data.admin_name', $regData['admin_name'] ?? '') }}" 
+                               placeholder="Nome do Responsável"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 uppercase text-[10px] font-black">E-mail de Cadastro</label>
+                        <input type="email" name="registration_data[admin_email]" value="{{ old('registration_data.admin_email', $regData['admin_email'] ?? '') }}" 
+                               placeholder="email@exemplo.com"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 uppercase text-[10px] font-black">Telefone / WhatsApp</label>
+                        <input type="text" name="registration_data[admin_phone]" value="{{ old('registration_data.admin_phone', $regData['admin_phone'] ?? '') }}" 
+                               placeholder="(00) 00000-0000"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 uppercase text-[10px] font-black">CPF / CNPJ</label>
+                        <input type="text" name="registration_data[admin_cpf_cnpj]" value="{{ old('registration_data.admin_cpf_cnpj', $regData['admin_cpf_cnpj'] ?? '') }}" 
+                               placeholder="000.000.000-00"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 uppercase text-[10px] font-black">Frequência</label>
+                        <select name="registration_data[frequency]" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm">
+                            <option value="">Selecione...</option>
+                            <option value="monthly" {{ ($regData['frequency'] ?? '') === 'monthly' ? 'selected' : '' }}>Mensal</option>
+                            <option value="quarterly" {{ ($regData['frequency'] ?? '') === 'quarterly' ? 'selected' : '' }}>Trimestral</option>
+                            <option value="semiannual" {{ ($regData['frequency'] ?? '') === 'semiannual' ? 'selected' : '' }}>Semestral</option>
+                            <option value="yearly" {{ ($regData['frequency'] ?? '') === 'yearly' ? 'selected' : '' }}>Anual</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1 uppercase text-[10px] font-black">Preço Acordado (R$)</label>
+                        <input type="number" step="0.01" name="registration_data[plan_price]" value="{{ old('registration_data.plan_price', $regData['plan_price'] ?? '') }}" 
+                               placeholder="0,00"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm">
+                    </div>
+                </div>
+            </div>
+            </form>
         </div>
 
         <!-- Sidebar Actions -->
@@ -125,6 +173,9 @@
             <!-- Quick Actions -->
             <div class="bg-white rounded-lg shadow p-6">
                 <h2 class="text-xl font-bold text-gray-900 mb-4">Ações Rápidas</h2>
+                <button type="submit" form="tenant-update-form" class="w-full px-4 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 font-black uppercase tracking-widest shadow-lg shadow-blue-600/20 mb-4 transition-all active:scale-95">
+                    Salvar Todas as Alterações
+                </button>
                     <form method="POST" action="{{ route('admin.tenants.impersonate', $tenant) }}" class="inline-block w-full">
                         @csrf
                         <button type="submit" class="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-bold mb-4 shadow-lg shadow-indigo-100 transition-all">

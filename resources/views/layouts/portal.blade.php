@@ -216,31 +216,8 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
                                 </svg>
                                 @php
-                                    $user = auth()->user();
-                                    $isAdmin = $user->role === 'admin';
-                                    $pendingCount = \App\Models\AiGeneratedContent::where('status', 'pending')->count();
-                                    
-                                    $msgQuery = \App\Models\Message::whereNull('read_at');
-                                    if ($isAdmin) {
-                                        $adminIds = \App\Models\User::where('role', 'admin')->pluck('id')->toArray();
-                                        $msgQuery->whereIn('receiver_id', $adminIds);
-                                    } else {
-                                        $msgQuery->where('receiver_id', $user->id);
-                                    }
-                                    
-                                    $unreadMessagesCount = $msgQuery->count();
-                                    
-                                    $muralCount = 0;
-                                    if (!$isAdmin && $user->athlete) {
-                                        $lastMuralView = \Illuminate\Support\Facades\Cache::get('user_mural_view_' . $user->id, now()->subMonths(3));
-                                        $muralCount = \App\Models\MuralNotice::where(function($q) use ($user) {
-                                                $q->where('team_id', $user->athlete->team_id)->orWhereNull('team_id');
-                                            })
-                                            ->where('created_at', '>', $lastMuralView)
-                                            ->count();
-                                    }
-                                    
-                                    $totalNotifications = $pendingCount + $unreadMessagesCount + $muralCount;
+                                    // Variables are now provided by AppServiceProvider's View Composer
+                                    // $pendingCount, $unreadMessagesCount, $muralCount, $totalNotifications
                                 @endphp
                                 <span id="notification-badge" class="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[8px] font-black rounded-full flex items-center justify-center border-2 border-[#0f172a] {{ $totalNotifications > 0 ? '' : 'hidden' }}">
                                     {{ $totalNotifications }}
@@ -260,7 +237,7 @@
                                     </div>
                                 </div>
                                 <div class="p-3 border-t border-white/5 bg-white/5 text-center">
-                                    <a href="{{ route('communication.index') }}" class="text-[9px] font-black text-gray-400 hover:text-white uppercase tracking-[0.2em] transition-colors">Ver todas as mensagens</a>
+                                    <a href="{{ Route::has('communication.index') ? route('communication.index') : '#' }}" class="text-[9px] font-black text-gray-400 hover:text-white uppercase tracking-[0.2em] transition-colors">Ver todas as mensagens</a>
                                 </div>
                             </div>
                         </div>
@@ -352,6 +329,7 @@
                     }
 
                     // Fetch list for dropdown
+                    @if(Route::has('portal.notifications'))
                     const response = await fetch('{{ route('portal.notifications') }}');
                     if (!response.ok) throw new Error('Notifications API failed');
                     const data = await response.json();
@@ -362,7 +340,7 @@
                             // Update list
                             if (listEl) {
                                 listEl.innerHTML = data.notifications.map(n => `
-                                    <a href="${n.url || '{{ route('communication.index') }}'}" class="block p-3 bg-white/5 hover:bg-white/10 rounded-xl border border-white/5 transition-all group">
+                                    <a href="${n.url || (Route::has('communication.index') ? '{{ route('communication.index') }}' : '#')}" class="block p-3 bg-white/5 hover:bg-white/10 rounded-xl border border-white/5 transition-all group">
                                         <div class="flex items-center justify-between mb-1">
                                             <h4 class="text-[10px] font-black text-white uppercase tracking-tight group-hover:text-blue-400 transition-colors">${n.title}</h4>
                                             <span class="text-[8px] text-gray-500 font-bold uppercase">${n.created_at}</span>
@@ -382,6 +360,7 @@
                             }
                         }
                     }
+                    @endif
                     @endif
                 } catch (e) {
                     console.error('Error fetching notifications:', e);

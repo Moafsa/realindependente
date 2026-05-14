@@ -153,7 +153,7 @@
                             @endphp
                             @if($origQ > $priceQ)
                                 <div class="flex flex-col mb-1">
-                                    <span class="text-lg font-bold text-rose-500 line-through opacity-60">R$ {{ number_format($origQ, 0, ',', '.') }}</span>
+                                    <span class="text-lg font-bold text-red-600 line-through opacity-80">R$ {{ number_format($origQ, 0, ',', '.') }}</span>
                                 </div>
                             @endif
                             <span class="text-5xl font-black text-gray-900">R$ {{ number_format($priceQ, 0, ',', '.') }}</span>
@@ -173,7 +173,7 @@
                             @endphp
                             @if($origS > $priceS)
                                 <div class="flex flex-col mb-1">
-                                    <span class="text-lg font-bold text-rose-500 line-through opacity-60">R$ {{ number_format($origS, 0, ',', '.') }}</span>
+                                    <span class="text-lg font-bold text-red-600 line-through opacity-80">R$ {{ number_format($origS, 0, ',', '.') }}</span>
                                 </div>
                             @endif
                             <span class="text-5xl font-black text-gray-900">R$ {{ number_format($priceS, 0, ',', '.') }}</span>
@@ -193,7 +193,7 @@
                             @endphp
                             @if($origY > $priceY)
                                 <div class="flex flex-col mb-1">
-                                    <span class="text-lg font-bold text-rose-500 line-through opacity-60">R$ {{ number_format($origY, 0, ',', '.') }}</span>
+                                    <span class="text-lg font-bold text-red-600 line-through opacity-80">R$ {{ number_format($origY, 0, ',', '.') }}</span>
                                 </div>
                             @endif
                             <span class="text-5xl font-black text-gray-900">R$ {{ number_format($priceY, 0, ',', '.') }}</span>

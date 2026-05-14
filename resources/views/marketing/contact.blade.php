@@ -261,8 +261,19 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid md:grid-cols-4 gap-8">
             <div>
-                <h3 class="text-xl font-bold mb-4">Nexts</h3>
+                <h3 class="text-xl font-bold mb-4">{{ $settings['site_name'] ?? 'Nexts' }}</h3>
                 <p class="text-gray-400">A plataforma completa para gestão de clubes de futebol.</p>
+                <div class="flex gap-4 mt-6">
+                    @if($contact['instagram'] !== '#')
+                    <a href="{{ $contact['instagram'] }}" class="text-gray-400 hover:text-white transition-all"><i class="fab fa-instagram text-xl"></i></a>
+                    @endif
+                    @if($contact['facebook'] !== '#')
+                    <a href="{{ $contact['facebook'] }}" class="text-gray-400 hover:text-white transition-all"><i class="fab fa-facebook-f text-xl"></i></a>
+                    @endif
+                    @if($contact['linkedin'] !== '#')
+                    <a href="{{ $contact['linkedin'] }}" class="text-gray-400 hover:text-white transition-all"><i class="fab fa-linkedin-in text-xl"></i></a>
+                    @endif
+                </div>
             </div>
             <div>
                 <h4 class="font-semibold mb-4">Produto</h4>
@@ -275,6 +286,10 @@
                 <h4 class="font-semibold mb-4">Suporte</h4>
                 <ul class="space-y-2 text-gray-400">
                     <li><a href="{{ route('marketing.contact') }}" class="hover:text-white">Contato</a></li>
+                    <li class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                        <span class="text-sm">{{ $contact['email'] }}</span>
+                    </li>
                 </ul>
             </div>
             <div>
@@ -286,9 +301,8 @@
             </div>
         </div>
         <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-            <p>&copy; {{ date('Y') }} Nexts. Todos os direitos reservados.</p>
+            <p>&copy; {{ date('Y') }} {{ $settings['site_name'] ?? 'Nexts' }}. Todos os direitos reservados.</p>
         </div>
     </div>
 </footer>
 @endsection
-

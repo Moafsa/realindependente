@@ -323,17 +323,29 @@
         const clubName = document.getElementById('club_name')?.value || '-';
         const subdomain = document.getElementById('subdomain')?.value || '-';
         const planId = document.getElementById('plan_id')?.value;
+        const frequency = document.querySelector('input[name="frequency"]')?.value || 'monthly';
 
         document.getElementById('summary-admin-name').textContent = adminName;
         document.getElementById('summary-admin-email').textContent = adminEmail;
         document.getElementById('summary-club-name').textContent = clubName;
         document.getElementById('summary-subdomain').textContent = subdomain ? `${subdomain}.${getCentralDomain()}` : '-';
+        
+        const frequencyLabels = {
+            'monthly': 'Mensal',
+            'quarterly': 'Trimestral',
+            'semiannual': 'Semestral',
+            'yearly': 'Anual'
+        };
+        document.getElementById('summary-frequency').textContent = frequencyLabels[frequency] || frequency;
 
         if (planId) {
             const selectedCard = document.querySelector(`[data-plan-id="${planId}"]`);
             if (selectedCard) {
-                const planName = selectedCard.querySelector('h3')?.textContent || '-';
+                const planName = selectedCard.getAttribute('data-plan-name') || '-';
+                const price = selectedCard.getAttribute(`data-price-${frequency}`) || '-';
+                
                 document.getElementById('summary-plan').textContent = planName;
+                document.getElementById('summary-price').textContent = `R$ ${price}`;
             }
         }
     }

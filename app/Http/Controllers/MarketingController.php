@@ -87,17 +87,7 @@ class MarketingController extends Controller
      */
     public function contact()
     {
-        $contact = [
-            'email' => \App\Models\SiteSetting::get('superadmin_email', 'suporte@nexts.com'),
-            'phone' => \App\Models\SiteSetting::get('superadmin_phone', '(00) 0000-0000'),
-            'whatsapp' => \App\Models\SiteSetting::get('superadmin_whatsapp', ''),
-            'address' => \App\Models\SiteSetting::get('superadmin_address', 'Rua Exemplo, 123'),
-            'instagram' => \App\Models\SiteSetting::get('superadmin_instagram', '#'),
-            'facebook' => \App\Models\SiteSetting::get('superadmin_facebook', '#'),
-            'linkedin' => \App\Models\SiteSetting::get('superadmin_linkedin', '#'),
-        ];
-
-        return view('marketing.contact', compact('contact'));
+        return view('marketing.contact');
     }
 
     /**

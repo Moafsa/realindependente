@@ -112,40 +112,8 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
                                 </svg>
                                 @php
-                                    $user = auth()->user();
-                                    $isAdmin = $user->role === 'admin';
-                                    $isCoach = $user->role === 'coach';
-                                    
-                                    // Pending AI Plans Count
-                                    $pendingQuery = \App\Models\AiGeneratedContent::where('status', 'pending');
-                                    if ($isCoach) {
-                                        $coachTeams = \App\Models\Team::where('coach_id', $user->id)->pluck('id')->toArray();
-                                        $pendingQuery->whereHas('athlete', function($q) use ($coachTeams) {
-                                            $q->whereIn('team_id', $coachTeams);
-                                        });
-                                    }
-                                    $pendingCount = $pendingQuery->count();
-                                    
-                                    // Unread Messages Count
-                                    $msgQuery = \App\Models\Message::whereNull('read_at');
-                                    if ($isAdmin) {
-                                        $adminIds = \App\Models\User::where('role', 'admin')->pluck('id')->toArray();
-                                        $msgQuery->whereIn('receiver_id', $adminIds);
-                                    } elseif ($isCoach) {
-                                        // Messages specifically for the coach OR from their athletes to the club
-                                        $coachTeams = \App\Models\Team::where('coach_id', $user->id)->pluck('id')->toArray();
-                                        $msgQuery->where(function($q) use ($user, $coachTeams) {
-                                            $q->where('receiver_id', $user->id)
-                                              ->orWhereHas('sender.athlete', function($aq) use ($coachTeams) {
-                                                  $aq->whereIn('team_id', $coachTeams);
-                                              });
-                                        });
-                                    } else {
-                                        $msgQuery->where('receiver_id', $user->id);
-                                    }
-                                    
-                                    $unreadMessagesCount = $msgQuery->count();
-                                    $totalNotifications = $pendingCount + $unreadMessagesCount;
+                                    // Variables are now provided by AppServiceProvider's View Composer
+                                    // $pendingCount, $unreadMessagesCount, $totalNotifications
                                 @endphp
                                     <span id="notification-badge" class="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[8px] font-bold rounded-full flex items-center justify-center border-2 border-white {{ $totalNotifications > 0 ? '' : 'hidden' }}">
                                         {{ $totalNotifications }}
@@ -169,20 +137,11 @@
                                         </div>
                                     </a>
 
-                                    @php
-                                        $lastAthleteId = null;
-                                        if ($isAdmin && $unreadMessagesCount > 0) {
-                                            $lastMessage = \App\Models\Message::whereIn('receiver_id', $adminIds)
-                                                ->whereNull('read_at')
-                                                ->latest()
-                                                ->first();
-                                            
-                                            if ($lastMessage && $lastMessage->sender && $lastMessage->sender->athlete) {
-                                                $lastAthleteId = $lastMessage->sender->athlete->id;
-                                            }
-                                        }
-                                    @endphp
-                                    <a id="new-messages-notification" href="{{ $lastAthleteId ? route('communication.index', ['athlete_id' => $lastAthleteId]) : route('communication.index') }}" class="flex p-4 hover:bg-gray-50 border-b border-gray-50 transition-colors {{ $unreadMessagesCount > 0 ? '' : 'hidden' }}">
+                                @php
+                                    // Variables are now provided by AppServiceProvider
+                                    // $pendingCount, $unreadMessagesCount, $totalNotifications, $isAdmin, $isCoach, $lastAthleteId
+                                @endphp
+                                    <a id="new-messages-notification" href="{{ Route::has('communication.index') ? ($lastAthleteId ? route('communication.index', ['athlete_id' => $lastAthleteId]) : route('communication.index')) : '#' }}" class="flex p-4 hover:bg-gray-50 border-b border-gray-50 transition-colors {{ $unreadMessagesCount > 0 ? '' : 'hidden' }}">
                                         <div class="h-10 w-10 rounded-full bg-blue-100 flex-shrink-0 flex items-center justify-center text-blue-600">
                                             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
                                         </div>

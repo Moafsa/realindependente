@@ -160,9 +160,20 @@ class TenantManagementController extends Controller
                 'subscription_ends_at',
             ]));
 
+            // Update registration data in the JSON blob
+            if ($request->has('registration_data')) {
+                $currentData = $tenant->data;
+                $currentData['registration_data'] = array_merge(
+                    $currentData['registration_data'] ?? [],
+                    $request->input('registration_data')
+                );
+                $tenant->data = $currentData;
+                $tenant->save();
+            }
+
             Log::info('Tenant updated by admin', [
                 'tenant_id' => $tenant->id,
-                'changes' => $request->only(['name', 'plan_id', 'status']),
+                'changes' => $request->only(['name', 'plan_id', 'status', 'registration_data']),
                 'admin_id' => auth()->id(),
             ]);
 
