@@ -12,9 +12,24 @@ class WuzapiService
 
     public function __construct()
     {
-        // Force internal Docker URL
-        $this->apiKey = config('services.wuzapi.api_key', 'admin123456');
-        $this->baseUrl = 'http://wuzapi:8080';
+        $dbApiKey = null;
+        $dbBaseUrl = null;
+
+        if (function_exists('tenancy') && tenancy()->initialized) {
+            // Get from central settings if in tenant context
+            $dbApiKey = tenancy()->central(function () {
+                return \App\Models\SiteSetting::get('wuzapi_api_key');
+            });
+            $dbBaseUrl = tenancy()->central(function () {
+                return \App\Models\SiteSetting::get('wuzapi_base_url');
+            });
+        } else {
+            $dbApiKey = \App\Models\SiteSetting::get('wuzapi_api_key');
+            $dbBaseUrl = \App\Models\SiteSetting::get('wuzapi_base_url');
+        }
+
+        $this->apiKey = $dbApiKey ?: config('services.wuzapi.api_key', 'admin123456');
+        $this->baseUrl = $dbBaseUrl ?: 'http://wuzapi:8080';
     }
 
     /**

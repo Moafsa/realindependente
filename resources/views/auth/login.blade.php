@@ -89,16 +89,6 @@
                     </a>
                 </p>
             </div>
-        </div>
-
-        <!-- Demo Credentials -->
-        <div class="mt-6 bg-white bg-opacity-10 backdrop-blur-sm rounded-lg p-4">
-            <h3 class="text-white font-semibold mb-2">Credenciais de Demonstração:</h3>
-            <div class="text-blue-100 text-sm space-y-1">
-                <p><strong>Admin:</strong> admin@Nexts.com / password</p>
-                <p><strong>Coach:</strong> coach@Nexts.com / password</p>
-            </div>
-        </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
