@@ -51,7 +51,7 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-2">Desconto Trimestral (%)</label>
                         <input type="number" name="discount_quarterly" value="{{ old('discount_quarterly', $plan->discount_quarterly) }}" class="w-full px-4 py-3 bg-gray-50 border-gray-100 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
@@ -63,6 +63,19 @@
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-2">Desconto Anual (%)</label>
                         <input type="number" name="discount_yearly" value="{{ old('discount_yearly', $plan->discount_yearly) }}" class="w-full px-4 py-3 bg-gray-50 border-gray-100 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Taxa Administrativa (%)</label>
+                        <input type="number" step="0.01" name="admin_fee_percentage" value="{{ old('admin_fee_percentage', $plan->admin_fee_percentage) }}" class="w-full px-4 py-3 bg-gray-50 border-gray-100 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+                        <p class="text-[10px] text-gray-500 mt-1">Percentual cobrado sobre tudo o que o clube vende (Split Asaas).</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Taxa E-commerce (%)</label>
+                        <input type="number" step="0.01" name="ecommerce_tax_rate" value="{{ old('ecommerce_tax_rate', $plan->ecommerce_tax_rate) }}" class="w-full px-4 py-3 bg-gray-50 border-gray-100 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+                        <p class="text-[10px] text-gray-500 mt-1">Percentual adicional para vendas na loja do clube.</p>
                     </div>
                 </div>
             </div>

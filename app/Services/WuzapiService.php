@@ -29,7 +29,7 @@ class WuzapiService
         }
 
         $this->apiKey = $dbApiKey ?: config('services.wuzapi.api_key', 'admin123456');
-        $this->baseUrl = $dbBaseUrl ?: 'http://wuzapi:8080';
+        $this->baseUrl = $dbBaseUrl ?: config('services.wuzapi.base_url', 'http://wuzapi:8080');
     }
 
     /**

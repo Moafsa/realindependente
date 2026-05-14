@@ -4,9 +4,16 @@
 @section('description', $settings['site_description'] ?? 'Bem-vindo ao nosso clube de futebol')
 
 @section('content')
+@php
+    $heroImage = '';
+    try {
+        $heroImage = ($settings['banner_image'] ?? false) ? \Illuminate\Support\Facades\Storage::url($settings['banner_image']) : '';
+    } catch (\Throwable $e) {}
+@endphp
+
 <!-- Hero Section -->
 <section class="relative text-white min-h-[500px] flex items-center" 
-         style="background: {{ ($settings['banner_image'] ?? false) ? 'url(' . Storage::url($settings['banner_image']) . ')' : 'linear-gradient(to right, var(--primary-color), var(--secondary-color))' }}; background-size: cover; background-position: center;">
+         style="background: {{ $heroImage ? 'url(' . $heroImage . ')' : 'linear-gradient(to right, var(--primary-color), var(--secondary-color))' }}; background-size: cover; background-position: center;">
     <div class="absolute inset-0 bg-black opacity-50"></div>
     <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
         <div class="text-center">

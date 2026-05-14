@@ -98,10 +98,24 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::post('/disconnect', [\App\Http\Controllers\WhatsAppController::class, 'disconnect'])->name('disconnect');
         Route::post('/settings', [\App\Http\Controllers\WhatsAppController::class, 'saveSettings'])->name('settings.save');
     });
+
+    // Global Financial Management (Super Admin)
+    Route::prefix('financial')->name('financial.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\FinancialController::class, 'index'])->name('index');
+        Route::get('/subscriptions', [\App\Http\Controllers\Admin\FinancialController::class, 'subscriptions'])->name('subscriptions');
+        Route::get('/club-sales', [\App\Http\Controllers\Admin\FinancialController::class, 'clubSales'])->name('club-sales');
+    });
 });
 
-// Alias for tenant routes to allow generation from central app
-Route::get('/impersonate', function() { abort(404); })->name('tenant.impersonate');
+// Impersonation route for tenants
+Route::middleware([
+    'web',
+    \Stancl\Tenancy\Middleware\InitializeTenancyByDomain::class,
+])->group(function () {
+    Route::get('/impersonate', [LoginController::class, 'impersonate'])
+        ->name('tenant.impersonate')
+        ->middleware('signed');
+});
 
 // Webhook Routes
 Route::post('/webhooks/asaas', [FinancialController::class, 'webhook'])->name('webhooks.asaas');

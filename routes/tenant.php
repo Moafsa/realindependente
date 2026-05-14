@@ -67,7 +67,6 @@ Route::middleware([
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login']);
     Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
-    Route::get('/impersonate', [LoginController::class, 'impersonate'])->name('tenant.impersonate')->middleware('signed');
 
     Route::get('/registrar', [\App\Http\Controllers\Auth\TenantRegisterController::class, 'showRegistrationForm'])->name('site.register');
     Route::post('/registrar', [\App\Http\Controllers\Auth\TenantRegisterController::class, 'register'])->name('site.register.submit');

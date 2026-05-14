@@ -32,6 +32,14 @@ class SiteController extends Controller
     public function home()
     {
         try {
+            // [NOVO] Carregar settings manualmente se não vierem do view composer (garantir try/catch)
+            try {
+                $settings = SiteSetting::getPublicSettings()->pluck('value', 'key')->toArray();
+            } catch (\Throwable $e) {
+                Log::warning('SiteController: Erro ao carregar settings na home: ' . $e->getMessage());
+                $settings = [];
+            }
+
             // Contagem de atletas ativos
             $athletesCount = Athlete::where('is_active', true)->count();
             
@@ -66,10 +74,10 @@ class SiteController extends Controller
             // Últimos posts do blog
             $latestPosts = Post::published()->limit(3)->get();
 
-            return view('site.home', compact('teams', 'stats', 'latestPosts'));
-        } catch (\Exception $e) {
+            return view('site.home', compact('teams', 'stats', 'latestPosts', 'settings'));
+        } catch (\Throwable $e) {
             // Fallback em caso de erro (ex: banco não migrado)
-            Log::error('SiteController@home: ' . $e->getMessage());
+            Log::error('SiteController@home: ' . $e->getMessage(), ['exception' => $e]);
             return view('site.home', [
                 'teams' => collect([]),
                 'stats' => [
@@ -77,7 +85,9 @@ class SiteController extends Controller
                     'teams' => 0,
                     'history_years' => 0,
                     'titles' => 0,
-                ]
+                ],
+                'settings' => [],
+                'latestPosts' => collect([]),
             ]);
         }
     }

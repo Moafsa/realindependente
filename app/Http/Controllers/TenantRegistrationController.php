@@ -146,15 +146,18 @@ class TenantRegistrationController extends Controller
 
             // [NOVO] Cria banco de dados e admin IMEDIATAMENTE (mesmo pendente)
             // para permitir acesso restrito ao dashboard
-            CreateTenantDatabase::dispatch($tenant);
-            CreateTenantAdmin::dispatch($tenant, [
+            CreateTenantDatabase::dispatchSync($tenant);
+            CreateTenantAdmin::dispatchSync($tenant, [
                 'name' => $request->admin_name,
                 'email' => $request->admin_email,
                 'password' => $request->admin_password,
             ]);
 
-            // Redireciona para o dashboard do subdomínio (SSO via .localhost)
-            return redirect()->to($tenant->url . '/dashboard')->with('info', 'Bem-vindo! Seu clube foi criado. Realize o pagamento para desbloquear todas as funcionalidades.');
+            // [NOVO] Redireciona para a página de pagamento para garantir a primeira fatura
+            return redirect()->route('tenant.payment', [
+                'tenant' => $tenant->id,
+                'subscription_id' => $asaasSubscription['id']
+            ])->with('info', 'Bem-vindo! Seu clube foi criado. Realize o pagamento para desbloquear todas as funcionalidades.');
 
         } catch (\Exception $e) {
             Log::error('TenantRegistrationController: Erro ao criar tenant', [
@@ -190,15 +193,12 @@ class TenantRegistrationController extends Controller
             // Log do objeto para debug se necessário
             Log::info('Pagamento: Assinatura recuperada', ['subscription_id' => $subscriptionId]);
             
-            // Tenta encontrar a URL de pagamento (pode variar dependendo do tipo de cobrança ou ambiente)
-            $paymentUrl = $subscription['invoiceUrl'] ?? 
-                         $subscription['bankSlipUrl'] ?? 
-                         ($subscription['externalReference'] ? "https://sandbox.asaas.com/i/{$subscription['id']}" : null);
+            // Tenta encontrar a URL de pagamento de forma robusta
+            $paymentUrl = $this->resolveSubscriptionPaymentUrl($subscriptionId);
 
             if (!$paymentUrl) {
-                Log::warning('Pagamento: URL de faturamento não encontrada na assinatura', [
-                    'subscription_id' => $subscriptionId,
-                    'subscription_data' => $subscription
+                Log::warning('Pagamento: URL de faturamento não encontrada para a assinatura', [
+                    'subscription_id' => $subscriptionId
                 ]);
             }
 
@@ -230,10 +230,11 @@ class TenantRegistrationController extends Controller
                 'subscription_id' => $subscription['id'] ?? null,
             ]);
 
-            // Processa apenas eventos de pagamento confirmado de assinatura
-            if ($event === 'PAYMENT_CONFIRMED' && $subscription) {
-                $subscriptionId = $subscription['id'];
-                
+            // Resolve ID da assinatura (pode vir no root ou dentro do objeto payment)
+            $subscriptionId = $subscription['id'] ?? $payment['subscription'] ?? null;
+
+            // Processa eventos de pagamento confirmado ou recebido de assinatura
+            if (($event === 'PAYMENT_CONFIRMED' || $event === 'PAYMENT_RECEIVED') && $subscriptionId) {
                 // Busca o tenant pela subscription_id
                 $tenant = Tenant::where('asaas_subscription_id', $subscriptionId)
                     ->where('status', 'pending')
@@ -299,8 +300,8 @@ class TenantRegistrationController extends Controller
             $tenant->domains()->update(['is_verified' => true]);
 
             // Dispara jobs para criar banco de dados e admin
-            CreateTenantDatabase::dispatch($tenant);
-            CreateTenantAdmin::dispatch($tenant, [
+            CreateTenantDatabase::dispatchSync($tenant);
+            CreateTenantAdmin::dispatchSync($tenant, [
                 'name' => $registrationData['admin_name'],
                 'email' => $registrationData['admin_email'],
                 'password' => $registrationData['admin_password'],
@@ -333,6 +334,39 @@ class TenantRegistrationController extends Controller
 
             throw $e;
         }
+    }
+
+    /**
+     * Resolve a URL de pagamento da assinatura de forma robusta.
+     */
+    private function resolveSubscriptionPaymentUrl(string $subscriptionId): ?string
+    {
+        try {
+            $subscription = $this->asaasService->getSubscription($subscriptionId);
+            
+            // 1. Tenta campos diretos (raro no Asaas para assinaturas novas sem cobrança imediata confirmada)
+            if (!empty($subscription['invoiceUrl'])) return $subscription['invoiceUrl'];
+            if (!empty($subscription['bankSlipUrl'])) return $subscription['bankSlipUrl'];
+            
+            // 2. Busca os pagamentos vinculados a esta assinatura
+            $payments = $this->asaasService->getSubscriptionPayments($subscriptionId);
+            
+            if (!empty($payments['data'])) {
+                // Pega a primeira cobrança (geralmente a mais recente ou a pendente)
+                $firstPayment = $payments['data'][0];
+                return $firstPayment['invoiceUrl'] ?? 
+                       $firstPayment['bankSlipUrl'] ?? 
+                       $firstPayment['invoiceCustomizationUrl'] ?? 
+                       null;
+            }
+        } catch (\Throwable $e) {
+            Log::error('TenantRegistrationController: Erro ao resolver URL de pagamento', [
+                'subscription_id' => $subscriptionId,
+                'error' => $e->getMessage()
+            ]);
+        }
+        
+        return null;
     }
 
     /**

@@ -87,13 +87,7 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3 ml-1">API URL</label>
-                    <input type="text" name="asaas_api_url" value="{{ old('asaas_api_url', $asaas_api_url) }}" 
-                           class="w-full px-6 py-4 bg-white/[0.03] border border-white/5 rounded-2xl text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50 transition-all text-sm"
-                           placeholder="https://sandbox.asaas.com/api/v3">
-                </div>
+            <div class="grid grid-cols-1 gap-6">
                 <div>
                     <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3 ml-1">Wallet ID (Split)</label>
                     <input type="text" name="asaas_wallet_id" value="{{ old('asaas_wallet_id', $asaas_wallet_id) }}" 

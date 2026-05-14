@@ -136,7 +136,13 @@ class User extends Authenticatable
             if (str_starts_with($this->avatar, 'http')) {
                 return $this->avatar;
             }
-            return route('tenant.assets', ['path' => $this->avatar]);
+            
+            // Se estivermos em um tenant e a rota de assets existir
+            if (\Illuminate\Support\Facades\Route::has('tenant.assets')) {
+                return route('tenant.assets', ['path' => $this->avatar]);
+            }
+
+            return \Illuminate\Support\Facades\Storage::disk('public')->url($this->avatar);
         }
         
         return 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&color=FFFFFF&background=6366F1&bold=true&format=svg';

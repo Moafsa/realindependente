@@ -61,24 +61,22 @@ class CreateTenantDatabase implements ShouldQueue
                 'tenant_id' => $this->tenant->id,
             ]);
 
-            // Finaliza o contexto do tenant
-            tenancy()->end();
-
             Log::info('CreateTenantDatabase: Banco de dados do tenant criado com sucesso', [
                 'tenant_id' => $this->tenant->id,
             ]);
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Log::error('CreateTenantDatabase: Erro ao criar banco de dados do tenant', [
                 'tenant_id' => $this->tenant->id,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            // Finaliza o contexto do tenant em caso de erro
-            tenancy()->end();
-
             throw $e;
+        } finally {
+            if (tenancy()->initialized) {
+                tenancy()->end();
+            }
         }
     }
 }

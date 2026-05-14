@@ -6,6 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     @php
+        $settings = $settings ?? [];
         $seoTitle = $__env->yieldContent('title');
         $seoDescription = $__env->yieldContent('description');
         $seoImage = $__env->yieldContent('og-image');

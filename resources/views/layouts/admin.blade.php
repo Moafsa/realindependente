@@ -136,36 +136,36 @@
                     <div class="relative">
                         <button id="notification-button" class="relative p-3 bg-white/5 text-gray-400 hover:text-white rounded-xl transition-all group">
                             <svg class="w-6 h-6 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
-                            <span id="notification-badge" class="absolute top-2.5 right-2.5 w-4 h-4 bg-rose-600 border-2 border-[#0B0F1A] rounded-full text-[8px] font-black text-white flex items-center justify-center {{ $totalNotifications > 0 ? '' : 'hidden' }}">{{ $totalNotifications }}</span>
+                            <span id="notification-badge" class="absolute top-2.5 right-2.5 w-4 h-4 bg-rose-600 border-2 border-[#0B0F1A] rounded-full text-[8px] font-black text-white flex items-center justify-center {{ ($totalNotifications ?? 0) > 0 ? '' : 'hidden' }}">{{ $totalNotifications ?? 0 }}</span>
                         </button>
 
                         <div id="notification-dropdown" class="hidden absolute right-0 mt-4 w-80 bg-[#0F1423] rounded-[2rem] shadow-2xl border border-white/10 z-50 overflow-hidden backdrop-blur-xl animate__animated animate__fadeInUp animate__faster">
                             <div class="p-6 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
                                 <h3 class="text-xs font-black text-white uppercase tracking-widest">Notificações</h3>
-                                <span id="total-notifications-text" class="text-[9px] bg-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded-full font-black uppercase tracking-widest">{{ $totalNotifications }} Novas</span>
+                                <span id="total-notifications-text" class="text-[9px] bg-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded-full font-black uppercase tracking-widest">{{ $totalNotifications ?? 0 }} Novas</span>
                             </div>
                             <div class="max-h-96 overflow-y-auto custom-scrollbar">
-                                <a id="pending-plans-notification" href="{{ Route::has('admin.athletes.index') ? route('admin.athletes.index') : '#' }}" class="flex p-5 hover:bg-white/5 border-b border-white/5 transition-colors {{ $pendingCount > 0 ? '' : 'hidden' }}">
+                                <a id="pending-plans-notification" href="{{ Route::has('admin.athletes.index') ? route('admin.athletes.index') : '#' }}" class="flex p-5 hover:bg-white/5 border-b border-white/5 transition-colors {{ ($pendingCount ?? 0) > 0 ? '' : 'hidden' }}">
                                     <div class="h-10 w-10 rounded-xl bg-orange-500/10 flex-shrink-0 flex items-center justify-center text-orange-500">
                                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                                     </div>
                                     <div class="ml-4">
                                         <p class="text-xs font-black text-white uppercase tracking-tight">Planos Pendentes</p>
-                                        <p class="text-[10px] text-gray-500 font-medium mt-1 leading-relaxed">Existem {{ $pendingCount }} solicitações de IA aguardando sua revisão técnica.</p>
+                                        <p class="text-[10px] text-gray-500 font-medium mt-1 leading-relaxed">Existem {{ $pendingCount ?? 0 }} solicitações de IA aguardando sua revisão técnica.</p>
                                     </div>
                                 </a>
 
-                                <a id="new-messages-notification" href="{{ Route::has('communication.index') ? route('communication.index') : '#' }}" class="flex p-5 hover:bg-white/5 border-b border-white/5 transition-colors {{ $unreadMessagesCount > 0 ? '' : 'hidden' }}">
+                                <a id="new-messages-notification" href="{{ Route::has('communication.index') ? route('communication.index') : '#' }}" class="flex p-5 hover:bg-white/5 border-b border-white/5 transition-colors {{ ($unreadMessagesCount ?? 0) > 0 ? '' : 'hidden' }}">
                                     <div class="h-10 w-10 rounded-xl bg-indigo-500/10 flex-shrink-0 flex items-center justify-center text-indigo-400">
                                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
                                     </div>
                                     <div class="ml-4">
                                         <p class="text-xs font-black text-white uppercase tracking-tight">Mensagens Diretas</p>
-                                        <p id="unread-messages-count" class="text-[10px] text-gray-500 font-medium mt-1 leading-relaxed">Você recebeu {{ $unreadMessagesCount }} novas mensagens de atletas.</p>
+                                        <p id="unread-messages-count" class="text-[10px] text-gray-500 font-medium mt-1 leading-relaxed">Você recebeu {{ $unreadMessagesCount ?? 0 }} novas mensagens de atletas.</p>
                                     </div>
                                 </a>
 
-                                <div id="empty-notifications-state" class="p-10 text-center text-gray-600 {{ $totalNotifications == 0 ? '' : 'hidden' }}">
+                                <div id="empty-notifications-state" class="p-10 text-center text-gray-600 {{ ($totalNotifications ?? 0) == 0 ? '' : 'hidden' }}">
                                     <svg class="h-10 w-10 mx-auto mb-4 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
                                     <p class="text-[10px] font-black uppercase tracking-[0.2em]">Nada por enquanto</p>
                                 </div>

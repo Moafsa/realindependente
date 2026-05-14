@@ -113,6 +113,14 @@ class Tenant extends BaseTenant implements TenantWithDatabase
         return 'tenant_' . $this->id;
     }
 
+    /**
+     * Get the tenant's subdomain.
+     */
+    public function getSubdomainAttribute()
+    {
+        return $this->domain;
+    }
+
 
     /**
      * Get the tenant's URL.

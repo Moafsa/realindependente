@@ -83,14 +83,17 @@ class TenantManagementController extends Controller
                 'ai_content_count' => \App\Models\AiGeneratedContent::count(),
                 'users_count' => \App\Models\User::count(),
             ];
-            tenancy()->end();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $usageStats = [
                 'athletes_count' => 0,
                 'teams_count' => 0,
                 'ai_content_count' => 0,
                 'users_count' => 0,
             ];
+        } finally {
+            if (tenancy()->initialized) {
+                tenancy()->end();
+            }
         }
 
         return view('admin.tenants.show', compact('tenant', 'stats', 'usageStats'));

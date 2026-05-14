@@ -9,6 +9,14 @@
 </head>
 <body class="bg-gray-50 flex items-center justify-center min-h-screen">
     <div class="max-w-xl w-full p-6">
+        @if(session('info'))
+            <div class="mb-6 p-4 bg-blue-50 text-blue-800 rounded-2xl text-sm font-bold border border-blue-100 animate__animated animate__fadeInDown">
+                <div class="flex items-center gap-3">
+                    <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    {{ session('info') }}
+                </div>
+            </div>
+        @endif
         <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
             <div class="bg-blue-600 px-6 py-8 text-white text-center">
                 <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">

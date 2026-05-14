@@ -29,6 +29,15 @@
         <span>Planos & Preços</span>
     </a>
 
+    <a href="{{ route('admin.financial.index') }}" class="group flex items-center px-6 py-4 text-sm font-bold rounded-2xl {{ request()->routeIs('admin.financial.*') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'text-gray-400 hover:bg-white/5 hover:text-white' }} transition-all duration-300">
+        <div class="p-2 rounded-xl {{ request()->routeIs('admin.financial.*') ? 'bg-white/20' : 'bg-white/5 group-hover:bg-white/10' }} mr-4 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+            </svg>
+        </div>
+        <span>Financeiro Global</span>
+    </a>
+
     <a href="{{ route('admin.ai.monitoring') }}" class="group flex items-center px-6 py-4 text-sm font-bold rounded-2xl {{ request()->routeIs('admin.ai.monitoring') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'text-gray-400 hover:bg-white/5 hover:text-white' }} transition-all duration-300">
         <div class="p-2 rounded-xl {{ request()->routeIs('admin.ai.monitoring') ? 'bg-white/20' : 'bg-white/5 group-hover:bg-white/10' }} mr-4 transition-colors">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

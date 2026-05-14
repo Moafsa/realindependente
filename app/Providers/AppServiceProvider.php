@@ -29,7 +29,7 @@ class AppServiceProvider extends ServiceProvider
             try {
                 $settings = \App\Models\SiteSetting::getPublicSettings()->pluck('value', 'key')->toArray();
                 $view->with('settings', $settings);
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 // Fallback for when tables don't exist yet
                 $view->with('settings', []);
             }
@@ -68,7 +68,7 @@ class AppServiceProvider extends ServiceProvider
                         'muralCount' => $muralCount,
                         'totalNotifications' => $unreadMessagesCount + $pendingCount + $muralCount
                     ]);
-                } catch (\Exception $e) {
+                } catch (\Throwable $e) {
                     $view->with([
                         'unreadMessagesCount' => 0,
                         'pendingCount' => 0,

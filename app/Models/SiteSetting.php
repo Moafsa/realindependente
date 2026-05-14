@@ -58,7 +58,8 @@ class SiteSetting extends Model
      */
     public static function getPublicSettings()
     {
-        return \Illuminate\Support\Facades\Cache::remember('site_settings_public', 3600, function () {
+        $cacheKey = 'site_settings_public_' . (tenant('id') ?? 'central');
+        return \Illuminate\Support\Facades\Cache::remember($cacheKey, 3600, function () {
             return static::where('is_public', true)->get();
         });
     }
@@ -68,7 +69,8 @@ class SiteSetting extends Model
      */
     public static function clearPublicSettingsCache()
     {
-        \Illuminate\Support\Facades\Cache::forget('site_settings_public');
+        $cacheKey = 'site_settings_public_' . (tenant('id') ?? 'central');
+        \Illuminate\Support\Facades\Cache::forget($cacheKey);
     }
 
     /**

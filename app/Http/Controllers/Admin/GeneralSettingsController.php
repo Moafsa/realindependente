@@ -57,7 +57,6 @@ class GeneralSettingsController extends Controller
             'wuzapi_base_url' => 'nullable|string|url',
             'superadmin_whatsapp' => 'nullable|string',
             'asaas_api_key' => 'nullable|string',
-            'asaas_api_url' => 'nullable|string|url',
             'asaas_environment' => 'nullable|string|in:sandbox,production',
             'asaas_wallet_id' => 'nullable|string',
         ]);
@@ -73,8 +72,13 @@ class GeneralSettingsController extends Controller
         SiteSetting::set('wuzapi_base_url', $request->wuzapi_base_url, 'text', 'Wuzapi Base URL', true);
         SiteSetting::set('superadmin_whatsapp', $request->superadmin_whatsapp, 'text', 'SuperAdmin WhatsApp', true);
 
+        // Define a URL do Asaas automaticamente baseada no ambiente
+        $asaasUrl = $request->asaas_environment === 'production' 
+            ? 'https://www.asaas.com/api/v3' 
+            : 'https://sandbox.asaas.com/api/v3';
+
         SiteSetting::set('asaas_api_key', $request->asaas_api_key, 'text', 'Asaas API Key', false);
-        SiteSetting::set('asaas_api_url', $request->asaas_api_url, 'text', 'Asaas API URL', false);
+        SiteSetting::set('asaas_api_url', $asaasUrl, 'text', 'Asaas API URL', false);
         SiteSetting::set('asaas_environment', $request->asaas_environment, 'text', 'Asaas Environment', false);
         SiteSetting::set('asaas_wallet_id', $request->asaas_wallet_id, 'text', 'Asaas Wallet ID', false);
 
