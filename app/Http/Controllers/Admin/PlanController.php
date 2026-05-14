@@ -34,6 +34,7 @@ class PlanController extends Controller
             'max_athletes' => 'required|integer|min:0',
             'max_branches' => 'required|integer|min:0',
             'ai_features' => 'boolean',
+            'trial_days' => 'required|integer|min:0',
             'is_active' => 'boolean',
             'sort_order' => 'required|integer',
         ]);

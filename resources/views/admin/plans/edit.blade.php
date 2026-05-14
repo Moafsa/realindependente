@@ -97,7 +97,11 @@
                     </label>
                 </div>
 
-                <div class="grid grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Dias de Trial (Teste)</label>
+                        <input type="number" name="trial_days" value="{{ old('trial_days', $plan->trial_days) }}" required class="w-full px-4 py-3 bg-gray-50 border-gray-100 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+                    </div>
                     <div>
                         <label class="block text-sm font-bold text-gray-700 mb-2">Ordem de Exibição</label>
                         <input type="number" name="sort_order" value="{{ old('sort_order', $plan->sort_order) }}" required class="w-full px-4 py-3 bg-gray-50 border-gray-100 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all">

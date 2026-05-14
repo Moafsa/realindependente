@@ -95,7 +95,7 @@ class TenantRegistrationController extends Controller
             $subscriptionData = [
                 'customer_id' => $asaasCustomer['id'],
                 'value' => $price,
-                'next_due_date' => now()->addDays(7)->format('Y-m-d'),
+                'next_due_date' => now()->addDays($plan->trial_days)->format('Y-m-d'),
                 'description' => "Assinatura {$plan->name} ({$frequency}) - {$request->club_name}",
                 'external_reference' => $sessionId,
                 'billing_type' => 'PIX',
@@ -292,7 +292,7 @@ class TenantRegistrationController extends Controller
             // Atualiza status do tenant
             $tenant->update([
                 'status' => 'active',
-                'trial_ends_at' => now()->addDays(14),
+                'trial_ends_at' => now()->addDays($tenant->plan->trial_days ?? 7),
             ]);
 
             // Marca domínio como verificado

@@ -27,6 +27,7 @@ class Plan extends Model
         'ai_features',
         'ecommerce_tax_rate',
         'admin_fee_percentage',
+        'trial_days',
         'is_active',
         'sort_order',
     ];
@@ -44,6 +45,7 @@ class Plan extends Model
         'discount_yearly' => 'integer',
         'ecommerce_tax_rate' => 'decimal:2',
         'admin_fee_percentage' => 'decimal:2',
+        'trial_days' => 'integer',
     ];
 
     /**
