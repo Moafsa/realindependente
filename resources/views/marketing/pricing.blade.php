@@ -110,77 +110,123 @@
 </section>
 
 <!-- Pricing Section -->
-<section class="py-20 bg-gray-50">
+<section class="py-20 bg-gray-50" x-data="{ frequency: 'monthly' }">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <!-- Frequency Switcher -->
+        <div class="flex justify-center mb-16">
+            <div class="bg-white p-1.5 rounded-2xl shadow-xl border border-gray-100 flex gap-1 inline-flex">
+                <button @click="frequency = 'monthly'" :class="frequency === 'monthly' ? 'bg-blue-600 text-white shadow-lg' : 'text-gray-500 hover:bg-gray-50'" class="px-8 py-3 rounded-xl font-bold transition-all text-sm uppercase tracking-wider">Mensal</button>
+                <button @click="frequency = 'quarterly'" :class="frequency === 'quarterly' ? 'bg-blue-600 text-white shadow-lg' : 'text-gray-500 hover:bg-gray-50'" class="px-8 py-3 rounded-xl font-bold transition-all text-sm uppercase tracking-wider">Trimestral</button>
+                <button @click="frequency = 'semiannual'" :class="frequency === 'semiannual' ? 'bg-blue-600 text-white shadow-lg' : 'text-gray-500 hover:bg-gray-50'" class="px-8 py-3 rounded-xl font-bold transition-all text-sm uppercase tracking-wider">Semestral</button>
+                <button @click="frequency = 'yearly'" :class="frequency === 'yearly' ? 'bg-blue-600 text-white shadow-lg' : 'text-gray-500 hover:bg-gray-50'" class="px-8 py-3 rounded-xl font-bold transition-all text-sm uppercase tracking-wider">Anual</button>
+            </div>
+        </div>
+
         <div class="grid md:grid-cols-3 gap-8">
             @foreach($plans as $plan)
-            <div class="bg-white border-2 rounded-lg p-8 {{ $plan->name === 'Profissional' ? 'border-blue-500 ring-2 ring-blue-500 transform scale-105' : 'border-gray-200' }} hover:shadow-lg transition">
+            <div class="bg-white border-2 rounded-3xl p-8 {{ $plan->name === 'Profissional' ? 'border-blue-500 ring-4 ring-blue-500/10 transform scale-105 shadow-2xl relative z-10' : 'border-gray-100 shadow-xl' }} hover:shadow-2xl transition-all duration-300">
                 @if($plan->name === 'Profissional')
-                <div class="bg-blue-500 text-white text-sm font-semibold px-3 py-1 rounded-full inline-block mb-4">
+                <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-xs font-black px-4 py-1.5 rounded-full uppercase tracking-widest shadow-lg">
                     Mais Popular
                 </div>
                 @endif
                 
-                <h3 class="text-2xl font-bold text-gray-900 mb-2">{{ $plan->name }}</h3>
-                <p class="text-gray-600 mb-6">{{ $plan->description }}</p>
+                <h3 class="text-2xl font-black text-gray-900 mb-2">{{ $plan->name }}</h3>
+                <p class="text-gray-500 mb-8 text-sm leading-relaxed">{{ $plan->description }}</p>
                 
-                <div class="mb-6">
-                    <span class="text-4xl font-bold text-gray-900">R$ {{ number_format($plan->price_monthly, 2, ',', '.') }}</span>
-                    <span class="text-gray-600">/mês</span>
-                    @if($plan->price_yearly)
-                    <p class="text-sm text-gray-500 mt-2">
-                        ou R$ {{ number_format($plan->price_yearly, 2, ',', '.') }}/ano
-                        <span class="text-green-600 font-semibold">(Economize {{ $plan->yearly_discount }}%)</span>
-                    </p>
-                    @endif
+                <div class="mb-8">
+                    <!-- Monthly Price -->
+                    <template x-if="frequency === 'monthly'">
+                        <div>
+                            <span class="text-5xl font-black text-gray-900">R$ {{ number_format($plan->price_monthly, 0, ',', '.') }}</span>
+                            <span class="text-gray-400 font-bold">/mês</span>
+                        </div>
+                    </template>
+
+                    <!-- Quarterly Price -->
+                    <template x-if="frequency === 'quarterly'">
+                        <div>
+                            @php
+                                $baseQ = $plan->price_monthly * 3;
+                                $priceQ = $plan->price_quarterly ?: ($baseQ * (1 - ($plan->discount_quarterly / 100)));
+                            @endphp
+                            <span class="text-5xl font-black text-gray-900">R$ {{ number_format($priceQ, 0, ',', '.') }}</span>
+                            <span class="text-gray-400 font-bold">/trim.</span>
+                            @if($plan->discount_quarterly > 0)
+                                <p class="text-xs font-bold text-green-600 mt-2 uppercase tracking-tighter">Economize {{ $plan->discount_quarterly }}%</p>
+                            @endif
+                        </div>
+                    </template>
+
+                    <!-- Semiannual Price -->
+                    <template x-if="frequency === 'semiannual'">
+                        <div>
+                            @php
+                                $baseS = $plan->price_monthly * 6;
+                                $priceS = $plan->price_semiannual ?: ($baseS * (1 - ($plan->discount_semiannual / 100)));
+                            @endphp
+                            <span class="text-5xl font-black text-gray-900">R$ {{ number_format($priceS, 0, ',', '.') }}</span>
+                            <span class="text-gray-400 font-bold">/sem.</span>
+                            @if($plan->discount_semiannual > 0)
+                                <p class="text-xs font-bold text-green-600 mt-2 uppercase tracking-tighter">Economize {{ $plan->discount_semiannual }}%</p>
+                            @endif
+                        </div>
+                    </template>
+
+                    <!-- Yearly Price -->
+                    <template x-if="frequency === 'yearly'">
+                        <div>
+                            @php
+                                $baseY = $plan->price_monthly * 12;
+                                $priceY = $plan->price_yearly ?: ($baseY * (1 - ($plan->discount_yearly / 100)));
+                            @endphp
+                            <span class="text-5xl font-black text-gray-900">R$ {{ number_format($priceY, 0, ',', '.') }}</span>
+                            <span class="text-gray-400 font-bold">/ano</span>
+                            @if($plan->discount_yearly > 0)
+                                <p class="text-xs font-bold text-green-600 mt-2 uppercase tracking-tighter">Economize {{ $plan->discount_yearly }}%</p>
+                            @endif
+                        </div>
+                    </template>
                 </div>
                 
-                <ul class="space-y-3 mb-8">
+                <ul class="space-y-4 mb-10">
                     @if(is_array($plan->features))
                         @foreach($plan->features as $feature)
-                        <li class="flex items-center">
-                            <svg class="w-5 h-5 text-green-500 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                            </svg>
-                            <span class="text-gray-700">{{ $feature }}</span>
+                        <li class="flex items-start">
+                            <div class="mt-1 bg-green-100 rounded-full p-1 mr-3 flex-shrink-0">
+                                <svg class="w-3 h-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                            <span class="text-gray-600 text-sm font-medium">{{ $feature }}</span>
                         </li>
                         @endforeach
                     @endif
                     
                     @if($plan->max_athletes)
-                    <li class="flex items-center">
-                        <svg class="w-5 h-5 text-green-500 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                        </svg>
-                        <span class="text-gray-700">Até {{ $plan->max_athletes }} atletas</span>
-                    </li>
-                    @endif
-                    
-                    @if($plan->max_branches)
-                    <li class="flex items-center">
-                        <svg class="w-5 h-5 text-green-500 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                        </svg>
-                        <span class="text-gray-700">Até {{ $plan->max_branches }} filiais</span>
+                    <li class="flex items-start">
+                        <div class="mt-1 bg-blue-100 rounded-full p-1 mr-3 flex-shrink-0">
+                            <svg class="w-3 h-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                        </div>
+                        <span class="text-gray-600 text-sm font-medium">Até {{ $plan->max_athletes }} atletas</span>
                     </li>
                     @endif
                     
                     @if($plan->ai_features)
-                    <li class="flex items-center">
-                        <svg class="w-5 h-5 text-green-500 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                        </svg>
-                        <span class="text-gray-700">Recursos de IA incluídos</span>
+                    <li class="flex items-start">
+                        <div class="mt-1 bg-purple-100 rounded-full p-1 mr-3 flex-shrink-0">
+                            <svg class="w-3 h-3 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                        </div>
+                        <span class="text-gray-600 text-sm font-medium">Recursos de IA inclusos</span>
                     </li>
                     @endif
                 </ul>
                 
-                <a href="{{ route('tenant.register') }}?plan={{ $plan->id }}" 
-                   class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 transition text-center block">
+                <a :href="'{{ route('tenant.register') }}?plan={{ $plan->id }}&frequency=' + frequency" 
+                   class="w-full bg-gray-900 text-white py-4 px-6 rounded-2xl font-bold hover:bg-blue-600 transition-all duration-300 text-center block shadow-lg shadow-gray-200">
                     Começar Grátis
                 </a>
                 
-                <p class="text-center text-sm text-gray-500 mt-4">14 dias grátis, sem cartão de crédito</p>
+                <p class="text-center text-[10px] uppercase tracking-widest font-black text-gray-400 mt-6">14 dias grátis · sem cartão</p>
             </div>
             @endforeach
         </div>

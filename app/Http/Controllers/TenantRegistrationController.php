@@ -59,6 +59,8 @@ class TenantRegistrationController extends Controller
 
         try {
             $plan = Plan::findOrFail($request->plan_id);
+            $frequency = $request->input('frequency', 'monthly');
+            $price = $plan->getCalculatedPrice($frequency);
             
             // Gera ID de sessão para armazenar dados temporários
             $sessionId = $this->registrationService->generateSessionId();
@@ -73,7 +75,8 @@ class TenantRegistrationController extends Controller
                 'admin_phone' => $request->admin_phone,
                 'admin_cpf_cnpj' => $request->admin_cpf_cnpj,
                 'plan_id' => $request->plan_id,
-                'plan_price' => $plan->price_monthly,
+                'plan_price' => $price,
+                'frequency' => $frequency,
             ];
             
             $this->registrationService->storeRegistrationData($sessionId, $registrationData, 60); // 60 minutos
@@ -91,12 +94,17 @@ class TenantRegistrationController extends Controller
             // Cria assinatura no Asaas
             $subscriptionData = [
                 'customer_id' => $asaasCustomer['id'],
-                'value' => $plan->price_monthly,
+                'value' => $price,
                 'next_due_date' => now()->addDays(7)->format('Y-m-d'),
-                'description' => "Assinatura {$plan->name} - {$request->club_name}",
+                'description' => "Assinatura {$plan->name} ({$frequency}) - {$request->club_name}",
                 'external_reference' => $sessionId,
                 'billing_type' => 'PIX',
-                'cycle' => 'MONTHLY',
+                'cycle' => match($frequency) {
+                    'quarterly' => 'QUARTERLY',
+                    'semiannual' => 'SEMIANNUAL',
+                    'yearly' => 'YEARLY',
+                    default => 'MONTHLY',
+                },
             ];
             
             $asaasSubscription = $this->asaasService->createSubscription($subscriptionData);

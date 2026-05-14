@@ -30,13 +30,39 @@
                         <label class="block text-sm font-bold text-gray-700 mb-2">Descrição</label>
                         <textarea name="description" rows="3" class="w-full px-4 py-3 bg-gray-50 border-gray-100 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all">{{ old('description', $plan->description) }}</textarea>
                     </div>
+            <div class="p-8 border-b border-gray-50">
+                <h2 class="text-lg font-bold text-gray-900 mb-6">Preços & Descontos</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
                     <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-2">Preço Mensal (R$)</label>
-                        <input type="number" step="0.01" name="price_monthly" value="{{ old('price_monthly', $plan->price_monthly) }}" required class="w-full px-4 py-3 bg-gray-50 border-gray-100 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Mensal (R$)</label>
+                        <input type="number" step="0.01" name="price_monthly" value="{{ old('price_monthly', $plan->price_monthly) }}" required class="w-full px-4 py-3 bg-gray-50 border-gray-100 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" placeholder="0.00">
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-2">Preço Anual (R$ - Opcional)</label>
-                        <input type="number" step="0.01" name="price_yearly" value="{{ old('price_yearly', $plan->price_yearly) }}" class="w-full px-4 py-3 bg-gray-50 border-gray-100 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Trimestral (R$)</label>
+                        <input type="number" step="0.01" name="price_quarterly" value="{{ old('price_quarterly', $plan->price_quarterly) }}" class="w-full px-4 py-3 bg-gray-50 border-gray-100 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" placeholder="Opcional">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Semestral (R$)</label>
+                        <input type="number" step="0.01" name="price_semiannual" value="{{ old('price_semiannual', $plan->price_semiannual) }}" class="w-full px-4 py-3 bg-gray-50 border-gray-100 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" placeholder="Opcional">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Anual (R$)</label>
+                        <input type="number" step="0.01" name="price_yearly" value="{{ old('price_yearly', $plan->price_yearly) }}" class="w-full px-4 py-3 bg-gray-50 border-gray-100 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all" placeholder="Opcional">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Desconto Trimestral (%)</label>
+                        <input type="number" name="discount_quarterly" value="{{ old('discount_quarterly', $plan->discount_quarterly) }}" class="w-full px-4 py-3 bg-gray-50 border-gray-100 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Desconto Semestral (%)</label>
+                        <input type="number" name="discount_semiannual" value="{{ old('discount_semiannual', $plan->discount_semiannual) }}" class="w-full px-4 py-3 bg-gray-50 border-gray-100 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-2">Desconto Anual (%)</label>
+                        <input type="number" name="discount_yearly" value="{{ old('discount_yearly', $plan->discount_yearly) }}" class="w-full px-4 py-3 bg-gray-50 border-gray-100 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 outline-none transition-all">
                     </div>
                 </div>
             </div>
