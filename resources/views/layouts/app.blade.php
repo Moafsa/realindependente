@@ -11,6 +11,18 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
+    <!-- Favicon -->
+    @php
+        $favicon = null;
+        if (tenant()) {
+            $favicon = \App\Models\SiteSetting::get('site_logo');
+        } else {
+            $favicon = \App\Models\SiteSetting::getCentral('site_logo');
+        }
+        $faviconUrl = $favicon ? \Illuminate\Support\Facades\Storage::url($favicon) : asset('favicons/nexts_favicon.png');
+    @endphp
+    <link rel="icon" type="image/png" href="{{ $faviconUrl }}">
+
     <!-- Scripts -->
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>

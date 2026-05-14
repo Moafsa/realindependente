@@ -29,9 +29,36 @@ class FinancialController extends Controller
         try {
             $totalSalaries = User::where('role', 'coach')->where('is_active', true)->sum('salary');
 
+            // Busca o percentual de taxa administrativa do plano do tenant
+            $adminFeePercent = 0;
+            $ecommerceTaxPercent = 0;
+            if (tenancy()->initialized) {
+                $plan = \App\Models\Plan::find(tenant('plan_id'));
+                if ($plan) {
+                    $adminFeePercent = $plan->admin_fee_percentage;
+                    $ecommerceTaxPercent = $plan->ecommerce_tax_rate;
+                }
+            }
+
+            $totalRevenue = Order::where('status', 'paid')->sum('total_amount');
+            
+            // Calcula as taxas da plataforma sobre a receita paga
+            // Nota: Isso é uma estimativa baseada nos percentuais atuais. 
+            // Em um sistema real, poderíamos salvar o split real de cada transação.
+            $subscriptionRevenue = Order::where('status', 'paid')
+                ->whereNotNull('athlete_id')
+                ->sum('total_amount');
+            
+            $shopRevenue = Order::where('status', 'paid')
+                ->whereNull('athlete_id')
+                ->sum('total_amount');
+            
+            $platformFees = ($subscriptionRevenue * ($adminFeePercent / 100)) + ($shopRevenue * ($ecommerceTaxPercent / 100));
+            $netRevenue = $totalRevenue - $platformFees;
+
             // Get financial statistics
             $stats = [
-                'total_revenue' => Order::where('status', 'paid')->sum('total_amount'),
+                'total_revenue' => $totalRevenue,
                 'pending_revenue' => Order::where('status', 'pending')->sum('total_amount'),
                 'overdue_revenue' => Order::where('status', 'overdue')->sum('total_amount'),
                 'total_orders' => Order::count(),
@@ -39,6 +66,8 @@ class FinancialController extends Controller
                 'pending_orders' => Order::where('status', 'pending')->count(),
                 'total_expenses' => CashFlow::where('type', 'exit')->where('status', 'completed')->sum('amount'),
                 'estimated_salaries' => $totalSalaries,
+                'platform_fees' => $platformFees,
+                'net_revenue' => $netRevenue,
             ];
 
             // Get monthly revenue (last 6 months)

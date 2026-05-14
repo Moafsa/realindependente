@@ -156,4 +156,20 @@ class Plan extends Model
 
         return round($basePrice, 2);
     }
+
+    /**
+     * Get the original price (without discounts) for a specific frequency.
+     */
+    public function getOriginalPrice($frequency)
+    {
+        $months = match($frequency) {
+            'monthly' => 1,
+            'quarterly' => 3,
+            'semiannual' => 6,
+            'yearly' => 12,
+            default => 1
+        };
+
+        return (float) $this->price_monthly * $months;
+    }
 }

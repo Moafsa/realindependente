@@ -53,3 +53,6 @@ Thumbs.db
 *.key
 *.crt
 *.p12
+
+# Tenants
+/storage/tenant*

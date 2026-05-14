@@ -14,7 +14,7 @@
                 <h3 class="text-xl font-black text-white tracking-tight">Acesso Restrito: Pendente de Regularização</h3>
                 <p class="text-sm text-gray-400 mt-1">Sua conta está em modo de leitura. Para habilitar todas as funcionalidades de gestão, regularize sua mensalidade.</p>
             </div>
-            <a href="#" class="px-8 py-4 bg-orange-600 text-white rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-orange-600/20 hover:bg-orange-700 transition-all">Pagar via PIX</a>
+            <a href="{{ route('admin.billing.pay') }}" target="_blank" class="px-8 py-4 bg-orange-600 text-white rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl shadow-orange-600/20 hover:bg-orange-700 transition-all">Pagar via PIX</a>
         </div>
     @endif
 

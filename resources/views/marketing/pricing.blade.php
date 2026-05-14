@@ -148,9 +148,14 @@
                     <template x-if="frequency === 'quarterly'">
                         <div>
                             @php
-                                $baseQ = $plan->price_monthly * 3;
-                                $priceQ = $plan->price_quarterly ?: ($baseQ * (1 - ($plan->discount_quarterly / 100)));
+                                $priceQ = $plan->getCalculatedPrice('quarterly');
+                                $origQ = $plan->getOriginalPrice('quarterly');
                             @endphp
+                            @if($origQ > $priceQ)
+                                <div class="flex flex-col mb-1">
+                                    <span class="text-lg font-bold text-rose-500 line-through opacity-60">R$ {{ number_format($origQ, 0, ',', '.') }}</span>
+                                </div>
+                            @endif
                             <span class="text-5xl font-black text-gray-900">R$ {{ number_format($priceQ, 0, ',', '.') }}</span>
                             <span class="text-gray-400 font-bold">/trim.</span>
                             @if($plan->discount_quarterly > 0)
@@ -163,9 +168,14 @@
                     <template x-if="frequency === 'semiannual'">
                         <div>
                             @php
-                                $baseS = $plan->price_monthly * 6;
-                                $priceS = $plan->price_semiannual ?: ($baseS * (1 - ($plan->discount_semiannual / 100)));
+                                $priceS = $plan->getCalculatedPrice('semiannual');
+                                $origS = $plan->getOriginalPrice('semiannual');
                             @endphp
+                            @if($origS > $priceS)
+                                <div class="flex flex-col mb-1">
+                                    <span class="text-lg font-bold text-rose-500 line-through opacity-60">R$ {{ number_format($origS, 0, ',', '.') }}</span>
+                                </div>
+                            @endif
                             <span class="text-5xl font-black text-gray-900">R$ {{ number_format($priceS, 0, ',', '.') }}</span>
                             <span class="text-gray-400 font-bold">/sem.</span>
                             @if($plan->discount_semiannual > 0)
@@ -178,9 +188,14 @@
                     <template x-if="frequency === 'yearly'">
                         <div>
                             @php
-                                $baseY = $plan->price_monthly * 12;
-                                $priceY = $plan->price_yearly ?: ($baseY * (1 - ($plan->discount_yearly / 100)));
+                                $priceY = $plan->getCalculatedPrice('yearly');
+                                $origY = $plan->getOriginalPrice('yearly');
                             @endphp
+                            @if($origY > $priceY)
+                                <div class="flex flex-col mb-1">
+                                    <span class="text-lg font-bold text-rose-500 line-through opacity-60">R$ {{ number_format($origY, 0, ',', '.') }}</span>
+                                </div>
+                            @endif
                             <span class="text-5xl font-black text-gray-900">R$ {{ number_format($priceY, 0, ',', '.') }}</span>
                             <span class="text-gray-400 font-bold">/ano</span>
                             @if($plan->discount_yearly > 0)
@@ -220,14 +235,19 @@
                     </li>
                     @endif
                     
-                    @if($plan->admin_fee_percentage > 0)
                     <li class="flex items-start">
                         <div class="mt-1 bg-orange-100 rounded-full p-1 mr-3 flex-shrink-0">
                             <svg class="w-3 h-3 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path></svg>
                         </div>
-                        <span class="text-gray-600 text-sm font-medium">Taxa de transação: {{ number_format($plan->admin_fee_percentage, 1, ',', '.') }}%</span>
+                        <span class="text-gray-600 text-sm font-medium">Taxa Admin (Mensalidade): {{ number_format($plan->admin_fee_percentage, 1, ',', '.') }}%</span>
                     </li>
-                    @endif
+
+                    <li class="flex items-start">
+                        <div class="mt-1 bg-emerald-100 rounded-full p-1 mr-3 flex-shrink-0">
+                            <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+                        </div>
+                        <span class="text-gray-600 text-sm font-medium">Taxa de Serviço (Loja): {{ number_format($plan->ecommerce_tax_rate, 1, ',', '.') }}%</span>
+                    </li>
 
                     @if($plan->ai_features)
                     <li class="flex items-start">

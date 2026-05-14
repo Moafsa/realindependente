@@ -105,6 +105,10 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::get('/subscriptions', [\App\Http\Controllers\Admin\FinancialController::class, 'subscriptions'])->name('subscriptions');
         Route::get('/club-sales', [\App\Http\Controllers\Admin\FinancialController::class, 'clubSales'])->name('club-sales');
     });
+
+    // Profile Management (Super Admin)
+    Route::get('/profile', [\App\Http\Controllers\Admin\ProfileController::class, 'index'])->name('profile.index');
+    Route::put('/profile', [\App\Http\Controllers\Admin\ProfileController::class, 'update'])->name('profile.update');
 });
 
 // Impersonation route for tenants

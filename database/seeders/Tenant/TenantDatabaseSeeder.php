@@ -22,51 +22,61 @@ class TenantDatabaseSeeder extends Seeder
         $coachEmail = 'coach@' . tenant('id') . '.com';
         $athleteEmail = 'athlete@' . tenant('id') . '.com';
 
-        User::create([
-            'name' => 'Administrador ' . tenant('id'),
-            'email' => $adminEmail,
-            'password' => Hash::make('password'),
-            'role' => 'admin',
-            'is_active' => true,
-        ]);
+        User::updateOrCreate(
+            ['email' => $adminEmail],
+            [
+                'name' => 'Administrador ' . tenant('id'),
+                'password' => Hash::make('password'),
+                'role' => 'admin',
+                'is_active' => true,
+            ]
+        );
 
-        $coach = User::create([
-            'name' => 'Treinador ' . tenant('id'),
-            'email' => $coachEmail,
-            'password' => Hash::make('password'),
-            'role' => 'coach',
-            'is_active' => true,
-        ]);
+        $coach = User::updateOrCreate(
+            ['email' => $coachEmail],
+            [
+                'name' => 'Treinador ' . tenant('id'),
+                'password' => Hash::make('password'),
+                'role' => 'coach',
+                'is_active' => true,
+            ]
+        );
 
-        $athleteUser = User::create([
-            'name' => 'Atleta Exemplo',
-            'email' => $athleteEmail,
-            'password' => Hash::make('password'),
-            'role' => 'athlete',
-            'is_active' => true,
-        ]);
+        User::updateOrCreate(
+            ['email' => $athleteEmail],
+            [
+                'name' => 'Atleta Exemplo',
+                'password' => Hash::make('password'),
+                'role' => 'athlete',
+                'is_active' => true,
+            ]
+        );
 
         // 2. Create a default Branch
-        $branch = Branch::create([
-            'name' => 'Sede Principal',
-            'slug' => 'sede-principal',
-            'address' => 'Rua do Esporte, 100',
-            'city' => 'Sede',
-            'state' => 'SP',
-            'zip_code' => '00000-000',
-            'is_active' => true,
-        ]);
+        $branch = Branch::updateOrCreate(
+            ['slug' => 'sede-principal'],
+            [
+                'name' => 'Sede Principal',
+                'address' => 'Rua do Esporte, 100',
+                'city' => 'Sede',
+                'state' => 'SP',
+                'zip_code' => '00000-000',
+                'is_active' => true,
+            ]
+        );
 
         // 3. Create a default Team
-        Team::create([
-            'name' => 'Sub-17 Profissional',
-            'slug' => 'sub-17-p',
-            'category' => 'sub-17',
-            'level' => 'advanced',
-            'branch_id' => $branch->id,
-            'coach_id' => $coach->id,
-            'is_active' => true,
-        ]);
+        Team::updateOrCreate(
+            ['slug' => 'sub-17-p'],
+            [
+                'name' => 'Sub-17 Profissional',
+                'category' => 'sub-17',
+                'level' => 'advanced',
+                'branch_id' => $branch->id,
+                'coach_id' => $coach->id,
+                'is_active' => true,
+            ]
+        );
 
         // 4. Create default Site Settings
         $settings = [

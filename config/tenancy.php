@@ -95,6 +95,7 @@ return [
         'disks' => [
             'local',
             'public',
+            's3',
         ],
         'root_override' => [
             'local' => '%storage_path%/app',

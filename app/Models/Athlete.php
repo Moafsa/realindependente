@@ -264,8 +264,8 @@ class Athlete extends Model
             return $value;
         }
         
-        // Se for um path relativo, gera a URL via nossa rota de assets
-        return route('tenant.assets', ['path' => $value]);
+        // Se for um path relativo, gera a URL
+        return \Illuminate\Support\Facades\Storage::url($value);
     }
 
     /**

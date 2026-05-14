@@ -21,10 +21,16 @@
         'url' => $seoUrl,
     ])
 
-    <!-- PWA -->
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="{{ $settings['color_primary'] ?? '#2563eb' }}">
-    <link rel="apple-touch-icon" href="https://ui-avatars.com/api/?name=R&color=FFFFFF&background=2563eb&size=192">
+    <!-- Favicon -->
+    @php
+        $favicon = $settings['site_logo'] ?? null;
+        if (!$favicon) {
+            $favicon = \App\Models\SiteSetting::getCentral('site_logo');
+        }
+        $faviconUrl = $favicon ? \Illuminate\Support\Facades\Storage::url($favicon) : asset('favicons/nexts_favicon.png');
+    @endphp
+    <link rel="icon" type="image/png" href="{{ $faviconUrl }}">
+    <link rel="apple-touch-icon" href="{{ $faviconUrl }}">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">

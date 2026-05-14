@@ -784,7 +784,7 @@ class SiteController extends Controller
                 // Handle file uploads
                 if ($request->hasFile("settings.{$key}")) {
                     $file = $request->file("settings.{$key}");
-                    $path = $file->store('site', 'public');
+                    $path = $file->store('site');
                     $value = $path;
                     Log::info("SiteController@update: Arquivo salvo: {$key} -> {$path}");
                 } elseif ($type === 'image' && empty($value)) {

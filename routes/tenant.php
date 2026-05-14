@@ -160,6 +160,10 @@ Route::middleware([
             'update' => 'admin.cash-flow.update',
             'destroy' => 'admin.cash-flow.destroy',
         ]);
+
+        // Tenant Billing
+        Route::get('/billing', [\App\Http\Controllers\TenantBillingController::class, 'index'])->name('admin.billing.index');
+        Route::get('/billing/pay', [\App\Http\Controllers\TenantBillingController::class, 'pay'])->name('admin.billing.pay');
         
         // AI Integration & Reports
         Route::get('/ai', [AIController::class, 'getUsageStats'])->name('ai.stats');

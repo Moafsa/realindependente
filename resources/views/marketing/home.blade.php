@@ -223,7 +223,15 @@
                     </div>
 
                     <div x-show="frequency === 'quarterly'" class="animate__animated animate__fadeIn">
-                        @php $priceQ = $plan->price_quarterly ?: ($plan->price_monthly * 3 * (1 - ($plan->discount_quarterly / 100))); @endphp
+                        @php 
+                            $priceQ = $plan->getCalculatedPrice('quarterly');
+                            $origQ = $plan->getOriginalPrice('quarterly');
+                        @endphp
+                        @if($origQ > $priceQ)
+                            <div class="flex flex-col mb-1">
+                                <span class="text-lg font-bold text-rose-500 line-through opacity-60">R$ {{ number_format($origQ, 0, ',', '.') }}</span>
+                            </div>
+                        @endif
                         <span class="text-5xl font-black text-gray-900 tracking-tighter">R$ {{ number_format($priceQ, 0, ',', '.') }}</span>
                         <span class="text-gray-400 font-bold text-xs">/trim.</span>
                         @if($plan->discount_quarterly > 0)
@@ -232,7 +240,15 @@
                     </div>
 
                     <div x-show="frequency === 'semiannual'" class="animate__animated animate__fadeIn">
-                        @php $priceS = $plan->price_semiannual ?: ($plan->price_monthly * 6 * (1 - ($plan->discount_semiannual / 100))); @endphp
+                        @php 
+                            $priceS = $plan->getCalculatedPrice('semiannual');
+                            $origS = $plan->getOriginalPrice('semiannual');
+                        @endphp
+                        @if($origS > $priceS)
+                            <div class="flex flex-col mb-1">
+                                <span class="text-lg font-bold text-rose-500 line-through opacity-60">R$ {{ number_format($origS, 0, ',', '.') }}</span>
+                            </div>
+                        @endif
                         <span class="text-5xl font-black text-gray-900 tracking-tighter">R$ {{ number_format($priceS, 0, ',', '.') }}</span>
                         <span class="text-gray-400 font-bold text-xs">/sem.</span>
                         @if($plan->discount_semiannual > 0)
@@ -241,7 +257,15 @@
                     </div>
 
                     <div x-show="frequency === 'yearly'" class="animate__animated animate__fadeIn">
-                        @php $priceY = $plan->price_yearly ?: ($plan->price_monthly * 12 * (1 - ($plan->discount_yearly / 100))); @endphp
+                        @php 
+                            $priceY = $plan->getCalculatedPrice('yearly');
+                            $origY = $plan->getOriginalPrice('yearly');
+                        @endphp
+                        @if($origY > $priceY)
+                            <div class="flex flex-col mb-1">
+                                <span class="text-lg font-bold text-rose-500 line-through opacity-60">R$ {{ number_format($origY, 0, ',', '.') }}</span>
+                            </div>
+                        @endif
                         <span class="text-5xl font-black text-gray-900 tracking-tighter">R$ {{ number_format($priceY, 0, ',', '.') }}</span>
                         <span class="text-gray-400 font-bold text-xs">/ano</span>
                         @if($plan->discount_yearly > 0)
@@ -260,9 +284,13 @@
                             <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Limite de Unidades</span>
                             <span class="text-xs font-black text-gray-900">{{ $plan->max_branches ?: '1' }}</span>
                         </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Taxa de Transação</span>
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Taxa Admin (Mensalidade)</span>
                             <span class="text-xs font-black text-blue-600">{{ $plan->admin_fee_percentage ?: 0 }}%</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Taxa de Serviço (Loja)</span>
+                            <span class="text-xs font-black text-emerald-600">{{ $plan->ecommerce_tax_rate ?: 0 }}%</span>
                         </div>
                     </div>
 

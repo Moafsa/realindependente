@@ -134,6 +134,15 @@
 
     <div class="px-6 py-6 text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] opacity-50">Configurações & IA</div>
 
+    <a href="{{ route('admin.billing.index') }}" class="group flex items-center px-6 py-4 text-sm font-bold rounded-2xl {{ request()->routeIs('admin.billing.*') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'text-gray-400 hover:bg-white/5 hover:text-white' }} transition-all duration-300">
+        <div class="p-2 rounded-xl {{ request()->routeIs('admin.billing.*') ? 'bg-white/20' : 'bg-white/5 group-hover:bg-white/10' }} mr-4 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+        </div>
+        <span>Minhas Faturas</span>
+    </a>
+
     <a href="{{ route('admin.whatsapp.index') }}" class="group flex items-center px-6 py-4 text-sm font-bold rounded-2xl {{ request()->routeIs('admin.whatsapp.*') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'text-gray-400 hover:bg-white/5 hover:text-white' }} transition-all duration-300">
         <div class="p-2 rounded-xl {{ request()->routeIs('admin.whatsapp.*') ? 'bg-white/20' : 'bg-white/5 group-hover:bg-white/10' }} mr-4 transition-colors">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
