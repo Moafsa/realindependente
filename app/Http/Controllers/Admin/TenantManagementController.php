@@ -20,7 +20,7 @@ class TenantManagementController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Tenant::with(['plan', 'domains']);
+        $query = Tenant::withTrashed()->with(['plan', 'domains']);
 
         // Search
         if ($request->filled('search')) {
@@ -46,11 +46,12 @@ class TenantManagementController extends Controller
 
         // Statistics
         $stats = [
-            'total' => Tenant::count(),
+            'total' => Tenant::withTrashed()->count(),
             'active' => Tenant::where('status', 'active')->count(),
             'trial' => Tenant::where('status', 'trial')->count(),
             'suspended' => Tenant::where('status', 'suspended')->count(),
             'cancelled' => Tenant::where('status', 'cancelled')->count(),
+            'deleted' => Tenant::onlyTrashed()->count(),
         ];
 
         return view('admin.tenants.index', compact('tenants', 'plans', 'statuses', 'stats'));
@@ -289,7 +290,8 @@ class TenantManagementController extends Controller
 
             // stancl/tenancy correctly handles database and domain deletion
             // if configured in tenancy.php.
-            $tenant->delete();
+            // Force delete to remove the row from the table and allow subdomain reuse
+            $tenant->forceDelete();
 
             return redirect()->route('admin.tenants.index')
                 ->with('success', 'Clube excluído com sucesso!');

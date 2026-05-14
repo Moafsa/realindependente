@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Stancl\Tenancy\Database\Models\Tenant as BaseTenant;
 use Stancl\Tenancy\Database\Concerns\HasDatabase;
 use Stancl\Tenancy\Database\Concerns\HasDomains;
@@ -11,7 +12,7 @@ use Stancl\Tenancy\Contracts\TenantWithDatabase;
 
 class Tenant extends BaseTenant implements TenantWithDatabase
 {
-    use HasFactory, HasDatabase, HasDomains;
+    use HasFactory, HasDatabase, HasDomains, SoftDeletes;
 
     protected $connection = 'pgsql';
 
@@ -126,32 +127,32 @@ class Tenant extends BaseTenant implements TenantWithDatabase
      */
     public function getUrlAttribute()
     {
-        // Se estiver em CLI, usa o primeiro domínio configurado ou o campo domain
+        // Se estiver em CLI, usa o primeiro domnio configurado ou o campo domain
         if (app()->runningInConsole()) {
             $centralDomain = config('tenancy.central_domains')[0] ?? 'meuclube.app';
             return 'http://' . $this->domain . '.' . $centralDomain;
         }
 
-        // Tenta pegar o domínio primário da tabela de domínios
+        // Tenta pegar o domnio primǭrio da tabela de domnios
         $primaryDomain = $this->domains()->where('is_primary', true)->first();
         
         if ($primaryDomain) {
             $domain = $primaryDomain->domain;
         } else {
-            // Fallback dinâmico: usa o host atual para detectar o domínio base
+            // Fallback dinǽmico: usa o host atual para detectar o domnio base
             $currentHost = request()->getHost();
             $centralDomains = config('tenancy.central_domains', []);
             $baseDomain = $centralDomains[0] ?? 'meuclube.app';
             
             foreach ($centralDomains as $central) {
-                // Se o host atual termina com o domínio central (ex: admin.nexts.test termina com nexts.test)
+                // Se o host atual termina com o domnio central (ex: admin.nexts.test termina com nexts.test)
                 if ($currentHost === $central || str_ends_with($currentHost, '.' . $central)) {
                     $baseDomain = $central;
                     break;
                 }
             }
             
-            // Se o host atual não é um domínio central, usa o host atual como base se não for um subdomínio
+            // Se o host atual nǜo Ǹ um domnio central, usa o host atual como base se nǜo for um subdomnio
             // Isso ajuda em ambientes de dev como valet/laragon
             if ($baseDomain === 'meuclube.app' && !in_array($currentHost, $centralDomains)) {
                 $baseDomain = $currentHost;

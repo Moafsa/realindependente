@@ -412,8 +412,8 @@ class TenantRegistrationController extends Controller
             return response()->json(['available' => false, 'message' => 'Subdomínio é obrigatório']);
         }
 
-        // Check if subdomain is already taken
-        $exists = Tenant::where('domain', $subdomain)->exists();
+        // Check if subdomain is already taken (including soft deleted ones to avoid pkey conflicts)
+        $exists = Tenant::withTrashed()->where('id', $subdomain)->exists();
         
         if ($exists) {
             return response()->json(['available' => false, 'message' => 'Subdomínio já está em uso']);

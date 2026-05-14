@@ -64,8 +64,8 @@ class TenantController extends Controller
             ], 400);
         }
 
-        // Check if subdomain is already taken
-        $exists = Tenant::where('domain', $subdomain)->exists();
+        // Check if subdomain is already taken (including soft deleted ones)
+        $exists = Tenant::withTrashed()->where('id', $subdomain)->exists();
 
         if ($exists) {
             Log::info('Subdomain check failed: already exists', ['subdomain' => $subdomain]);
