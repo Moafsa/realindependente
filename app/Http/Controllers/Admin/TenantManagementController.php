@@ -269,5 +269,38 @@ class TenantManagementController extends Controller
             ]);
         }
     }
+
+    /**
+     * Remove the specified tenant from storage.
+     *
+     * @param Tenant $tenant
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function destroy(Tenant $tenant)
+    {
+        try {
+            Log::info('Tenant deletion started by admin', [
+                'tenant_id' => $tenant->id,
+                'admin_id' => auth()->id(),
+            ]);
+
+            // stancl/tenancy correctly handles database and domain deletion
+            // if configured in tenancy.php.
+            $tenant->delete();
+
+            return redirect()->route('admin.tenants.index')
+                ->with('success', 'Clube excluído com sucesso!');
+
+        } catch (\Exception $e) {
+            Log::error('Error deleting tenant', [
+                'tenant_id' => $tenant->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return back()->withErrors([
+                'error' => 'Erro ao excluir clube: ' . $e->getMessage()
+            ]);
+        }
+    }
 }
 

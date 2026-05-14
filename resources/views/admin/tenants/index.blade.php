@@ -112,8 +112,18 @@
                                 {{ $tenant->created_at->format('d/m/Y') }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <a href="{{ route('admin.tenants.show', $tenant) }}" 
-                                   class="text-blue-600 hover:text-blue-900 mr-3">Ver</a>
+                                <div class="flex justify-end items-center gap-3">
+                                    <a href="{{ route('admin.tenants.show', $tenant) }}" 
+                                       class="text-blue-600 hover:text-blue-900">Ver</a>
+                                    
+                                    <form action="{{ route('admin.tenants.destroy', $tenant) }}" method="POST" 
+                                          onsubmit="return confirm('ATENÇÃO: Isso excluirá PERMANENTEMENTE o clube, seu banco de dados e todos os dados associados. Tem certeza?');"
+                                          class="inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="text-red-600 hover:text-red-900">Excluir</button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     @empty

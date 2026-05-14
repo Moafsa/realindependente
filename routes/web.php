@@ -73,6 +73,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::post('/{tenant}/suspend', [TenantManagementController::class, 'suspend'])->name('suspend');
         Route::post('/{tenant}/activate', [TenantManagementController::class, 'activate'])->name('activate');
         Route::post('/{tenant}/cancel', [TenantManagementController::class, 'cancel'])->name('cancel');
+        Route::delete('/{tenant}', [TenantManagementController::class, 'destroy'])->name('destroy');
     });
 
     // Plans Management
