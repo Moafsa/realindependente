@@ -48,9 +48,9 @@
 
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Subdomínio</label>
-                            <input type="text" value="{{ $tenant->subdomain }}" disabled
+                            <input type="text" value="{{ $tenant->domain }}" disabled
                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100">
-                            <p class="text-xs text-gray-500 mt-1">Subdomínio não pode ser alterado</p>
+                            <p class="text-xs text-gray-500 mt-1">URL: {{ str_replace(['http://', 'https://'], '', $tenant->url) }}</p>
                         </div>
 
                         <div>

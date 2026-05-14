@@ -122,7 +122,7 @@
                         <tr class="hover:bg-gray-50/50 transition-colors">
                             <td class="px-8 py-6 whitespace-nowrap">
                                 <div class="text-sm font-black text-gray-900">{{ $tenant->name }}</div>
-                                <div class="text-[10px] text-gray-500">{{ $tenant->subdomain }}.{{ config('tenancy.central_domain', 'nexts.test') }}</div>
+                                <div class="text-[10px] text-gray-500">{{ str_replace(['http://', 'https://'], '', $tenant->url) }}</div>
                             </td>
                             <td class="px-8 py-6 whitespace-nowrap">
                                 <span class="px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-lg bg-gray-100 text-gray-600">{{ $tenant->plan->name ?? '-' }}</span>
