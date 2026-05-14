@@ -14,176 +14,183 @@
 </section>
 
 <!-- Contact Section -->
-<section class="py-16">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            <!-- Contact Form -->
-            <div class="bg-white rounded-lg shadow-md p-8">
-                <h2 class="text-2xl font-bold text-gray-900 mb-6">Envie uma Mensagem</h2>
+<section class="py-24 relative overflow-hidden bg-white">
+    <div class="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/2 w-96 h-96 bg-secondary/5 rounded-full blur-3xl"></div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+            <!-- Contact Form Card -->
+            <div class="bg-white rounded-[2.5rem] shadow-2xl shadow-gray-200/50 p-8 lg:p-12 border border-gray-100 animate__animated animate__fadeInLeft">
+                <div class="mb-10">
+                    <h2 class="text-3xl font-black text-gray-900 mb-4">Envie uma Mensagem</h2>
+                    <p class="text-gray-500 font-medium">Preencha o formulário abaixo e entraremos em contato o mais breve possível.</p>
+                </div>
                 
                 <form method="POST" action="{{ route('site.contact.submit') }}" class="space-y-6">
                     @csrf
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Nome</label>
+                        <div class="space-y-2">
+                            <label for="name" class="text-sm font-bold text-gray-700 ml-1">Nome Completo</label>
                             <input type="text" name="name" id="name" value="{{ old('name') }}" required
-                                   class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('name') border-red-300 @enderror"
-                                   placeholder="Seu nome completo">
-                            @error('name')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
+                                   class="w-full bg-gray-50 border-none rounded-2xl px-5 py-4 focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all outline-none font-medium text-gray-900"
+                                   placeholder="Como devemos te chamar?">
                         </div>
                         
-                        <div>
-                            <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                        <div class="space-y-2">
+                            <label for="email" class="text-sm font-bold text-gray-700 ml-1">E-mail</label>
                             <input type="email" name="email" id="email" value="{{ old('email') }}" required
-                                   class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('email') border-red-300 @enderror"
+                                   class="w-full bg-gray-50 border-none rounded-2xl px-5 py-4 focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all outline-none font-medium text-gray-900"
                                    placeholder="seu@email.com">
-                            @error('email')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                            @enderror
                         </div>
                     </div>
                     
-                    <div>
-                        <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">Telefone (opcional)</label>
-                        <input type="text" name="phone" id="phone" value="{{ old('phone') }}"
-                               class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('phone') border-red-300 @enderror"
-                               placeholder="(11) 99999-9999">
-                        @error('phone')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <label for="phone" class="text-sm font-bold text-gray-700 ml-1">WhatsApp</label>
+                            <input type="text" name="phone" id="phone" value="{{ old('phone') }}"
+                                   class="w-full bg-gray-50 border-none rounded-2xl px-5 py-4 focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all outline-none font-medium text-gray-900"
+                                   placeholder="(00) 00000-0000">
+                        </div>
+                        
+                        <div class="space-y-2">
+                            <label for="subject" class="text-sm font-bold text-gray-700 ml-1">Assunto</label>
+                            <select name="subject" id="subject" required
+                                    class="w-full bg-gray-50 border-none rounded-2xl px-5 py-4 focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all outline-none font-medium text-gray-900 appearance-none">
+                                <option value="Matrícula">Desejo me matricular</option>
+                                <option value="Dúvida">Dúvida sobre treinos</option>
+                                <option value="Parceria">Parcerias / Patrocínio</option>
+                                <option value="Outro">Outros assuntos</option>
+                            </select>
+                        </div>
                     </div>
                     
-                    <div>
-                        <label for="subject" class="block text-sm font-medium text-gray-700 mb-2">Assunto</label>
-                        <input type="text" name="subject" id="subject" value="{{ old('subject') }}" required
-                               class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('subject') border-red-300 @enderror"
-                               placeholder="Assunto da sua mensagem">
-                        @error('subject')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-                    
-                    <div>
-                        <label for="message" class="block text-sm font-medium text-gray-700 mb-2">Mensagem</label>
+                    <div class="space-y-2">
+                        <label for="message" class="text-sm font-bold text-gray-700 ml-1">Mensagem</label>
                         <textarea name="message" id="message" rows="5" required
-                                  class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('message') border-red-300 @enderror"
-                                  placeholder="Escreva sua mensagem aqui...">{{ old('message') }}</textarea>
-                        @error('message')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
+                                  class="w-full bg-gray-50 border-none rounded-2xl px-5 py-4 focus:ring-2 focus:ring-primary/20 focus:bg-white transition-all outline-none font-medium text-gray-900 resize-none"
+                                  placeholder="Escreva detalhadamente o que você precisa...">{{ old('message') }}</textarea>
                     </div>
                     
-                    <button type="submit" class="w-full bg-blue-600 text-white py-3 px-4 rounded-md font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition">
-                        Enviar Mensagem
+                    <button type="submit" class="w-full bg-primary text-white py-5 rounded-2xl font-black text-lg hover:bg-primary-dark shadow-xl shadow-primary/20 transition-all hover:-translate-y-1 flex items-center justify-center gap-3">
+                        <span>Enviar Mensagem</span>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                     </button>
                 </form>
             </div>
             
-            <!-- Contact Info -->
-            <div class="space-y-8">
-                <div>
-                    <h2 class="text-2xl font-bold text-gray-900 mb-6">Informações de Contato</h2>
-                    
-                    <div class="space-y-6">
-                        @if($settings['contact_phone'] ?? false)
-                        <div class="flex items-center space-x-4">
-                            <div class="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center">
-                                <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
-                                </svg>
-                            </div>
-                            <div>
-                                <h3 class="text-lg font-semibold text-gray-900">Telefone</h3>
-                                <p class="text-gray-600">{{ $settings['contact_phone'] }}</p>
-                            </div>
+            <!-- Information & Map -->
+            <div class="space-y-10 animate__animated animate__fadeInRight">
+                <!-- Info Cards -->
+                <div class="grid grid-cols-1 gap-6">
+                    @if($settings['contact_phone'] ?? false)
+                    <div class="flex items-center gap-6 p-6 bg-gray-50 rounded-3xl border border-gray-100 hover:border-primary/20 transition-colors group">
+                        <div class="h-14 w-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                            </svg>
                         </div>
-                        @endif
-                        
-                        @if($settings['contact_email'] ?? false)
-                        <div class="flex items-center space-x-4">
-                            <div class="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center">
-                                <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                                </svg>
-                            </div>
-                            <div>
-                                <h3 class="text-lg font-semibold text-gray-900">Email</h3>
-                                <p class="text-gray-600">{{ $settings['contact_email'] }}</p>
-                            </div>
+                        <div>
+                            <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Telefone / WhatsApp</h3>
+                            <p class="text-xl font-black text-gray-900 tracking-tight">{{ $settings['contact_phone'] }}</p>
                         </div>
-                        @endif
-                        
-                        @if($settings['contact_address'] ?? false)
-                        <div class="flex items-center space-x-4">
-                            <div class="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center">
-                                <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                </svg>
-                            </div>
-                            <div>
-                                <h3 class="text-lg font-semibold text-gray-900">Endereço</h3>
-                                <p class="text-gray-600">{{ $settings['contact_address'] }}</p>
-                            </div>
-                        </div>
-                        @endif
                     </div>
+                    @endif
+                    
+                    @if($settings['contact_email'] ?? false)
+                    <div class="flex items-center gap-6 p-6 bg-gray-50 rounded-3xl border border-gray-100 hover:border-primary/20 transition-colors group">
+                        <div class="h-14 w-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-secondary group-hover:scale-110 transition-transform">
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">E-mail</h3>
+                            <p class="text-xl font-black text-gray-900 tracking-tight">{{ $settings['contact_email'] }}</p>
+                        </div>
+                    </div>
+                    @endif
+                    
+                    @if($settings['contact_address'] ?? false)
+                    <div class="flex items-center gap-6 p-6 bg-gray-50 rounded-3xl border border-gray-100 hover:border-primary/20 transition-colors group">
+                        <div class="h-14 w-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-orange-500 group-hover:scale-110 transition-transform">
+                            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Localização</h3>
+                            <p class="text-lg font-black text-gray-900 tracking-tight leading-tight">{{ $settings['contact_address'] }}</p>
+                        </div>
+                    </div>
+                    @endif
                 </div>
                 
-                <!-- Social Media -->
-                @if(($settings['facebook_url'] ?? false) || ($settings['instagram_url'] ?? false) || ($settings['youtube_url'] ?? false))
-                <div>
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Siga-nos nas Redes Sociais</h3>
-                    <div class="flex space-x-4">
-                        @if($settings['facebook_url'] ?? false)
-                        <a href="{{ $settings['facebook_url'] }}" target="_blank" class="h-10 w-10 bg-blue-600 rounded-full flex items-center justify-center text-white hover:bg-blue-700 transition">
-                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/>
-                            </svg>
-                        </a>
-                        @endif
-                        
-                        @if($settings['instagram_url'] ?? false)
-                        <a href="{{ $settings['instagram_url'] }}" target="_blank" class="h-10 w-10 bg-pink-600 rounded-full flex items-center justify-center text-white hover:bg-pink-700 transition">
-                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 6.62 5.367 11.987 11.988 11.987s11.987-5.367 11.987-11.987C24.014 5.367 18.647.001 12.017.001zM8.449 16.988c-1.297 0-2.348-1.051-2.348-2.348s1.051-2.348 2.348-2.348 2.348 1.051 2.348 2.348-1.051 2.348-2.348 2.348zm7.718 0c-1.297 0-2.348-1.051-2.348-2.348s1.051-2.348 2.348-2.348 2.348 1.051 2.348 2.348-1.051 2.348-2.348 2.348z"/>
-                            </svg>
-                        </a>
-                        @endif
-                        
-                        @if($settings['youtube_url'] ?? false)
-                        <a href="{{ $settings['youtube_url'] }}" target="_blank" class="h-10 w-10 bg-red-600 rounded-full flex items-center justify-center text-white hover:bg-red-700 transition">
-                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-                            </svg>
-                        </a>
+                <!-- Map Container -->
+                <div class="relative group">
+                    <div class="absolute -inset-1 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-[2.5rem] blur opacity-25"></div>
+                    <div class="relative bg-gray-100 rounded-[2.5rem] overflow-hidden h-[400px] shadow-inner border border-gray-100">
+                        @if($mapboxToken && ($settings['contact_address'] ?? false))
+                            <div id="map" class="w-full h-full"></div>
+                        @elseif($settings['contact_address'] ?? false)
+                            <iframe 
+                                width="100%" 
+                                height="100%" 
+                                frameborder="0" 
+                                scrolling="no" 
+                                marginheight="0" 
+                                marginwidth="0" 
+                                src="https://maps.google.com/maps?q={{ urlencode($settings['contact_address']) }}&t=&z=15&ie=UTF8&iwloc=&output=embed">
+                            </iframe>
+                        @else
+                            <div class="w-full h-full flex flex-col items-center justify-center text-gray-400">
+                                <svg class="w-12 h-12 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
+                                <p class="font-bold uppercase tracking-widest text-[10px]">Mapa indisponível</p>
+                            </div>
                         @endif
                     </div>
                 </div>
-                @endif
-
-                <!-- Map Section -->
-                @if($settings['contact_address'] ?? false)
-                <div class="mt-12 pt-8 border-t border-gray-100">
-                    <h2 class="text-2xl font-bold text-gray-900 mb-6">Nossa Localização</h2>
-                    <div class="bg-gray-200 rounded-2xl overflow-hidden h-96 shadow-inner">
-                        <iframe 
-                            width="100%" 
-                            height="100%" 
-                            frameborder="0" 
-                            scrolling="no" 
-                            marginheight="0" 
-                            marginwidth="0" 
-                            src="https://maps.google.com/maps?q={{ urlencode($settings['contact_address']) }}&t=&z=15&ie=UTF8&iwloc=&output=embed">
-                        </iframe>
-                    </div>
-                </div>
-                @endif
             </div>
         </div>
     </div>
 </section>
+
+@if($mapboxToken && ($settings['contact_address'] ?? false))
+@push('scripts')
+<link href="https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.css" rel="stylesheet">
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.js"></script>
+<script>
+    mapboxgl.accessToken = '{{ $mapboxToken }}';
+    const address = '{{ $settings['contact_address'] }}';
+    
+    // Geocoding manual via API (simples)
+    fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json?access_token=${mapboxgl.accessToken}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.features && data.features.length > 0) {
+                const coords = data.features[0].center;
+                const map = new mapboxgl.Map({
+                    container: 'map',
+                    style: 'mapbox://styles/mapbox/light-v11',
+                    center: coords,
+                    zoom: 15,
+                    pitch: 45,
+                    bearing: -17
+                });
+
+                // Add marker
+                new mapboxgl.Marker({ color: '{{ $settings['color_primary'] ?? '#2563eb' }}' })
+                    .setLngLat(coords)
+                    .addTo(map);
+
+                // Add controls
+                map.addControl(new mapboxgl.NavigationControl());
+            }
+        });
+</script>
+@endpush
+@endif
+@endsection
 @endsection

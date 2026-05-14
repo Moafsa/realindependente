@@ -31,6 +31,22 @@ class SiteSetting extends Model
     }
 
     /**
+     * Get a setting from the central database.
+     */
+    public static function getCentral($key, $default = null)
+    {
+        try {
+            $setting = \Illuminate\Support\Facades\DB::connection('pgsql')
+                ->table('site_settings')
+                ->where('key', $key)
+                ->first();
+            return $setting ? $setting->value : $default;
+        } catch (\Throwable $e) {
+            return $default;
+        }
+    }
+
+    /**
      * Set a setting value by key.
      */
     public static function set($key, $value, $type = 'text', $description = null, $isPublic = false)

@@ -182,49 +182,108 @@
 </section>
 
 <!-- Pricing Section -->
-<section id="pricing" class="py-20 bg-white">
+<section id="pricing" class="py-20 bg-white" x-data="{ frequency: 'monthly' }">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-16">
-            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            <h2 class="text-3xl md:text-5xl font-black text-gray-900 mb-4 tracking-tight">
                 Planos que cabem no seu bolso
             </h2>
-            <p class="text-xl text-gray-600">
+            <p class="text-xl text-gray-500 font-medium">
                 Escolha o plano ideal para o tamanho do seu clube
             </p>
+        </div>
+
+        <!-- Frequency Switcher -->
+        <div class="flex justify-center mb-16">
+            <div class="bg-gray-50 p-1.5 rounded-2xl border border-gray-100 flex gap-1 inline-flex">
+                <button @click="frequency = 'monthly'" :class="frequency === 'monthly' ? 'bg-blue-600 text-white shadow-lg' : 'text-gray-500 hover:bg-gray-100'" class="px-6 py-2.5 rounded-xl font-bold transition-all text-[10px] uppercase tracking-widest">Mensal</button>
+                <button @click="frequency = 'quarterly'" :class="frequency === 'quarterly' ? 'bg-blue-600 text-white shadow-lg' : 'text-gray-500 hover:bg-gray-100'" class="px-6 py-2.5 rounded-xl font-bold transition-all text-[10px] uppercase tracking-widest">Trimestral</button>
+                <button @click="frequency = 'semiannual'" :class="frequency === 'semiannual' ? 'bg-blue-600 text-white shadow-lg' : 'text-gray-500 hover:bg-gray-100'" class="px-6 py-2.5 rounded-xl font-bold transition-all text-[10px] uppercase tracking-widest">Semestral</button>
+                <button @click="frequency = 'yearly'" :class="frequency === 'yearly' ? 'bg-blue-600 text-white shadow-lg' : 'text-gray-500 hover:bg-gray-100'" class="px-6 py-2.5 rounded-xl font-bold transition-all text-[10px] uppercase tracking-widest">Anual</button>
+            </div>
         </div>
         
         <div class="grid md:grid-cols-3 gap-8">
             @foreach($plans as $plan)
-            <div class="bg-white border-2 border-gray-200 rounded-lg p-8 {{ $plan->name === 'Profissional' ? 'border-blue-500 ring-2 ring-blue-500' : '' }}">
+            <div class="bg-white border border-gray-100 rounded-[2.5rem] p-10 {{ $plan->name === 'Profissional' ? 'ring-4 ring-blue-500/10 border-blue-100 shadow-2xl relative z-10' : 'shadow-xl' }} transition-all duration-500 hover:-translate-y-2">
                 @if($plan->name === 'Profissional')
-                <div class="bg-blue-500 text-white text-sm font-semibold px-3 py-1 rounded-full inline-block mb-4">
+                <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest shadow-lg">
                     Mais Popular
                 </div>
                 @endif
                 
-                <h3 class="text-2xl font-bold text-gray-900 mb-2">{{ $plan->name }}</h3>
-                <p class="text-gray-600 mb-6">{{ $plan->description }}</p>
+                <h3 class="text-2xl font-black text-gray-900 mb-2">{{ $plan->name }}</h3>
+                <p class="text-gray-500 mb-8 text-xs leading-relaxed font-medium">{{ $plan->description }}</p>
                 
-                <div class="mb-6">
-                    <span class="text-4xl font-bold text-gray-900">R$ {{ number_format($plan->price_monthly, 2, ',', '.') }}</span>
-                    <span class="text-gray-600">/mês</span>
+                <div class="mb-10">
+                    <!-- Prices -->
+                    <div x-show="frequency === 'monthly'" class="animate__animated animate__fadeIn">
+                        <span class="text-5xl font-black text-gray-900 tracking-tighter">R$ {{ number_format($plan->price_monthly, 0, ',', '.') }}</span>
+                        <span class="text-gray-400 font-bold text-xs">/mês</span>
+                    </div>
+
+                    <div x-show="frequency === 'quarterly'" class="animate__animated animate__fadeIn">
+                        @php $priceQ = $plan->price_quarterly ?: ($plan->price_monthly * 3 * (1 - ($plan->discount_quarterly / 100))); @endphp
+                        <span class="text-5xl font-black text-gray-900 tracking-tighter">R$ {{ number_format($priceQ, 0, ',', '.') }}</span>
+                        <span class="text-gray-400 font-bold text-xs">/trim.</span>
+                        @if($plan->discount_quarterly > 0)
+                            <p class="text-[10px] font-black text-green-500 mt-2 uppercase tracking-widest">Economize {{ $plan->discount_quarterly }}%</p>
+                        @endif
+                    </div>
+
+                    <div x-show="frequency === 'semiannual'" class="animate__animated animate__fadeIn">
+                        @php $priceS = $plan->price_semiannual ?: ($plan->price_monthly * 6 * (1 - ($plan->discount_semiannual / 100))); @endphp
+                        <span class="text-5xl font-black text-gray-900 tracking-tighter">R$ {{ number_format($priceS, 0, ',', '.') }}</span>
+                        <span class="text-gray-400 font-bold text-xs">/sem.</span>
+                        @if($plan->discount_semiannual > 0)
+                            <p class="text-[10px] font-black text-green-500 mt-2 uppercase tracking-widest">Economize {{ $plan->discount_semiannual }}%</p>
+                        @endif
+                    </div>
+
+                    <div x-show="frequency === 'yearly'" class="animate__animated animate__fadeIn">
+                        @php $priceY = $plan->price_yearly ?: ($plan->price_monthly * 12 * (1 - ($plan->discount_yearly / 100))); @endphp
+                        <span class="text-5xl font-black text-gray-900 tracking-tighter">R$ {{ number_format($priceY, 0, ',', '.') }}</span>
+                        <span class="text-gray-400 font-bold text-xs">/ano</span>
+                        @if($plan->discount_yearly > 0)
+                            <p class="text-[10px] font-black text-green-500 mt-2 uppercase tracking-widest">Economize {{ $plan->discount_yearly }}%</p>
+                        @endif
+                    </div>
                 </div>
                 
-                <ul class="space-y-3 mb-8">
-                    @foreach($plan->features as $feature)
-                    <li class="flex items-center">
-                        <svg class="w-5 h-5 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-                        </svg>
-                        <span class="text-gray-700">{{ $feature }}</span>
-                    </li>
-                    @endforeach
-                </ul>
+                <div class="space-y-4 mb-10">
+                    <div class="p-4 bg-gray-50 rounded-2xl">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Limite de Atletas</span>
+                            <span class="text-xs font-black text-gray-900">{{ $plan->max_athletes ?: 'Ilimitado' }}</span>
+                        </div>
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Limite de Unidades</span>
+                            <span class="text-xs font-black text-gray-900">{{ $plan->max_branches ?: '1' }}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Taxa de Transação</span>
+                            <span class="text-xs font-black text-blue-600">{{ $plan->admin_fee_percentage ?: 0 }}%</span>
+                        </div>
+                    </div>
+
+                    <ul class="space-y-3">
+                        @foreach($plan->features as $feature)
+                        <li class="flex items-start">
+                            <div class="mt-1 bg-blue-500/10 rounded-full p-1 mr-3 flex-shrink-0 text-blue-600">
+                                <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path></svg>
+                            </div>
+                            <span class="text-gray-600 text-[11px] font-bold leading-tight">{{ $feature }}</span>
+                        </li>
+                        @endforeach
+                    </ul>
+                </div>
                 
-                <a href="{{ route('tenant.register') }}?plan={{ $plan->id }}" 
-                   class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 transition text-center block">
+                <a :href="'{{ route('tenant.register') }}?plan={{ $plan->id }}&frequency=' + frequency" 
+                   class="w-full bg-gray-900 text-white py-4 px-6 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-blue-600 transition-all duration-300 text-center block shadow-lg shadow-gray-200 group-hover:shadow-blue-500/20">
                     Começar Grátis
                 </a>
+                
+                <p class="text-center text-[9px] uppercase tracking-widest font-black text-gray-400 mt-6">{{ $plan->trial_days ?: '0' }} dias grátis · sem cartão</p>
             </div>
             @endforeach
         </div>
@@ -238,7 +297,7 @@
             Pronto para transformar seu clube?
         </h2>
         <p class="text-xl mb-8 text-blue-100">
-            Comece hoje mesmo com 14 dias grátis. Sem cartão de crédito.
+            Comece hoje mesmo. Teste grátis disponível em todos os planos.
         </p>
         <a href="{{ route('tenant.register') }}" class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition">
             Começar Agora

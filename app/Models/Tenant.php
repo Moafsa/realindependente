@@ -127,26 +127,37 @@ class Tenant extends BaseTenant implements TenantWithDatabase
      */
     public function getUrlAttribute()
     {
-        // Se estiver em CLI, usa os defaults
+        // Se estiver em CLI, usa o primeiro domínio configurado ou o campo domain
         if (app()->runningInConsole()) {
-            return 'http://' . $this->domain . '.' . config('tenancy.central_domains')[0];
+            $centralDomain = config('tenancy.central_domains')[0] ?? 'meuclube.app';
+            return 'http://' . $this->domain . '.' . $centralDomain;
         }
 
-        $primaryDomain = $this->primary_domain;
+        // Tenta pegar o domínio primário da tabela de domínios
+        $primaryDomain = $this->domains()->where('is_primary', true)->first();
         
         if ($primaryDomain) {
             $domain = $primaryDomain->domain;
         } else {
+            // Fallback dinâmico: usa o host atual para detectar o domínio base
             $currentHost = request()->getHost();
             $centralDomains = config('tenancy.central_domains', []);
             $baseDomain = $centralDomains[0] ?? 'meuclube.app';
             
             foreach ($centralDomains as $central) {
+                // Se o host atual termina com o domínio central (ex: admin.nexts.test termina com nexts.test)
                 if ($currentHost === $central || str_ends_with($currentHost, '.' . $central)) {
                     $baseDomain = $central;
                     break;
                 }
             }
+            
+            // Se o host atual não é um domínio central, usa o host atual como base se não for um subdomínio
+            // Isso ajuda em ambientes de dev como valet/laragon
+            if ($baseDomain === 'meuclube.app' && !in_array($currentHost, $centralDomains)) {
+                $baseDomain = $currentHost;
+            }
+
             $domain = $this->domain . '.' . $baseDomain;
         }
         

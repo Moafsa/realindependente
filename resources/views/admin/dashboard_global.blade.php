@@ -122,7 +122,12 @@
                         <tr class="hover:bg-gray-50/50 transition-colors">
                             <td class="px-8 py-6 whitespace-nowrap">
                                 <div class="text-sm font-black text-gray-900">{{ $tenant->name }}</div>
-                                <div class="text-[10px] text-gray-500">{{ str_replace(['http://', 'https://'], '', $tenant->url) }}</div>
+                                <div class="text-[10px] text-gray-500">
+                                    <a href="{{ $tenant->url }}" target="_blank" class="hover:text-indigo-600 transition-colors flex items-center gap-1">
+                                        {{ str_replace(['http://', 'https://'], '', $tenant->url) }}
+                                        <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                    </a>
+                                </div>
                             </td>
                             <td class="px-8 py-6 whitespace-nowrap">
                                 <span class="px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-lg bg-gray-100 text-gray-600">{{ $tenant->plan->name ?? '-' }}</span>

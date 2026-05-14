@@ -643,8 +643,9 @@ class SiteController extends Controller
     public function contact()
     {
         $settings = SiteSetting::getPublicSettings()->pluck('value', 'key');
+        $mapboxToken = SiteSetting::getCentral('mapbox_public_token');
         
-        return view('site.contact', compact('settings'));
+        return view('site.contact', compact('settings', 'mapboxToken'));
     }
 
     /**
