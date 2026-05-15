@@ -31,6 +31,7 @@
     <div class="border-b border-gray-200 overflow-x-auto">
         <nav class="-mb-px flex space-x-8 min-w-max">
             <button onclick="switchTab('geral')" id="tab-geral" class="tab-btn border-blue-500 text-blue-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Geral</button>
+            <button onclick="switchTab('contato')" id="tab-contato" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Contato</button>
             <button onclick="switchTab('home')" id="tab-home" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Início</button>
             <button onclick="switchTab('sobre')" id="tab-sobre" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Sobre</button>
             <button onclick="switchTab('atletas')" id="tab-atletas" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Atletas</button>
@@ -247,6 +248,35 @@
                     <input type="text" id="store_title" name="settings[store_title]" value="{{ $settings->firstWhere('key', 'store_title')->value ?? '' }}" oninput="updatePreview()" placeholder="Título" class="w-full border p-2 mb-4 rounded-lg">
                     <textarea id="store_subtitle" name="settings[store_subtitle]" rows="2" oninput="updatePreview()" placeholder="Subtítulo" class="w-full border p-2 mb-4 rounded-lg text-sm">{{ $settings->firstWhere('key', 'store_subtitle')->value ?? '' }}</textarea>
                     <textarea name="settings[store_description]" rows="3" placeholder="Texto de Descrição" class="w-full border p-2 rounded-lg text-sm">{{ $settings->firstWhere('key', 'store_description')->value ?? '' }}</textarea>
+                </div></div>
+
+                <div id="content-contato" class="tab-content hidden space-y-6"><div class="bg-white shadow p-6 rounded-lg">
+                    <h2 class="text-lg font-bold mb-4">Página de Contato</h2>
+                    <div class="mb-2 h-24 w-full bg-gray-50 border rounded flex items-center justify-center overflow-hidden" id="contact-banner-preview">
+                        <img src="{{ $settings->firstWhere('key', 'contact_banner') ? Storage::url($settings->firstWhere('key', 'contact_banner')->value) : '' }}" class="w-full h-full object-cover {{ $settings->firstWhere('key', 'contact_banner') ? '' : 'hidden' }}">
+                        @if(!$settings->firstWhere('key', 'contact_banner'))
+                            <span class="text-xs text-gray-400">Sem imagem</span>
+                        @endif
+                    </div>
+                    <input type="file" name="settings[contact_banner]" onchange="handleImageUpload(this, 'contact-banner-preview')" class="w-full border p-2 mb-4 rounded-lg text-sm">
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Título da Página</label>
+                            <input type="text" name="settings[contact_title]" value="{{ $settings->firstWhere('key', 'contact_title')->value ?? 'Fale Conosco' }}" class="w-full border p-2 rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Subtítulo/Descrição</label>
+                            <textarea name="settings[contact_subtitle]" rows="2" class="w-full border p-2 rounded-lg text-sm">{{ $settings->firstWhere('key', 'contact_subtitle')->value ?? '' }}</textarea>
+                        </div>
+                        
+                        <div class="p-4 bg-blue-50 rounded-lg border border-blue-100">
+                            <p class="text-xs text-blue-800 font-bold mb-2">Dica de Gestão</p>
+                            <p class="text-[10px] text-blue-700 leading-relaxed">
+                                Os dados de endereço, telefone e redes sociais exibidos na página de contato e no rodapé do site são os mesmos configurados no seu <strong>Perfil do Portal</strong>. Isso garante que suas informações estejam sempre sincronizadas.
+                            </p>
+                        </div>
+                    </div>
                 </div></div>
 
                 <div id="content-dominio" class="tab-content hidden space-y-6">

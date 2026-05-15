@@ -310,12 +310,61 @@ class PortalController extends Controller
                 'name' => 'required|string|max:255',
                 'email' => 'required|email|unique:users,email,' . $user->id,
                 'password' => 'nullable|min:6|confirmed',
+                'settings' => 'nullable|array',
+                'phone' => 'nullable|string|max:255',
+                'bio' => 'nullable|string|max:2000',
+                'education' => 'nullable|string|max:2000',
+                'experience' => 'nullable|string|max:2000',
+                'specialties' => 'nullable|string|max:255',
+                'certificate_files.*' => 'nullable|file|mimes:pdf,jpg,png,jpeg|max:5120',
+                'certificate_names.*' => 'nullable|string|max:255',
             ]);
 
-            $user->update($request->only(['name', 'email']));
+            $userData = $request->only(['name', 'email']);
+            
+            if ($user->isCoach()) {
+                $userData = array_merge($userData, $request->only(['phone', 'bio', 'education', 'experience', 'specialties']));
+            }
+
+            $user->update($userData);
             
             if ($request->filled('password')) {
                 $user->update(['password' => bcrypt($request->password)]);
+            }
+
+            // Handle Certificates for Coach
+            if ($user->isCoach()) {
+                $certificates = $user->certificates ?? [];
+                
+                if ($request->has('remove_certificate')) {
+                    $indexToRemove = $request->remove_certificate;
+                    if (isset($certificates[$indexToRemove])) {
+                        \Illuminate\Support\Facades\Storage::disk('public')->delete($certificates[$indexToRemove]['path']);
+                        unset($certificates[$indexToRemove]);
+                        $certificates = array_values($certificates);
+                    }
+                }
+
+                if ($request->hasFile('certificate_files')) {
+                    foreach ($request->file('certificate_files') as $key => $file) {
+                        if ($file && $file->isValid()) {
+                            $name = $request->certificate_names[$key] ?? $file->getClientOriginalName();
+                            $path = $file->store('coach_certificates', 'public');
+                            $certificates[] = [
+                                'name' => $name,
+                                'path' => $path,
+                                'date' => now()->format('Y-m-d')
+                            ];
+                        }
+                    }
+                }
+                $user->update(['certificates' => $certificates]);
+            }
+
+            if ($user->isAdmin() && $request->has('settings')) {
+                foreach ($request->settings as $key => $value) {
+                    \App\Models\SiteSetting::set($key, $value);
+                }
             }
 
             return redirect()->route('portal.profile')->with('success', 'Perfil atualizado com sucesso!');

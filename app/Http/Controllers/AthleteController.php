@@ -445,6 +445,12 @@ class AthleteController extends Controller
      */
     public function toggleStatus(Athlete $athlete)
     {
+        $user = auth()->user();
+        if ($user->role === 'coach') {
+            if (!$athlete->team || $athlete->team->coach_id !== $user->id) {
+                abort(403, 'Acesso negado. Este atleta não pertence às suas equipes.');
+            }
+        }
         $athlete->update(['is_active' => !$athlete->is_active]);
         
         // Se houver usuário vinculado, sincroniza o status
@@ -463,6 +469,12 @@ class AthleteController extends Controller
      */
     public function performance(Athlete $athlete)
     {
+        $user = auth()->user();
+        if ($user->role === 'coach') {
+            if (!$athlete->team || $athlete->team->coach_id !== $user->id) {
+                abort(403, 'Acesso negado. Este atleta não pertence às suas equipes.');
+            }
+        }
         $athlete->load(['performanceRecords.recordedBy']);
         
         $performance_records = $athlete->performanceRecords()
@@ -478,6 +490,12 @@ class AthleteController extends Controller
      */
     public function storePerformance(Request $request, Athlete $athlete)
     {
+        $user = auth()->user();
+        if ($user->role === 'coach') {
+            if (!$athlete->team || $athlete->team->coach_id !== $user->id) {
+                abort(403, 'Acesso negado. Este atleta não pertence às suas equipes.');
+            }
+        }
         $request->validate([
             'metric' => 'required|string|max:255',
             'value' => 'required|string|max:255',
@@ -503,6 +521,12 @@ class AthleteController extends Controller
      */
     public function financial(Athlete $athlete)
     {
+        $user = auth()->user();
+        if ($user->role === 'coach') {
+            if (!$athlete->team || $athlete->team->coach_id !== $user->id) {
+                abort(403, 'Acesso negado. Este atleta não pertence às suas equipes.');
+            }
+        }
         $athlete->load(['orders.orderItems.product']);
         
         $orders = $athlete->orders()
@@ -519,6 +543,12 @@ class AthleteController extends Controller
      */
     public function generateAiPlan(Request $request, Athlete $athlete, AIService $aiService)
     {
+        $user = auth()->user();
+        if ($user->role === 'coach') {
+            if (!$athlete->team || $athlete->team->coach_id !== $user->id) {
+                abort(403, 'Acesso negado. Este atleta não pertence às suas equipes.');
+            }
+        }
         Log::info('AthleteController: Iniciando geração de plano IA', [
             'athlete_id' => $athlete->id,
             'type' => $request->type,

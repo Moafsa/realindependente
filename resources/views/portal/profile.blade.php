@@ -204,6 +204,163 @@
                             </div>
                         </div>
                     </div>
+
+                    @if(auth()->user()->role === 'coach')
+                    <!-- Coach Professional Profile -->
+                    <div class="border-t border-white/5">
+                        <div class="px-6 py-4 border-b border-white/5">
+                            <h3 class="text-sm font-black text-white uppercase italic tracking-widest">Perfil Profissional & Currículo</h3>
+                        </div>
+                        <div class="p-6 space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label for="phone" class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">
+                                        Telefone / WhatsApp
+                                    </label>
+                                    <input type="text" name="phone" id="phone" 
+                                           value="{{ auth()->user()->phone }}"
+                                           class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" placeholder="(00) 00000-0000">
+                                </div>
+                                <div>
+                                    <label for="specialties" class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">
+                                        Especialidades Técnicas
+                                    </label>
+                                    <input type="text" name="specialties" id="specialties" 
+                                           value="{{ auth()->user()->specialties }}"
+                                           class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" placeholder="Ex: Tática, Base, Analista">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="bio" class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">
+                                    Biografia e Filosofia de Jogo
+                                </label>
+                                <textarea name="bio" id="bio" rows="4" 
+                                          class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" placeholder="Compartilhe sua trajetória...">{{ auth()->user()->bio }}</textarea>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label for="education" class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">
+                                        Formação Acadêmica
+                                    </label>
+                                    <textarea name="education" id="education" rows="4" 
+                                              class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" placeholder="Graus acadêmicos...">{{ auth()->user()->education }}</textarea>
+                                </div>
+                                <div>
+                                    <label for="experience" class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">
+                                        Experiência Profissional
+                                    </label>
+                                    <textarea name="experience" id="experience" rows="4" 
+                                              class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" placeholder="Clubes anteriores...">{{ auth()->user()->experience }}</textarea>
+                                </div>
+                            </div>
+
+                            <!-- Certificates Section -->
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <h4 class="text-[10px] font-black text-gray-500 uppercase tracking-widest">Certificações & Diplomas</h4>
+                                    <button type="button" onclick="addCertificateRow()" class="text-xs font-bold text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                        Adicionar Novo
+                                    </button>
+                                </div>
+                                
+                                <div id="certificates-container" class="space-y-3">
+                                    @foreach(auth()->user()->certificates ?? [] as $index => $cert)
+                                    <div class="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5 group hover:bg-white/10 transition-all">
+                                        <div class="flex items-center gap-3 overflow-hidden">
+                                            <div class="p-2 bg-blue-500/10 text-blue-400 rounded-lg shrink-0">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                            </div>
+                                            <span class="text-xs font-bold text-gray-300 truncate">{{ $cert['name'] }}</span>
+                                        </div>
+                                        <button type="submit" name="remove_certificate" value="{{ $index }}" class="text-rose-500/50 hover:text-rose-500 transition-colors p-1">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                        </button>
+                                    </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+
+                    @if(auth()->user()->role === 'admin')
+                    <!-- Club / Website Settings -->
+                    <div class="border-t border-white/5">
+                        <div class="px-6 py-4 border-b border-white/5">
+                            <h3 class="text-sm font-black text-white uppercase italic tracking-widest">Dados do Clube & Website</h3>
+                        </div>
+                        <div class="p-6 space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label for="site_name" class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">
+                                        Nome do Clube (Exibição)
+                                    </label>
+                                    <input type="text" name="settings[site_name]" id="site_name" 
+                                           value="{{ \App\Models\SiteSetting::get('site_name') }}"
+                                           class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                                </div>
+                                <div>
+                                    <label for="contact_email" class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">
+                                        E-mail de Contato Público
+                                    </label>
+                                    <input type="email" name="settings[contact_email]" id="contact_email" 
+                                           value="{{ \App\Models\SiteSetting::get('contact_email') }}"
+                                           class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label for="contact_phone" class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">
+                                        Telefone de Contato
+                                    </label>
+                                    <input type="text" name="settings[contact_phone]" id="contact_phone" 
+                                           value="{{ \App\Models\SiteSetting::get('contact_phone') }}"
+                                           class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                                </div>
+                                <div>
+                                    <label for="contact_whatsapp" class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">
+                                        WhatsApp (Somente números)
+                                    </label>
+                                    <input type="text" name="settings[contact_whatsapp]" id="contact_whatsapp" 
+                                           value="{{ \App\Models\SiteSetting::get('contact_whatsapp') }}"
+                                           class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="contact_address" class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">
+                                    Endereço Sede (Aparece no Mapa)
+                                </label>
+                                <input type="text" name="settings[contact_address]" id="contact_address" 
+                                       value="{{ \App\Models\SiteSetting::get('contact_address') }}"
+                                       class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label for="instagram_url" class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">
+                                        Link do Instagram
+                                    </label>
+                                    <input type="text" name="settings[instagram_url]" id="instagram_url" 
+                                           value="{{ \App\Models\SiteSetting::get('instagram_url') }}"
+                                           class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" placeholder="https://instagram.com/seuclube">
+                                </div>
+                                <div>
+                                    <label for="facebook_url" class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">
+                                        Link do Facebook
+                                    </label>
+                                    <input type="text" name="settings[facebook_url]" id="facebook_url" 
+                                           value="{{ \App\Models\SiteSetting::get('facebook_url') }}"
+                                           class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" placeholder="https://facebook.com/seuclube">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
                     @endif
 
                     @if($athlete)
@@ -290,4 +447,21 @@
         }
     }
 </script>
+    <script>
+        function addCertificateRow() {
+            const container = document.getElementById('certificates-container');
+            const row = document.createElement('div');
+            row.className = 'grid grid-cols-1 md:grid-cols-2 gap-4 relative group animate__animated animate__fadeInUp';
+            row.innerHTML = `
+                <input type="text" name="certificate_names[]" placeholder="Nome do Certificado" class="px-5 py-3 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:ring-2 focus:ring-indigo-500 transition-all">
+                <div class="flex gap-2">
+                    <input type="file" name="certificate_files[]" class="flex-1 px-5 py-2.5 bg-white/5 border border-white/10 rounded-xl text-xs text-gray-400 file:mr-4 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:text-[10px] file:font-black file:uppercase file:bg-indigo-500 file:text-white hover:file:bg-indigo-600 transition-all">
+                    <button type="button" onclick="this.parentElement.parentElement.remove()" class="p-3 bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white rounded-xl transition-all">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+            `;
+            container.appendChild(row);
+        }
+    </script>
 @endsection

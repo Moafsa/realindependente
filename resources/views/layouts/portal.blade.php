@@ -143,9 +143,9 @@
                         @if(auth()->user()->role === 'admin' || auth()->user()->role === 'coach')
                         <a href="{{ route('dashboard') }}" class="group flex items-center px-4 py-3 text-xs font-bold uppercase tracking-widest rounded-xl transition-all border border-blue-500/20 text-blue-400 hover:bg-blue-500/10 hover:text-blue-300 mt-4">
                             <svg class="mr-3 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
                             </svg>
-                            Voltar ao Admin
+                            Gerenciamento do Clube
                         </a>
                         @endif
 
