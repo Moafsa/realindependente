@@ -283,7 +283,7 @@ class PortalController extends Controller
         
         // Se for admin ou coach e não tiver atleta associado, carregamos o perfil básico do usuário
         if (!$athlete && ($user->isAdmin() || $user->isCoach())) {
-            return view('portal.profile', compact('user'));
+            return view('portal.profile', compact('user', 'athlete'));
         }
 
         if (!$athlete) {
@@ -1001,8 +1001,13 @@ class PortalController extends Controller
     /**
      * Log a meal by analyzing a photo.
      */
-    public function logMealPhoto(Request $request)
+    public function generateTeamAiPlan(Request $request, Team $team, \App\Services\AIService $aiService)
     {
+        $user = auth()->user();
+        if ($user->role === 'coach' && $team->coach_id !== $user->id) {
+            abort(403, 'Acesso negado. Você não tem permissão para gerar planos para esta equipe.');
+        }
+
         $request->validate([
             'photo' => 'required|image|max:5120', // Max 5MB
         ]);

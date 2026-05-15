@@ -199,6 +199,11 @@ class TeamController extends Controller
 
     public function generateTeamAiPlan(Request $request, Team $team, \App\Services\AIService $aiService)
     {
+        $user = auth()->user();
+        if ($user->role === 'coach' && $team->coach_id !== $user->id) {
+            abort(403, 'Acesso negado. Você não tem permissão para gerar planos para esta equipe.');
+        }
+
         $request->validate([
             'type' => 'required|string|in:workout_plan,meal_plan',
             'goal' => 'required|string|max:255',

@@ -377,6 +377,12 @@ class AthleteController extends Controller
      */
     public function updateDocuments(Request $request, Athlete $athlete)
     {
+        $user = auth()->user();
+        if ($user->role === 'coach') {
+            if (!$athlete->team || $athlete->team->coach_id !== $user->id) {
+                abort(403, 'Acesso negado. Você não tem permissão para atualizar documentos deste atleta.');
+            }
+        }
         $request->validate([
             'athlete_document' => 'nullable|file|mimes:pdf,jpg,png,jpeg|max:5120',
             'residence_proof' => 'nullable|file|mimes:pdf,jpg,png,jpeg|max:5120',

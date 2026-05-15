@@ -181,6 +181,14 @@ class TrainingController extends Controller
     public function show(int $id)
     {
         $training = \App\Models\Training::with('team')->findOrFail($id);
+        
+        $user = auth()->user();
+        if ($user->role === 'coach') {
+            if (!$training->team || $training->team->coach_id !== $user->id) {
+                abort(403, 'Acesso negado. Você não tem permissão para visualizar esta atividade.');
+            }
+        }
+
         return view('trainings.show', compact('training'));
     }
 
@@ -193,8 +201,25 @@ class TrainingController extends Controller
     public function edit(int $id)
     {
         $training = \App\Models\Training::findOrFail($id);
-        $teams = Team::where('is_active', true)->get();
-        $athletes = Athlete::where('is_active', true)->get();
+        
+        $user = auth()->user();
+        if ($user->role === 'coach') {
+            if (!$training->team || $training->team->coach_id !== $user->id) {
+                abort(403, 'Acesso negado. Você não tem permissão para editar esta atividade.');
+            }
+        }
+
+        $teams = Team::where('is_active', true);
+        if ($user->role === 'coach') {
+            $teams->where('coach_id', $user->id);
+        }
+        $teams = $teams->get();
+
+        $athletes = Athlete::where('is_active', true);
+        if ($user->role === 'coach') {
+            $athletes->whereIn('team_id', $teams->pluck('id'));
+        }
+        $athletes = $athletes->get();
 
         return view('trainings.edit', compact('training', 'teams', 'athletes'));
     }
@@ -209,6 +234,13 @@ class TrainingController extends Controller
     public function update(Request $request, int $id)
     {
         $training = \App\Models\Training::findOrFail($id);
+
+        $user = auth()->user();
+        if ($user->role === 'coach') {
+            if (!$training->team || $training->team->coach_id !== $user->id) {
+                abort(403, 'Acesso negado. Você não tem permissão para atualizar esta atividade.');
+            }
+        }
 
         $request->validate([
             'title' => 'required|string|max:255',
@@ -249,6 +281,14 @@ class TrainingController extends Controller
     {
         try {
             $training = \App\Models\Training::findOrFail($id);
+
+            $user = auth()->user();
+            if ($user->role === 'coach') {
+                if (!$training->team || $training->team->coach_id !== $user->id) {
+                    abort(403, 'Acesso negado. Você não tem permissão para excluir esta atividade.');
+                }
+            }
+
             $training->delete();
 
             return redirect()->route('trainings.index')
