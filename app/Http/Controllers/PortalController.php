@@ -278,8 +278,14 @@ class PortalController extends Controller
      */
     public function profile()
     {
-        $athlete = Auth::user()->athlete;
+        $user = Auth::user();
+        $athlete = $user->athlete;
         
+        // Se for admin ou coach e não tiver atleta associado, carregamos o perfil básico do usuário
+        if (!$athlete && ($user->isAdmin() || $user->isCoach())) {
+            return view('portal.profile', compact('user'));
+        }
+
         if (!$athlete) {
             return redirect()->route('login')
                 ->with('error', 'Usuário não possui atleta associado.');
@@ -287,7 +293,7 @@ class PortalController extends Controller
 
         $athlete->load(['team', 'branch', 'user']);
 
-        return view('portal.profile', compact('athlete'));
+        return view('portal.profile', compact('athlete', 'user'));
     }
 
     /**
@@ -295,8 +301,26 @@ class PortalController extends Controller
      */
     public function updateProfile(Request $request)
     {
-        $athlete = Auth::user()->athlete;
+        $user = Auth::user();
+        $athlete = $user->athlete;
         
+        // Atualização para Admin ou Coach (sem atleta)
+        if (!$athlete && ($user->isAdmin() || $user->isCoach())) {
+            $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|unique:users,email,' . $user->id,
+                'password' => 'nullable|min:6|confirmed',
+            ]);
+
+            $user->update($request->only(['name', 'email']));
+            
+            if ($request->filled('password')) {
+                $user->update(['password' => bcrypt($request->password)]);
+            }
+
+            return redirect()->route('portal.profile')->with('success', 'Perfil atualizado com sucesso!');
+        }
+
         if (!$athlete) {
             return redirect()->route('login')
                 ->with('error', 'Usuário não possui atleta associado.');
