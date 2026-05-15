@@ -52,9 +52,9 @@
                         $siteName = $settings['site_name'] ?? tenant('name') ?? 'Nexts';
                     @endphp
                     @if($siteLogo)
-                        <img src="{{ \Storage::url($siteLogo) }}" alt="{{ $siteName }}" class="h-20 w-auto">
+                        <img src="{{ \Storage::url($siteLogo) }}" alt="{{ $siteName }}" class="h-14 w-auto">
                     @else
-                        <h1 class="text-4xl font-bold text-blue-600">{{ $siteName }}</h1>
+                        <h1 class="text-2xl font-bold text-blue-600">{{ $siteName }}</h1>
                     @endif
                 </div>
                 <div class="mt-5 flex-grow flex flex-col">

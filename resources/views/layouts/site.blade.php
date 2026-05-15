@@ -85,13 +85,13 @@
     <!-- Navigation -->
     <nav class="bg-white shadow-lg sticky-header" id="main-nav">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-28">
+            <div class="flex justify-between h-20">
                 <div class="flex">
                     <!-- Logo -->
                     <div class="flex-shrink-0 flex items-center">
-                        <a href="{{ route('site.home') }}" class="text-5xl font-bold text-primary">
+                        <a href="{{ route('site.home') }}" class="text-4xl font-bold text-primary">
                             @if($settings['site_logo'] ?? false)
-                                <img src="{{ Storage::url($settings['site_logo']) }}" alt="{{ $settings['site_name'] ?? 'Nexts' }}" class="h-24 w-auto transition-all" id="site-logo">
+                                <img src="{{ Storage::url($settings['site_logo']) }}" alt="{{ $settings['site_name'] ?? 'Nexts' }}" class="h-16 w-auto transition-all" id="site-logo">
                             @else
                                 {{ $settings['site_name'] ?? 'Nexts' }}
                             @endif
@@ -346,10 +346,10 @@
             window.addEventListener('scroll', function() {
                 if (window.scrollY > 10) {
                     nav.classList.add('scrolled');
-                    if (logo) logo.classList.replace('h-12', 'h-10');
+                    if (logo) logo.classList.replace('h-16', 'h-12');
                 } else {
                     nav.classList.remove('scrolled');
-                    if (logo) logo.classList.replace('h-10', 'h-12');
+                    if (logo) logo.classList.replace('h-12', 'h-16');
                 }
             });
         });
