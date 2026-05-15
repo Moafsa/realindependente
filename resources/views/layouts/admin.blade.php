@@ -84,9 +84,9 @@
                         <div class="relative group">
                             <div class="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
                             @if($siteLogo)
-                                <img src="{{ str_starts_with($siteLogo, 'http') ? $siteLogo : route('tenant.assets', ['path' => $siteLogo]) }}" alt="{{ $siteName }}" class="relative h-16 w-auto rounded-xl shadow-2xl">
+                                <img src="{{ str_starts_with($siteLogo, 'http') ? $siteLogo : route('tenant.assets', ['path' => $siteLogo]) }}" alt="{{ $siteName }}" class="relative h-18 w-auto rounded-xl shadow-2xl">
                             @else
-                                <div class="relative h-16 w-16 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-black text-2xl shadow-2xl border border-white/10 group-hover:scale-105 transition-transform duration-300">
+                                <div class="relative h-18 w-18 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-black text-2xl shadow-2xl border border-white/10 group-hover:scale-105 transition-transform duration-300">
                                     {{ substr($siteName, 0, 1) }}
                                 </div>
                             @endif
