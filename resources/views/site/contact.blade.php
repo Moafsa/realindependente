@@ -4,11 +4,27 @@
 
 @section('content')
 <!-- Header -->
-<section class="bg-gray-50 py-12">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center">
-            <h1 class="text-3xl font-bold text-gray-900 mb-4">Entre em Contato</h1>
-            <p class="text-lg text-gray-600">Estamos aqui para ajudar e responder suas dúvidas</p>
+<section class="relative py-32 flex items-center bg-[#050505] text-white overflow-hidden">
+    <div class="absolute inset-0 opacity-40">
+        @if($settings['contact_banner'] ?? null)
+            <img src="{{ Storage::url($settings['contact_banner']) }}" alt="Background Contato" class="w-full h-full object-cover">
+        @else
+            <div class="absolute inset-0 bg-gradient-to-br from-primary to-secondary"></div>
+        @endif
+        <div class="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent"></div>
+    </div>
+    
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+        <div class="max-w-2xl">
+            <span class="inline-block px-4 py-1.5 rounded-full text-xs font-black bg-primary uppercase tracking-widest mb-6 animate__animated animate__fadeInUp">
+                Fale Conosco
+            </span>
+            <h1 class="text-5xl md:text-7xl font-black mb-8 leading-tight animate__animated animate__fadeInUp">
+                {{ $settings['contact_title'] ?? 'Entre em Contato' }}
+            </h1>
+            <p class="text-xl text-gray-300 font-medium leading-relaxed mb-8 animate__animated animate__fadeInUp">
+                {{ $settings['contact_subtitle'] ?? 'Estamos aqui para ajudar e responder suas dúvidas' }}
+            </p>
         </div>
     </div>
 </section>

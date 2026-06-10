@@ -363,7 +363,7 @@ class PortalController extends Controller
 
             if ($user->isAdmin() && $request->has('settings')) {
                 foreach ($request->settings as $key => $value) {
-                    \App\Models\SiteSetting::set($key, $value);
+                    \App\Models\SiteSetting::set($key, $value, 'text', null, true);
                 }
             }
 

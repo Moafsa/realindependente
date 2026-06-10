@@ -1,4 +1,4 @@
-@extends('layouts.portal')
+@extends(auth()->user()->role === 'admin' || auth()->user()->role === 'coach' ? 'layouts.admin' : 'layouts.portal')
 
 @section('title', 'Meu Perfil')
 

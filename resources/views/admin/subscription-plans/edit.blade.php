@@ -41,6 +41,15 @@
                 </div>
 
                 <div>
+                    <label for="setup_fee" class="block text-sm font-bold text-gray-700 mb-2">Taxa de Inscrição (R$)</label>
+                    <input type="number" step="0.01" name="setup_fee" id="setup_fee" value="{{ old('setup_fee', $plan->attributes['setup_fee'] ?? '0.00') }}"
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 @error('setup_fee') border-red-500 @enderror"
+                           placeholder="Ex: 50,00">
+                    <p class="text-xs text-gray-500 mt-1">Este valor será somado apenas à primeira fatura.</p>
+                    @error('setup_fee') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                </div>
+
+                <div>
                     <label for="cycle" class="block text-sm font-bold text-gray-700 mb-2">Ciclo de Cobrança <span class="text-red-500">*</span></label>
                     <select name="cycle" id="cycle" required
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 @error('cycle') border-red-500 @enderror">
@@ -65,10 +74,25 @@
                                 <input type="checkbox" name="features[insurance]" value="1" {{ ($features['insurance'] ?? false) ? 'checked' : '' }} class="w-5 h-5 text-blue-600 rounded">
                                 <span class="text-sm font-medium text-gray-700">Seguro Atleta</span>
                             </label>
-                            <label class="flex items-center space-x-3 p-3 bg-white rounded-xl border border-blue-200 cursor-pointer hover:bg-blue-100 transition">
-                                <input type="checkbox" name="features[evaluation]" value="1" {{ ($features['evaluation'] ?? false) ? 'checked' : '' }} class="w-5 h-5 text-blue-600 rounded">
-                                <span class="text-sm font-medium text-gray-700">Avaliação Médica/Física</span>
-                            </label>
+                            <div class="flex flex-col space-y-2 p-3 bg-white rounded-xl border border-blue-200 hover:bg-blue-100 transition">
+                                <label class="flex items-center space-x-3 cursor-pointer">
+                                    <input type="checkbox" name="features[evaluation]" value="1" {{ ($features['evaluation'] ?? false) ? 'checked' : '' }} class="w-5 h-5 text-blue-600 rounded" onclick="document.getElementById('eval_freq_container').classList.toggle('hidden', !this.checked)">
+                                    <span class="text-sm font-medium text-gray-700">Avaliação Técnica/Física</span>
+                                </label>
+                                <div id="eval_freq_container" class="{{ ($features['evaluation'] ?? false) ? '' : 'hidden' }} pl-8">
+                                    <select name="evaluation_frequency" class="w-full text-sm px-2 py-1 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                                        <option value="">Selecione a frequência...</option>
+                                        @php $currentFreq = old('evaluation_frequency', $plan->attributes['evaluation_frequency'] ?? ''); @endphp
+                                        <option value="Por Treino" {{ $currentFreq == 'Por Treino' ? 'selected' : '' }}>Por Treino</option>
+                                        <option value="Semanal" {{ $currentFreq == 'Semanal' ? 'selected' : '' }}>Semanal</option>
+                                        <option value="Quinzenal" {{ $currentFreq == 'Quinzenal' ? 'selected' : '' }}>Quinzenal</option>
+                                        <option value="Mensal" {{ $currentFreq == 'Mensal' ? 'selected' : '' }}>Mensal</option>
+                                        <option value="Bimestral" {{ $currentFreq == 'Bimestral' ? 'selected' : '' }}>Bimestral</option>
+                                        <option value="Semestral" {{ $currentFreq == 'Semestral' ? 'selected' : '' }}>Semestral</option>
+                                        <option value="Anual" {{ $currentFreq == 'Anual' ? 'selected' : '' }}>Anual</option>
+                                    </select>
+                                </div>
+                            </div>
                             <label class="flex items-center space-x-3 p-3 bg-white rounded-xl border border-blue-200 cursor-pointer hover:bg-blue-100 transition">
                                 <input type="checkbox" name="features[training_plan]" value="1" {{ ($features['training_plan'] ?? false) ? 'checked' : '' }} class="w-5 h-5 text-blue-600 rounded">
                                 <span class="text-sm font-medium text-gray-700">Plano de Treino Personalizado</span>

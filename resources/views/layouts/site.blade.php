@@ -91,7 +91,7 @@
                     <div class="flex-shrink-0 flex items-center">
                         <a href="{{ route('site.home') }}" class="text-5xl font-bold text-primary">
                             @if($settings['site_logo'] ?? false)
-                                <img src="{{ Storage::url($settings['site_logo']) }}" alt="{{ $settings['site_name'] ?? 'Nexts' }}" class="h-20 w-auto transition-all" id="site-logo">
+                                <img src="{{ Storage::url($settings['site_logo']) }}" alt="{{ $settings['site_name'] ?? 'Nexts' }}" class="h-16 w-auto transition-all" id="site-logo">
                             @else
                                 {{ $settings['site_name'] ?? 'Nexts' }}
                             @endif

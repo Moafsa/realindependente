@@ -155,7 +155,11 @@ class CartService
         foreach ($cart as $item) {
             $product = Product::find($item['product_id']);
             if ($product) {
-                $total += $product->price * $item['quantity'];
+                $subtotal = $product->price * $item['quantity'];
+                if ($product->type === 'subscription') {
+                    $subtotal += floatval($product->attributes['setup_fee'] ?? 0);
+                }
+                $total += $subtotal;
             }
         }
 
@@ -192,10 +196,17 @@ class CartService
         foreach ($cart as $item) {
             $product = Product::find($item['product_id']);
             if ($product) {
+                $subtotal = (float) $product->price * $item['quantity'];
+                if ($product->type === 'subscription') {
+                    $setupFee = floatval($product->attributes['setup_fee'] ?? 0);
+                    $subtotal += $setupFee;
+                    $product->setup_fee_display = $setupFee;
+                }
+                
                 $items[] = [
                     'product' => $product,
                     'quantity' => $item['quantity'],
-                    'subtotal' => (float) $product->price * $item['quantity'],
+                    'subtotal' => $subtotal,
                 ];
             }
         }

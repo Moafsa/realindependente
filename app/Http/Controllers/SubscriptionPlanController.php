@@ -46,18 +46,22 @@ class SubscriptionPlanController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string|max:5000',
             'price' => 'required|numeric|min:0',
+            'setup_fee' => 'nullable|numeric|min:0',
             'cycle' => 'required|in:MONTHLY,QUARTERLY,SEMIANNUALLY,YEARLY',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'is_active' => 'boolean',
             'is_featured' => 'boolean',
+            'evaluation_frequency' => 'nullable|string',
         ]);
 
         try {
-            $plan = new Product($request->except(['image', 'cycle']));
+            $plan = new Product($request->except(['image', 'cycle', 'setup_fee', 'evaluation_frequency']));
             $plan->type = 'subscription';
             
             $attributes = $request->input('attributes', []);
             $attributes['cycle'] = $request->input('cycle');
+            $attributes['setup_fee'] = $request->input('setup_fee', 0);
+            $attributes['evaluation_frequency'] = $request->input('evaluation_frequency');
             
             // Características pré-prontas
             $attributes['features'] = [
@@ -117,17 +121,21 @@ class SubscriptionPlanController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string|max:5000',
             'price' => 'required|numeric|min:0',
+            'setup_fee' => 'nullable|numeric|min:0',
             'cycle' => 'required|in:MONTHLY,QUARTERLY,SEMIANNUALLY,YEARLY',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'is_active' => 'boolean',
             'is_featured' => 'boolean',
+            'evaluation_frequency' => 'nullable|string',
         ]);
 
         try {
-            $subscription_plan->fill($request->except(['image', 'cycle', 'features', 'training']));
+            $subscription_plan->fill($request->except(['image', 'cycle', 'features', 'training', 'setup_fee', 'evaluation_frequency']));
             
             $attributes = $subscription_plan->attributes ?? [];
             $attributes['cycle'] = $request->input('cycle');
+            $attributes['setup_fee'] = $request->input('setup_fee', 0);
+            $attributes['evaluation_frequency'] = $request->input('evaluation_frequency');
             
             // Características pré-prontas
             $attributes['features'] = [

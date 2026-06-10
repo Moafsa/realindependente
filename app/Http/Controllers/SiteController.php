@@ -525,33 +525,80 @@ class SiteController extends Controller
                 if ($subscriptionPlan) {
                     // Cria assinatura no Asaas
                     $cycle = $subscriptionPlan->attributes['cycle'] ?? 'MONTHLY';
-                    $subscriptionData = [
-                        'customer_id' => $customerId,
-                        'value' => $total,
-                        'next_due_date' => now()->addDays(7)->format('Y-m-d'),
-                        'description' => "Assinatura: {$subscriptionPlan->name} - " . (tenant('name') ?? ''),
-                        'external_reference' => "order_{$order->id}",
-                        'billing_type' => $request->payment_method === 'asaas' ? 'PIX' : $request->payment_method,
-                        'cycle' => $cycle,
-                        'split_percentage' => $adminFee,
-                    ];
+                    $setupFee = floatval($subscriptionPlan->attributes['setup_fee'] ?? 0);
+                    $basePrice = $subscriptionPlan->price;
 
-                    $response = $this->asaasService->createSubscription($subscriptionData);
+                    // Calcular próxima data da assinatura recorrente
+                    $firstDueDate = now()->addDays(7);
                     
-                    // Busca a primeira fatura da assinatura para pegar o link de pagamento
-                    $paymentUrl = null;
-                    try {
-                        $payments = $this->asaasService->getSubscriptionPayments($response['id']);
-                        if (!empty($payments['data'])) {
-                            $paymentUrl = $payments['data'][0]['invoiceUrl'] ?? null;
+                    if ($setupFee > 0) {
+                        $firstInvoiceTotal = $basePrice + $setupFee;
+                        $nextDueDate = $firstDueDate->copy();
+                        switch ($cycle) {
+                            case 'MONTHLY': $nextDueDate->addMonth(); break;
+                            case 'QUARTERLY': $nextDueDate->addMonths(3); break;
+                            case 'SEMIANNUALLY': $nextDueDate->addMonths(6); break;
+                            case 'YEARLY': $nextDueDate->addYear(); break;
                         }
-                    } catch (\Exception $e) {
-                        Log::warning("Erro ao buscar faturas da assinatura: " . $e->getMessage());
+
+                        // 1. Cria cobrança da primeira fatura (Mensalidade + Setup Fee)
+                        $chargeData = [
+                            'customer_id' => $customerId,
+                            'value' => $firstInvoiceTotal,
+                            'due_date' => $firstDueDate->format('Y-m-d'),
+                            'description' => "Primeira Mensalidade + Inscrição: {$subscriptionPlan->name} - " . (tenant('name') ?? ''),
+                            'external_reference' => "order_{$order->id}_first",
+                            'billing_type' => $request->payment_method === 'asaas' ? 'PIX' : $request->payment_method,
+                            'split_percentage' => $adminFee,
+                        ];
+                        $firstCharge = $this->asaasService->createCharge($chargeData);
+
+                        $paymentId = $firstCharge['id'];
+                        $paymentUrl = $firstCharge['invoiceUrl'] ?? null;
+
+                        // 2. Cria a assinatura iniciando no próximo ciclo
+                        $subscriptionData = [
+                            'customer_id' => $customerId,
+                            'value' => $basePrice,
+                            'next_due_date' => $nextDueDate->format('Y-m-d'),
+                            'description' => "Assinatura: {$subscriptionPlan->name} - " . (tenant('name') ?? ''),
+                            'external_reference' => "order_{$order->id}_sub",
+                            'billing_type' => $request->payment_method === 'asaas' ? 'PIX' : $request->payment_method,
+                            'cycle' => $cycle,
+                            'split_percentage' => $adminFee,
+                        ];
+                        $response = $this->asaasService->createSubscription($subscriptionData);
+                        $subscriptionId = $response['id'];
+                    } else {
+                        // Sem taxa de inscrição, cria assinatura pra agora
+                        $subscriptionData = [
+                            'customer_id' => $customerId,
+                            'value' => $basePrice,
+                            'next_due_date' => $firstDueDate->format('Y-m-d'),
+                            'description' => "Assinatura: {$subscriptionPlan->name} - " . (tenant('name') ?? ''),
+                            'external_reference' => "order_{$order->id}",
+                            'billing_type' => $request->payment_method === 'asaas' ? 'PIX' : $request->payment_method,
+                            'cycle' => $cycle,
+                            'split_percentage' => $adminFee,
+                        ];
+                        $response = $this->asaasService->createSubscription($subscriptionData);
+                        $subscriptionId = $response['id'];
+                        $paymentId = $response['id'];
+
+                        $paymentUrl = null;
+                        try {
+                            $payments = $this->asaasService->getSubscriptionPayments($subscriptionId);
+                            if (!empty($payments['data'])) {
+                                $paymentUrl = $payments['data'][0]['invoiceUrl'] ?? null;
+                            }
+                        } catch (\Exception $e) {
+                            Log::warning("Erro ao buscar faturas da assinatura: " . $e->getMessage());
+                        }
                     }
 
                     // Atualiza order com dados do Asaas
                     $order->update([
-                        'asaas_payment_id' => $response['id'],
+                        'asaas_payment_id' => $paymentId,
                         'asaas_payment_url' => $paymentUrl,
                     ]);
                 
