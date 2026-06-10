@@ -257,24 +257,18 @@
                     <p class="text-gray-300 mb-4">{{ $settings['site_description'] ?? 'Clube de futebol dedicado ao desenvolvimento de atletas.' }}</p>
                     <div class="flex space-x-4">
                         @if($settings['facebook_url'] ?? false)
-                        <a href="{{ $settings['facebook_url'] }}" class="text-gray-400 hover:text-white">
-                            <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/>
-                            </svg>
+                        <a href="{{ $settings['facebook_url'] }}" target="_blank" class="text-gray-400 hover:text-white">
+                            <i class="fa-brands fa-facebook text-2xl"></i>
                         </a>
                         @endif
                         @if($settings['instagram_url'] ?? false)
-                        <a href="{{ $settings['instagram_url'] }}" class="text-gray-400 hover:text-white">
-                            <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 6.62 5.367 11.987 11.988 11.987s11.987-5.367 11.987-11.987C24.014 5.367 18.647.001 12.017.001zM8.449 16.988c-1.297 0-2.348-1.051-2.348-2.348s1.051-2.348 2.348-2.348 2.348 1.051 2.348 2.348-1.051 2.348-2.348 2.348zm7.718 0c-1.297 0-2.348-1.051-2.348-2.348s1.051-2.348 2.348-2.348 2.348 1.051 2.348 2.348-1.051 2.348-2.348 2.348z"/>
-                            </svg>
+                        <a href="{{ $settings['instagram_url'] }}" target="_blank" class="text-gray-400 hover:text-white">
+                            <i class="fa-brands fa-instagram text-2xl"></i>
                         </a>
                         @endif
                         @if($settings['youtube_url'] ?? false)
-                        <a href="{{ $settings['youtube_url'] }}" class="text-gray-400 hover:text-white">
-                            <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-                            </svg>
+                        <a href="{{ $settings['youtube_url'] }}" target="_blank" class="text-gray-400 hover:text-white">
+                            <i class="fa-brands fa-youtube text-2xl"></i>
                         </a>
                         @endif
                     </div>
@@ -302,10 +296,18 @@
                     <h3 class="text-lg font-semibold mb-4">Contato</h3>
                     <div class="space-y-2 text-gray-300">
                         @if($settings['contact_phone'] ?? false)
-                        <p>📞 {{ $settings['contact_phone'] }}</p>
+                        <p>
+                            <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $settings['contact_phone']) }}" target="_blank" class="hover:text-white transition-colors">
+                                📞 {{ $settings['contact_phone'] }}
+                            </a>
+                        </p>
                         @endif
                         @if($settings['contact_email'] ?? false)
-                        <p>✉️ {{ $settings['contact_email'] }}</p>
+                        <p>
+                            <a href="mailto:{{ $settings['contact_email'] }}" class="hover:text-white transition-colors">
+                                ✉️ {{ $settings['contact_email'] }}
+                            </a>
+                        </p>
                         @endif
                         @if($settings['contact_address'] ?? false)
                         <p>📍 {{ $settings['contact_address'] }}</p>
