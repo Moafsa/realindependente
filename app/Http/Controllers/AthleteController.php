@@ -172,13 +172,13 @@ class AthleteController extends Controller
 
         // Handle profile picture upload
         if ($request->hasFile('profile_picture')) {
-            $path = $request->file('profile_picture')->store('profiles', 'public');
+            $path = $request->file('profile_picture')->storeOptimized('profiles', 'public');
             $athlete->profile_picture_url = $path;
         }
 
         // Handle medical certificate upload
         if ($request->hasFile('medical_certificate')) {
-            $path = $request->file('medical_certificate')->store('medical_certificates', 'public');
+            $path = $request->file('medical_certificate')->storeOptimized('medical_certificates', 'public');
             $athlete->medical_certificate_path = $path;
         }
 
@@ -352,7 +352,7 @@ class AthleteController extends Controller
                 \Illuminate\Support\Facades\Storage::disk('public')->delete($oldPath);
             }
             
-            $path = $request->file('profile_picture')->store('profiles', 'public');
+            $path = $request->file('profile_picture')->storeOptimized('profiles', 'public');
             $athlete->profile_picture_url = $path;
             $athlete->save();
         }
@@ -364,7 +364,7 @@ class AthleteController extends Controller
                 \Illuminate\Support\Facades\Storage::disk('public')->delete($athlete->medical_certificate_path);
             }
             
-            $path = $request->file('medical_certificate')->store('medical_certificates', 'public');
+            $path = $request->file('medical_certificate')->storeOptimized('medical_certificates', 'public');
             $athlete->update(['medical_certificate_path' => $path]);
         }
 
@@ -407,7 +407,7 @@ class AthleteController extends Controller
                     \Illuminate\Support\Facades\Storage::disk('public')->delete($athlete->$dbColumn);
                 }
                 
-                $path = $request->file($inputName)->store('athlete_documents', 'public');
+                $path = $request->file($inputName)->storeOptimized('athlete_documents', 'public');
                 $updates[$dbColumn] = $path;
             }
         }

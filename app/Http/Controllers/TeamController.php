@@ -79,7 +79,7 @@ class TeamController extends Controller
 
         // Handle logo upload
         if ($request->hasFile('logo')) {
-            $path = $request->file('logo')->store('teams');
+            $path = $request->file('logo')->storeOptimized('teams');
             $team->logo = $path;
         }
 
@@ -151,7 +151,7 @@ class TeamController extends Controller
                 Storage::disk('public')->delete($team->logo);
             }
             
-            $path = $request->file('logo')->store('teams');
+            $path = $request->file('logo')->storeOptimized('teams');
             $team->update(['logo' => $path]);
         }
 

@@ -349,7 +349,7 @@ class PortalController extends Controller
                     foreach ($request->file('certificate_files') as $key => $file) {
                         if ($file && $file->isValid()) {
                             $name = $request->certificate_names[$key] ?? $file->getClientOriginalName();
-                            $path = $file->store('coach_certificates', 'public');
+                            $path = $file->storeOptimized('coach_certificates', 'public');
                             $certificates[] = [
                                 'name' => $name,
                                 'path' => $path,
@@ -398,31 +398,31 @@ class PortalController extends Controller
 
         // Handle profile picture upload
         if ($request->hasFile('profile_picture')) {
-            $path = $request->file('profile_picture')->store('athletes', 'public');
+            $path = $request->file('profile_picture')->storeOptimized('athletes', 'public');
             $athlete->profile_picture_url = $path;
         }
 
         // Handle medical certificate upload
         if ($request->hasFile('medical_certificate')) {
-            $path = $request->file('medical_certificate')->store('medical_certificates', 'public');
+            $path = $request->file('medical_certificate')->storeOptimized('medical_certificates', 'public');
             $athlete->medical_certificate_path = $path;
         }
 
         // Handle athlete document upload
         if ($request->hasFile('athlete_document')) {
-            $path = $request->file('athlete_document')->store('athlete_documents', 'public');
+            $path = $request->file('athlete_document')->storeOptimized('athlete_documents', 'public');
             $athlete->athlete_document_path = $path;
         }
 
         // Handle residence proof upload
         if ($request->hasFile('residence_proof')) {
-            $path = $request->file('residence_proof')->store('residence_proofs', 'public');
+            $path = $request->file('residence_proof')->storeOptimized('residence_proofs', 'public');
             $athlete->residence_proof_path = $path;
         }
 
         // Handle guardian document upload
         if ($request->hasFile('guardian_document_file')) {
-            $path = $request->file('guardian_document_file')->store('guardian_documents', 'public');
+            $path = $request->file('guardian_document_file')->storeOptimized('guardian_documents', 'public');
             $athlete->guardian_document_path = $path;
         }
 
@@ -1070,7 +1070,7 @@ class PortalController extends Controller
             }
 
             $photo = $request->file('photo');
-            $path = $photo->store('meals/' . $athlete->id, 'public');
+            $path = $photo->storeOptimized('meals/' . $athlete->id, 'public');
             
             // Get base64 for AI
             $imageBase64 = base64_encode(file_get_contents($photo->getRealPath()));

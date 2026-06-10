@@ -83,7 +83,7 @@ class SubscriptionPlanController extends Controller
             $plan->attributes = $attributes;
             
             if ($request->hasFile('image')) {
-                $plan->image = $request->file('image')->store('products');
+                $plan->image = $request->file('image')->storeOptimized('products');
             }
 
             $plan->stock_quantity = 0;
@@ -160,7 +160,7 @@ class SubscriptionPlanController extends Controller
                 if ($subscription_plan->image) {
                     Storage::delete($subscription_plan->image);
                 }
-                $subscription_plan->image = $request->file('image')->store('products');
+                $subscription_plan->image = $request->file('image')->storeOptimized('products');
             }
 
             $subscription_plan->is_active = $request->boolean('is_active', $subscription_plan->is_active);

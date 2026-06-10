@@ -85,7 +85,7 @@ class CoachController extends Controller
         $data['is_active'] = true;
 
         if ($request->hasFile('avatar')) {
-            $data['avatar'] = $request->file('avatar')->store('avatars');
+            $data['avatar'] = $request->file('avatar')->storeOptimized('avatars');
         }
 
         User::create($data);
@@ -132,7 +132,7 @@ class CoachController extends Controller
             if ($coach->avatar) {
                 Storage::disk(config('filesystems.default'))->delete($coach->avatar);
             }
-            $data['avatar'] = $request->file('avatar')->store('avatars');
+            $data['avatar'] = $request->file('avatar')->storeOptimized('avatars');
         }
 
         $coach->update($data);
@@ -296,7 +296,7 @@ class CoachController extends Controller
             if ($coach->avatar) {
                 \Illuminate\Support\Facades\Storage::disk(config('filesystems.default'))->delete($coach->avatar);
             }
-            $data['avatar'] = $request->file('avatar')->store('avatars');
+            $data['avatar'] = $request->file('avatar')->storeOptimized('avatars');
         }
 
         // Handle Certificates
@@ -316,7 +316,7 @@ class CoachController extends Controller
             foreach ($request->file('certificate_files') as $key => $file) {
                 if ($file && $file->isValid()) {
                     $name = $request->certificate_names[$key] ?? $file->getClientOriginalName();
-                    $path = $file->store('coach_certificates', 'public');
+                    $path = $file->storeOptimized('coach_certificates', 'public');
                     $certificates[] = [
                         'name' => $name,
                         'path' => $path,

@@ -336,7 +336,7 @@ class CommunicationController extends Controller
                     $attachmentType = 'document';
                 }
 
-                $attachmentPath = $file->store('chat/attachments');
+                $attachmentPath = $file->storeOptimized('chat/attachments');
             }
 
             if (!$request->content && !$attachmentPath) {

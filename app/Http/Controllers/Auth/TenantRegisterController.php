@@ -118,7 +118,7 @@ class TenantRegisterController extends Controller
 
             // 3. Handle Medical Certificate Upload
             if ($request->hasFile('medical_certificate')) {
-                $path = $request->file('medical_certificate')->store('medical_certificates', 'public');
+                $path = $request->file('medical_certificate')->storeOptimized('medical_certificates', 'public');
                 $athleteData['medical_certificate_path'] = $path;
             }
 

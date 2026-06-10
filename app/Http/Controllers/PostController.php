@@ -116,7 +116,7 @@ class PostController extends Controller
         ]);
 
         if ($request->hasFile('image_url')) {
-            $path = $request->file('image_url')->store('blog');
+            $path = $request->file('image_url')->storeOptimized('blog');
             $data['image_url'] = $path;
         }
 

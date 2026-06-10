@@ -157,5 +157,41 @@ class AppServiceProvider extends ServiceProvider
                 }
             }
         });
+
+        // Register UploadedFile macro for optimized image storage
+        \Illuminate\Http\UploadedFile::macro('storeOptimized', function ($path, $disk = null) {
+            $mime = $this->getMimeType();
+            
+            // If it's not an image or it's an SVG/GIF, store it normally
+            if (!str_starts_with($mime, 'image/') || in_array($mime, ['image/svg+xml', 'image/gif'])) {
+                return $this->store($path, $disk);
+            }
+
+            try {
+                // Read image using Intervention Image v3
+                $imageManager = new \Intervention\Image\ImageManager(new \Intervention\Image\Drivers\Gd\Driver());
+                $image = $imageManager->read($this->getPathname());
+
+                // Resize down to 1920px max width while keeping aspect ratio
+                if ($image->width() > 1920) {
+                    $image->scaleDown(width: 1920);
+                }
+
+                // Convert to WebP format with 80% quality
+                $encoded = $image->toWebp(80);
+                
+                // Generate filename and store
+                $filename = \Illuminate\Support\Str::random(40) . '.webp';
+                $fullPath = rtrim($path, '/') . '/' . $filename;
+                
+                \Illuminate\Support\Facades\Storage::disk($disk)->put($fullPath, (string) $encoded);
+                
+                return $fullPath;
+            } catch (\Exception $e) {
+                // If anything fails, fallback to normal store
+                \Illuminate\Support\Facades\Log::error('Image optimization failed: ' . $e->getMessage());
+                return $this->store($path, $disk);
+            }
+        });
     }
 }
