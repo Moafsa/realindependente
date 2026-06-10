@@ -132,6 +132,15 @@
         <span>Gestão de Website</span>
     </a>
 
+    <a href="{{ route('admin.posts.index') }}" class="group flex items-center px-6 py-4 text-sm font-bold rounded-2xl {{ request()->routeIs('admin.posts.*') ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'text-gray-400 hover:bg-white/5 hover:text-white' }} transition-all duration-300">
+        <div class="p-2 rounded-xl {{ request()->routeIs('admin.posts.*') ? 'bg-white/20' : 'bg-white/5 group-hover:bg-white/10' }} mr-4 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path>
+            </svg>
+        </div>
+        <span>Gestão do Blog (IA)</span>
+    </a>
+
     @endif
 
     @if(auth()->user()->role === 'admin')

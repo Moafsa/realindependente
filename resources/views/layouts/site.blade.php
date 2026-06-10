@@ -103,32 +103,46 @@
                         <a href="{{ route('site.home') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('site.home') ? 'border-primary text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }} text-sm font-medium">
                             Início
                         </a>
+                        @if(($settings['enable_about_page'] ?? '1') == '1')
                         <a href="{{ route('site.about') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('site.about') ? 'border-primary text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }} text-sm font-medium">
                             Sobre
                         </a>
+                        @endif
+                        @if(($settings['enable_teams_page'] ?? '1') == '1')
                         <a href="{{ route('site.teams') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('site.teams') ? 'border-primary text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }} text-sm font-medium">
                             Equipes
                         </a>
+                        @endif
+                        @if(($settings['enable_coaches_page'] ?? '1') == '1')
                         <a href="{{ route('site.coaches') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('site.coaches') ? 'border-primary text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }} text-sm font-medium">
                             Treinadores
                         </a>
+                        @endif
+                        @if(($settings['enable_athletes_page'] ?? '1') == '1')
                         <a href="{{ route('site.athletes') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('site.athletes') ? 'border-primary text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }} text-sm font-medium">
                             Atletas
                         </a>
+                        @endif
+                        @if(($settings['enable_store_page'] ?? '1') == '1')
                         <a href="{{ route('site.store') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('site.store') ? 'border-primary text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }} text-sm font-medium">
                             Loja
                         </a>
+                        @endif
                         @if(($settings['enable_plans_page'] ?? '1') == '1')
                         <a href="{{ route('site.plans') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('site.plans') ? 'border-primary text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }} text-sm font-medium">
                             Planos
                         </a>
                         @endif
+                        @if(($settings['enable_contact_page'] ?? '1') == '1')
                         <a href="{{ route('site.contact') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('site.contact') ? 'border-primary text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }} text-sm font-medium">
                             Contato
                         </a>
+                        @endif
+                        @if(($settings['enable_blog_page'] ?? '1') == '1')
                         <a href="{{ route('site.blog') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('site.blog*') ? 'border-primary text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }} text-sm font-medium">
                             Blog
                         </a>
+                        @endif
                     </div>
                 </div>
                 
@@ -185,32 +199,46 @@
                 <a href="{{ route('site.home') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ request()->routeIs('site.home') ? 'border-primary text-primary bg-blue-50' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 hover:bg-gray-50' }} text-base font-medium">
                     Início
                 </a>
+                @if(($settings['enable_about_page'] ?? '1') == '1')
                 <a href="{{ route('site.about') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ request()->routeIs('site.about') ? 'border-primary text-primary bg-blue-50' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 hover:bg-gray-50' }} text-base font-medium">
                     Sobre
                 </a>
+                @endif
+                @if(($settings['enable_teams_page'] ?? '1') == '1')
                 <a href="{{ route('site.teams') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ request()->routeIs('site.teams') ? 'border-primary text-primary bg-blue-50' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 hover:bg-gray-50' }} text-base font-medium">
                     Equipes
                 </a>
+                @endif
+                @if(($settings['enable_coaches_page'] ?? '1') == '1')
                 <a href="{{ route('site.coaches') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ request()->routeIs('site.coaches') ? 'border-primary text-primary bg-blue-50' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 hover:bg-gray-50' }} text-base font-medium">
                     Treinadores
                 </a>
+                @endif
+                @if(($settings['enable_athletes_page'] ?? '1') == '1')
                 <a href="{{ route('site.athletes') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ request()->routeIs('site.athletes') ? 'border-primary text-primary bg-blue-50' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 hover:bg-gray-50' }} text-base font-medium">
                     Atletas
                 </a>
+                @endif
+                @if(($settings['enable_store_page'] ?? '1') == '1')
                 <a href="{{ route('site.store') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ request()->routeIs('site.store') ? 'border-primary text-primary bg-blue-50' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 hover:bg-gray-50' }} text-base font-medium">
                     Loja
                 </a>
+                @endif
                 @if(($settings['enable_plans_page'] ?? '1') == '1')
                 <a href="{{ route('site.plans') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ request()->routeIs('site.plans') ? 'border-primary text-primary bg-blue-50' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 hover:bg-gray-50' }} text-base font-medium">
                     Planos
                 </a>
                 @endif
+                @if(($settings['enable_contact_page'] ?? '1') == '1')
                 <a href="{{ route('site.contact') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ request()->routeIs('site.contact') ? 'border-primary text-primary bg-blue-50' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 hover:bg-gray-50' }} text-base font-medium">
                     Contato
                 </a>
+                @endif
+                @if(($settings['enable_blog_page'] ?? '1') == '1')
                 <a href="{{ route('site.blog') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ request()->routeIs('site.blog*') ? 'border-primary text-primary bg-blue-50' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 hover:bg-gray-50' }} text-base font-medium">
                     Blog
                 </a>
+                @endif
             </div>
         </div>
     </nav>

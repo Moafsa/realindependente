@@ -31,6 +31,7 @@
     <div class="border-b border-gray-200 overflow-x-auto">
         <nav class="-mb-px flex space-x-8 min-w-max">
             <button onclick="switchTab('geral')" id="tab-geral" class="tab-btn border-blue-500 text-blue-600 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Geral</button>
+            <button onclick="switchTab('menu')" id="tab-menu" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Menu & Páginas</button>
             <button onclick="switchTab('contato')" id="tab-contato" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Contato</button>
             <button onclick="switchTab('home')" id="tab-home" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Início</button>
             <button onclick="switchTab('sobre')" id="tab-sobre" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Sobre</button>
@@ -96,6 +97,88 @@
                                     <input type="file" name="settings[site_logo]" onchange="handleImageUpload(this, 'logo-preview')" class="flex-1 text-sm border p-2 rounded-lg">
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Menu e Páginas -->
+                <div id="content-menu" class="tab-content hidden space-y-6">
+                    <div class="bg-white shadow rounded-lg p-6">
+                        <h2 class="text-lg font-semibold mb-4 border-b pb-2">Ativar / Desativar Páginas</h2>
+                        <p class="text-sm text-gray-600 mb-6">Escolha quais páginas devem aparecer no menu do seu site.</p>
+                        
+                        <div class="space-y-4">
+                            <label class="flex items-center cursor-pointer p-3 border rounded-lg hover:bg-gray-50">
+                                <div class="relative">
+                                    <input type="hidden" name="settings[enable_about_page]" value="0">
+                                    <input type="checkbox" name="settings[enable_about_page]" value="1" class="sr-only peer" {{ ($settings->firstWhere('key', 'enable_about_page')->value ?? '1') == '1' ? 'checked' : '' }}>
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                </div>
+                                <span class="ml-3 text-sm font-medium text-gray-900">Sobre Nós</span>
+                            </label>
+
+                            <label class="flex items-center cursor-pointer p-3 border rounded-lg hover:bg-gray-50">
+                                <div class="relative">
+                                    <input type="hidden" name="settings[enable_teams_page]" value="0">
+                                    <input type="checkbox" name="settings[enable_teams_page]" value="1" class="sr-only peer" {{ ($settings->firstWhere('key', 'enable_teams_page')->value ?? '1') == '1' ? 'checked' : '' }}>
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                </div>
+                                <span class="ml-3 text-sm font-medium text-gray-900">Equipes</span>
+                            </label>
+
+                            <label class="flex items-center cursor-pointer p-3 border rounded-lg hover:bg-gray-50">
+                                <div class="relative">
+                                    <input type="hidden" name="settings[enable_coaches_page]" value="0">
+                                    <input type="checkbox" name="settings[enable_coaches_page]" value="1" class="sr-only peer" {{ ($settings->firstWhere('key', 'enable_coaches_page')->value ?? '1') == '1' ? 'checked' : '' }}>
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                </div>
+                                <span class="ml-3 text-sm font-medium text-gray-900">Treinadores</span>
+                            </label>
+
+                            <label class="flex items-center cursor-pointer p-3 border rounded-lg hover:bg-gray-50">
+                                <div class="relative">
+                                    <input type="hidden" name="settings[enable_athletes_page]" value="0">
+                                    <input type="checkbox" name="settings[enable_athletes_page]" value="1" class="sr-only peer" {{ ($settings->firstWhere('key', 'enable_athletes_page')->value ?? '1') == '1' ? 'checked' : '' }}>
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                </div>
+                                <span class="ml-3 text-sm font-medium text-gray-900">Atletas</span>
+                            </label>
+
+                            <label class="flex items-center cursor-pointer p-3 border rounded-lg hover:bg-gray-50">
+                                <div class="relative">
+                                    <input type="hidden" name="settings[enable_store_page]" value="0">
+                                    <input type="checkbox" name="settings[enable_store_page]" value="1" class="sr-only peer" {{ ($settings->firstWhere('key', 'enable_store_page')->value ?? '1') == '1' ? 'checked' : '' }}>
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                </div>
+                                <span class="ml-3 text-sm font-medium text-gray-900">Loja</span>
+                            </label>
+
+                            <label class="flex items-center cursor-pointer p-3 border rounded-lg hover:bg-gray-50">
+                                <div class="relative">
+                                    <input type="hidden" name="settings[enable_plans_page]" value="0">
+                                    <input type="checkbox" name="settings[enable_plans_page]" value="1" class="sr-only peer" {{ ($settings->firstWhere('key', 'enable_plans_page')->value ?? '1') == '1' ? 'checked' : '' }}>
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                </div>
+                                <span class="ml-3 text-sm font-medium text-gray-900">Planos</span>
+                            </label>
+
+                            <label class="flex items-center cursor-pointer p-3 border rounded-lg hover:bg-gray-50">
+                                <div class="relative">
+                                    <input type="hidden" name="settings[enable_contact_page]" value="0">
+                                    <input type="checkbox" name="settings[enable_contact_page]" value="1" class="sr-only peer" {{ ($settings->firstWhere('key', 'enable_contact_page')->value ?? '1') == '1' ? 'checked' : '' }}>
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                </div>
+                                <span class="ml-3 text-sm font-medium text-gray-900">Contato</span>
+                            </label>
+
+                            <label class="flex items-center cursor-pointer p-3 border rounded-lg hover:bg-gray-50">
+                                <div class="relative">
+                                    <input type="hidden" name="settings[enable_blog_page]" value="0">
+                                    <input type="checkbox" name="settings[enable_blog_page]" value="1" class="sr-only peer" {{ ($settings->firstWhere('key', 'enable_blog_page')->value ?? '1') == '1' ? 'checked' : '' }}>
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                </div>
+                                <span class="ml-3 text-sm font-medium text-gray-900">Blog / Notícias</span>
+                            </label>
                         </div>
                     </div>
                 </div>
