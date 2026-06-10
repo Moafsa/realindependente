@@ -41,3 +41,6 @@ Schedule::command('athlete:send-ai-notifications')->everyMinute();
 
 // Update athlete subcategories (Sub-11, Sub-13, etc) based on birth year
 Schedule::command('athletes:update-subcategories')->daily();
+
+// Verify custom domains pointing
+Schedule::command('domains:verify')->everyFiveMinutes();
