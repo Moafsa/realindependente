@@ -304,8 +304,8 @@ class PortalController extends Controller
         $user = Auth::user();
         $athlete = $user->athlete;
         
-        // Atualização para Admin ou Coach (sem atleta)
-        if (!$athlete && ($user->isAdmin() || $user->isCoach())) {
+        // Atualização para Admin ou Coach
+        if (in_array($user->role, ['admin', 'coach'])) {
             $request->validate([
                 'name' => 'required|string|max:255',
                 'email' => 'required|email|unique:users,email,' . $user->id,

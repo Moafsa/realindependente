@@ -85,7 +85,7 @@ class CoachController extends Controller
         $data['is_active'] = true;
 
         if ($request->hasFile('avatar')) {
-            $data['avatar'] = $request->file('avatar')->store('avatars', 'public');
+            $data['avatar'] = $request->file('avatar')->store('avatars');
         }
 
         User::create($data);
@@ -130,9 +130,9 @@ class CoachController extends Controller
 
         if ($request->hasFile('avatar')) {
             if ($coach->avatar) {
-                Storage::disk('public')->delete($coach->avatar);
+                Storage::disk(config('filesystems.default'))->delete($coach->avatar);
             }
-            $data['avatar'] = $request->file('avatar')->store('avatars', 'public');
+            $data['avatar'] = $request->file('avatar')->store('avatars');
         }
 
         $coach->update($data);
@@ -294,9 +294,9 @@ class CoachController extends Controller
 
         if ($request->hasFile('avatar')) {
             if ($coach->avatar) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete($coach->avatar);
+                \Illuminate\Support\Facades\Storage::disk(config('filesystems.default'))->delete($coach->avatar);
             }
-            $data['avatar'] = $request->file('avatar')->store('avatars', 'public');
+            $data['avatar'] = $request->file('avatar')->store('avatars');
         }
 
         // Handle Certificates

@@ -82,7 +82,7 @@
                         <h3 class="text-sm font-black text-white uppercase italic tracking-widest">Informações da Conta</h3>
                     </div>
 
-                    @if($athlete)
+                    @if($athlete && in_array(auth()->user()->role, ['athlete', 'guardian']))
                     <input type="file" id="profile-picture-input" name="profile_picture" accept="image/*" class="hidden" onchange="handleImageUpload(this); document.getElementById('profile-form').submit();">
                     <div class="p-6 space-y-6">
                         <div>

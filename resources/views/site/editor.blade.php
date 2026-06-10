@@ -290,11 +290,31 @@
                             <textarea name="settings[contact_subtitle]" rows="2" class="w-full border p-2 rounded-lg text-sm">{{ $settings->firstWhere('key', 'contact_subtitle')->value ?? '' }}</textarea>
                         </div>
                         
-                        <div class="p-4 bg-blue-50 rounded-lg border border-blue-100">
-                            <p class="text-xs text-blue-800 font-bold mb-2">Dica de Gestão</p>
-                            <p class="text-[10px] text-blue-700 leading-relaxed">
-                                Os dados de endereço, telefone e redes sociais exibidos na página de contato e no rodapé do site são os mesmos configurados no seu <strong>Perfil do Portal</strong>. Isso garante que suas informações estejam sempre sincronizadas.
-                            </p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 border-t pt-4">
+                            <div>
+                                <label class="block text-sm font-medium mb-1">E-mail de Contato</label>
+                                <input type="email" name="settings[contact_email]" value="{{ $settings->firstWhere('key', 'contact_email')->value ?? '' }}" placeholder="Ex: contato@clube.com" class="w-full border p-2 rounded-lg text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Telefone / WhatsApp</label>
+                                <input type="text" name="settings[contact_phone]" value="{{ $settings->firstWhere('key', 'contact_phone')->value ?? '' }}" placeholder="Ex: (11) 99999-9999" class="w-full border p-2 rounded-lg text-sm">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium mb-1">Endereço Completo (Aparece no Mapa)</label>
+                                <input type="text" name="settings[contact_address]" value="{{ $settings->firstWhere('key', 'contact_address')->value ?? '' }}" placeholder="Rua, Número, Bairro, Cidade - Estado" class="w-full border p-2 rounded-lg text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Link do Instagram</label>
+                                <input type="url" name="settings[instagram_url]" value="{{ $settings->firstWhere('key', 'instagram_url')->value ?? '' }}" placeholder="https://instagram.com/seuclube" class="w-full border p-2 rounded-lg text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Link do Facebook</label>
+                                <input type="url" name="settings[facebook_url]" value="{{ $settings->firstWhere('key', 'facebook_url')->value ?? '' }}" placeholder="https://facebook.com/seuclube" class="w-full border p-2 rounded-lg text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium mb-1">Link do YouTube</label>
+                                <input type="url" name="settings[youtube_url]" value="{{ $settings->firstWhere('key', 'youtube_url')->value ?? '' }}" placeholder="https://youtube.com/seuclube" class="w-full border p-2 rounded-lg text-sm">
+                            </div>
                         </div>
                     </div>
                 </div></div>

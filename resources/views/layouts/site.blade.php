@@ -118,9 +118,11 @@
                         <a href="{{ route('site.store') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('site.store') ? 'border-primary text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }} text-sm font-medium">
                             Loja
                         </a>
+                        @if(($settings['enable_plans_page'] ?? '1') == '1')
                         <a href="{{ route('site.plans') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('site.plans') ? 'border-primary text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }} text-sm font-medium">
                             Planos
                         </a>
+                        @endif
                         <a href="{{ route('site.contact') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('site.contact') ? 'border-primary text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }} text-sm font-medium">
                             Contato
                         </a>
@@ -198,9 +200,11 @@
                 <a href="{{ route('site.store') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ request()->routeIs('site.store') ? 'border-primary text-primary bg-blue-50' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 hover:bg-gray-50' }} text-base font-medium">
                     Loja
                 </a>
+                @if(($settings['enable_plans_page'] ?? '1') == '1')
                 <a href="{{ route('site.plans') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ request()->routeIs('site.plans') ? 'border-primary text-primary bg-blue-50' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 hover:bg-gray-50' }} text-base font-medium">
                     Planos
                 </a>
+                @endif
                 <a href="{{ route('site.contact') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ request()->routeIs('site.contact') ? 'border-primary text-primary bg-blue-50' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 hover:bg-gray-50' }} text-base font-medium">
                     Contato
                 </a>
@@ -285,7 +289,9 @@
                         <li><a href="{{ route('site.teams') }}" class="text-gray-300 hover:text-white">Equipes</a></li>
                         <li><a href="{{ route('site.athletes') }}" class="text-gray-300 hover:text-white">Atletas</a></li>
                         <li><a href="{{ route('site.store') }}" class="text-gray-300 hover:text-white">Loja</a></li>
+                        @if(($settings['enable_plans_page'] ?? '1') == '1')
                         <li><a href="{{ route('site.plans') }}" class="text-gray-300 hover:text-white">Planos</a></li>
+                        @endif
                         <li><a href="{{ route('site.contact') }}" class="text-gray-300 hover:text-white">Contato</a></li>
                         <li><a href="{{ route('site.blog') }}" class="text-gray-300 hover:text-white">Blog</a></li>
                     </ul>
