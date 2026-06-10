@@ -270,6 +270,11 @@ class SiteController extends Controller
      */
     public function plans()
     {
+        $settings = \App\Models\SiteSetting::getPublicSettings();
+        if (($settings->firstWhere('key', 'enable_plans_page')->value ?? '1') == '0') {
+            abort(404);
+        }
+
         try {
             $plans = Product::where('is_active', true)
                 ->where('type', 'subscription')

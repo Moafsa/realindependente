@@ -9,9 +9,12 @@
             <h1 class="h3 mb-0 text-gray-800">Automação de Blog com IA</h1>
             <p class="text-muted">Gerencie os posts gerados automaticamente e configure a frequência de publicação.</p>
         </div>
-        <div class="col-md-4 text-right">
+        <div class="col-md-5 text-right">
+            <a href="{{ route('admin.posts.create') }}" class="btn btn-success mr-2">
+                <i class="fas fa-plus"></i> Novo Post / Gerador IA
+            </a>
             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#settingsModal">
-                <i class="fas fa-cog"></i> Configurações de Automação
+                <i class="fas fa-cog"></i> Configurações
             </button>
         </div>
     </div>

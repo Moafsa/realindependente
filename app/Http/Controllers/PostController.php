@@ -6,6 +6,8 @@ use App\Models\Post;
 use App\Models\SiteSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use App\Services\AIService;
+use Illuminate\Support\Facades\Log;
 
 class PostController extends Controller
 {
@@ -90,5 +92,74 @@ class PostController extends Controller
 
         return redirect()->route('admin.posts.index', ['status' => $post->status])
                          ->with('success', 'Post atualizado com sucesso.');
+    }
+
+    /**
+     * Show the form for creating a new post.
+     */
+    public function create()
+    {
+        return view('admin.posts.create');
+    }
+
+    /**
+     * Store a newly created post in storage.
+     */
+    public function store(Request $request)
+    {
+        $data = $request->validate([
+            'title' => 'required|string|max:255',
+            'content' => 'required|string',
+            'excerpt' => 'nullable|string|max:500',
+            'status' => 'required|string|in:draft,pending_approval,published',
+            'image_url' => 'nullable|image|max:2048',
+        ]);
+
+        if ($request->hasFile('image_url')) {
+            $path = $request->file('image_url')->store('blog');
+            $data['image_url'] = $path;
+        }
+
+        if ($data['status'] === 'published') {
+            $data['published_at'] = now();
+        }
+
+        Post::create($data);
+
+        return redirect()->route('admin.posts.index')
+                         ->with('success', 'Post criado com sucesso.');
+    }
+
+    /**
+     * Generate a PRO blog post using AI.
+     */
+    public function aiGenerate(Request $request, AIService $aiService)
+    {
+        $request->validate([
+            'topic' => 'required|string|max:255',
+            'description' => 'required|string|max:1000',
+            'word_count' => 'required|string',
+            'keywords' => 'nullable|string|max:255',
+        ]);
+
+        try {
+            $result = $aiService->generateProBlogPost(
+                $request->topic,
+                $request->description,
+                $request->word_count,
+                $request->keywords ?? ''
+            );
+
+            return response()->json([
+                'success' => true,
+                'data' => $result
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Erro ao gerar post PRO', ['error' => $e->getMessage()]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao gerar post com a IA. Tente novamente mais tarde.'
+            ], 500);
+        }
     }
 }

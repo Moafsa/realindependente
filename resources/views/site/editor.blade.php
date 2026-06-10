@@ -37,6 +37,7 @@
             <button onclick="switchTab('atletas')" id="tab-atletas" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Atletas</button>
             <button onclick="switchTab('equipes')" id="tab-equipes" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Equipes</button>
             <button onclick="switchTab('loja')" id="tab-loja" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Loja</button>
+            <button onclick="switchTab('planos')" id="tab-planos" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Planos</button>
             <button onclick="switchTab('dominio')" id="tab-dominio" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Domínio</button>
             <button onclick="switchTab('financeiro')" id="tab-financeiro" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-red-600 font-bold">Financeiro</button>
         </nav>
@@ -248,6 +249,25 @@
                     <input type="text" id="store_title" name="settings[store_title]" value="{{ $settings->firstWhere('key', 'store_title')->value ?? '' }}" oninput="updatePreview()" placeholder="Título" class="w-full border p-2 mb-4 rounded-lg">
                     <textarea id="store_subtitle" name="settings[store_subtitle]" rows="2" oninput="updatePreview()" placeholder="Subtítulo" class="w-full border p-2 mb-4 rounded-lg text-sm">{{ $settings->firstWhere('key', 'store_subtitle')->value ?? '' }}</textarea>
                     <textarea name="settings[store_description]" rows="3" placeholder="Texto de Descrição" class="w-full border p-2 rounded-lg text-sm">{{ $settings->firstWhere('key', 'store_description')->value ?? '' }}</textarea>
+                </div></div>
+                <div id="content-planos" class="tab-content hidden space-y-6"><div class="bg-white shadow p-6 rounded-lg">
+                    <div class="mb-4 flex items-center justify-between border-b pb-4">
+                        <span class="font-bold text-gray-700">Habilitar Página de Planos</span>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="hidden" name="settings[enable_plans_page]" value="0">
+                            <input type="checkbox" name="settings[enable_plans_page]" value="1" class="sr-only peer" {{ ($settings->firstWhere('key', 'enable_plans_page')->value ?? '1') == '1' ? 'checked' : '' }}>
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                    </div>
+                    <div class="mb-2 h-24 w-full bg-gray-50 border rounded flex items-center justify-center overflow-hidden" id="plans-banner-preview">
+                        <img src="{{ $settings->firstWhere('key', 'plans_banner') ? Storage::url($settings->firstWhere('key', 'plans_banner')->value) : '' }}" class="w-full h-full object-cover {{ $settings->firstWhere('key', 'plans_banner') ? '' : 'hidden' }}">
+                        @if(!$settings->firstWhere('key', 'plans_banner'))
+                            <span class="text-xs text-gray-400">Sem imagem</span>
+                        @endif
+                    </div>
+                    <input type="file" name="settings[plans_banner]" onchange="handleImageUpload(this, 'plans-banner-preview')" class="w-full border p-2 mb-4 rounded-lg text-sm">
+                    <input type="text" id="plans_title" name="settings[plans_title]" value="{{ $settings->firstWhere('key', 'plans_title')->value ?? 'Nossos Planos' }}" oninput="updatePreview()" placeholder="Título" class="w-full border p-2 mb-4 rounded-lg">
+                    <textarea id="plans_subtitle" name="settings[plans_subtitle]" rows="2" oninput="updatePreview()" placeholder="Subtítulo" class="w-full border p-2 mb-4 rounded-lg text-sm">{{ $settings->firstWhere('key', 'plans_subtitle')->value ?? 'Escolha a melhor assinatura para você.' }}</textarea>
                 </div></div>
 
                 <div id="content-contato" class="tab-content hidden space-y-6"><div class="bg-white shadow p-6 rounded-lg">

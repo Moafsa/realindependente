@@ -35,6 +35,14 @@ Route::middleware([
     Route::get('/', [SiteController::class, 'home'])->name('site.home');
 
     // Site Routes
+    Route::get('/force-fix', function () {
+        \App\Models\SiteSetting::whereIn('key', ['site_name', 'contact_email', 'contact_phone', 'contact_whatsapp', 'contact_address', 'instagram_url', 'facebook_url', 'youtube_url'])->update(['is_public' => true]);
+        $cacheKey = 'site_settings_public_' . (tenant('id') ?? 'central');
+        \Illuminate\Support\Facades\Cache::forget($cacheKey);
+        \Illuminate\Support\Facades\Artisan::call('cache:clear');
+        \Illuminate\Support\Facades\Artisan::call('view:clear');
+        return 'Fixed';
+    });
     Route::get('/sobre', [SiteController::class, 'about'])->name('site.about');
     Route::get('/equipes', [SiteController::class, 'teams'])->name('site.teams');
     Route::get('/equipe/{id}', [SiteController::class, 'team'])->name('site.team');
@@ -172,6 +180,9 @@ Route::middleware([
         // Blog Posts Management
         Route::prefix('posts')->name('admin.posts.')->group(function () {
             Route::get('/', [\App\Http\Controllers\PostController::class, 'index'])->name('index');
+            Route::get('/create', [\App\Http\Controllers\PostController::class, 'create'])->name('create');
+            Route::post('/', [\App\Http\Controllers\PostController::class, 'store'])->name('store');
+            Route::post('/ai-generate', [\App\Http\Controllers\PostController::class, 'aiGenerate'])->name('ai-generate');
             Route::get('/{post}/edit', [\App\Http\Controllers\PostController::class, 'edit'])->name('edit');
             Route::put('/{post}', [\App\Http\Controllers\PostController::class, 'update'])->name('update');
             Route::post('/{post}/approve', [\App\Http\Controllers\PostController::class, 'approve'])->name('approve');

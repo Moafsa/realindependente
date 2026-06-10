@@ -607,6 +607,61 @@ class AIService
     }
 
     /**
+     * Generate a PRO blog post based on detailed parameters.
+     */
+    public function generateProBlogPost(string $topic, string $description, string $wordCount, string $keywords): array
+    {
+        $prompt = "Você é um Copywriter Especialista em SEO e Redator Chefe de um grande portal esportivo. ";
+        $prompt .= "Sua missão é criar um artigo de blog altamente profissional e otimizado para os motores de busca.\n\n";
+        
+        $prompt .= "PARÂMETROS OBRIGATÓRIOS DO POST:\n";
+        $prompt .= "- TEMA PRINCIPAL: {$topic}\n";
+        $prompt .= "- INSTRUÇÕES E CONTEXTO: {$description}\n";
+        $prompt .= "- PALAVRAS-CHAVE SEO: {$keywords}\n";
+        $prompt .= "- TAMANHO ESPERADO: {$wordCount} palavras\n\n";
+        
+        $prompt .= "DIRETRIZES DE SEO E REDAÇÃO:\n";
+        $prompt .= "1. O post deve ter uma estrutura rica usando as tags HTML corretamente (<h1> para o título principal no json, <h2> e <h3> para os subtítulos no conteúdo).\n";
+        $prompt .= "2. Distribua as palavras-chave naturalmente ao longo do texto.\n";
+        $prompt .= "3. Use palavras de transição, negritos (<strong>) em termos importantes, e listas (<ul>/<li>) quando fizer sentido para tornar o texto escaneável e agradável.\n";
+        $prompt .= "4. O tom deve ser profissional, engajador e adequado para leitores interessados no tema.\n\n";
+        
+        $prompt .= "Retorne a resposta EXCLUSIVAMENTE em formato JSON com a seguinte estrutura:\n";
+        $prompt .= "{\n";
+        $prompt .= "  \"title\": \"Título do post atrativo com palavra-chave\",\n";
+        $prompt .= "  \"excerpt\": \"Resumo do post (máx 160 caracteres)\",\n";
+        $prompt .= "  \"content\": \"Conteúdo completo, rico em tags HTML (<h2>, <h3>, <p>, <ul>, <strong>)\",\n";
+        $prompt .= "  \"keywords\": \"Palavras-chave extraídas ou sugeridas separadas por vírgula\"\n";
+        $prompt .= "}";
+
+        try {
+            $response = $this->callOpenAI($prompt);
+            $content = $response['choices'][0]['message']['content'] ?? '';
+            
+            // Clean content from markdown code blocks if present
+            $content = preg_replace('/```json\s?(.*?)\s?```/s', '$1', $content);
+            
+            $decoded = json_decode(trim($content), true);
+            
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                Log::error('AIService: Erro ao decodificar JSON do PRO post', [
+                    'content' => $content,
+                    'error' => json_last_error_msg()
+                ]);
+                throw new \Exception('A IA retornou um formato inválido para o post PRO.');
+            }
+
+            return $decoded;
+            
+        } catch (\Exception $e) {
+            Log::error('AIService: Erro ao gerar PRO post de blog', [
+                'error' => $e->getMessage()
+            ]);
+            throw $e;
+        }
+    }
+
+    /**
      * Gera chave de cache para planos similares.
      * 
      * @param Athlete $athlete
