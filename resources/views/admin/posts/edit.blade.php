@@ -1,59 +1,68 @@
-@extends('layouts.admin')
+@extends('layouts.dashboard')
 
 @section('title', 'Editar Post')
 
 @section('content')
-<div class="container-fluid">
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{{ route('admin.posts.index') }}">Blog</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Editar Post</li>
-        </ol>
-    </nav>
+<div class="space-y-6">
+    <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-2 text-sm text-gray-500">
+            <a href="{{ route('admin.posts.index') }}" class="hover:text-blue-600 transition">Blog</a>
+            <span>/</span>
+            <span class="text-gray-900 font-medium">Editar Post</span>
+        </div>
+        <a href="{{ route('admin.posts.index') }}" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">Voltar</a>
+    </div>
 
-    <div class="card shadow mb-4">
-        <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <h6 class="m-0 font-weight-bold text-primary">Editar Conteúdo do Post</h6>
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+            <h2 class="text-lg font-bold text-gray-800">Editar Conteúdo do Post</h2>
             @if($post->status == 'pending_approval')
-                <span class="badge badge-warning">Aguardando Aprovação</span>
+                <span class="px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Aguardando Aprovação</span>
             @elseif($post->status == 'scheduled')
-                <span class="badge badge-info">Agendado</span>
+                <span class="px-3 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">Agendado</span>
+            @elseif($post->status == 'published')
+                <span class="px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Publicado</span>
             @endif
         </div>
-        <div class="card-body">
+        
+        <div class="p-6">
             <form action="{{ route('admin.posts.update', $post) }}" method="POST">
                 @csrf
                 @method('PUT')
 
-                <div class="form-group">
-                    <label for="title" class="font-weight-bold">Título</label>
-                    <input type="text" class="form-control" id="title" name="title" value="{{ old('title', $post->title) }}" required>
-                </div>
+                <div class="space-y-6">
+                    <div>
+                        <label for="title" class="block text-sm font-bold text-gray-700 mb-1">Título</label>
+                        <input type="text" id="title" name="title" value="{{ old('title', $post->title) }}" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-lg">
+                    </div>
 
-                <div class="form-group">
-                    <label for="excerpt" class="font-weight-bold">Resumo (Excerpt)</label>
-                    <textarea class="form-control" id="excerpt" name="excerpt" rows="3">{{ old('excerpt', $post->excerpt) }}</textarea>
-                </div>
+                    <div>
+                        <label for="excerpt" class="block text-sm font-bold text-gray-700 mb-1">Resumo (Excerpt)</label>
+                        <textarea id="excerpt" name="excerpt" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">{{ old('excerpt', $post->excerpt) }}</textarea>
+                    </div>
 
-                <div class="form-group">
-                    <label for="content" class="font-weight-bold">Conteúdo (HTML)</label>
-                    <textarea class="form-control" id="content" name="content" rows="15" required>{{ old('content', $post->content) }}</textarea>
-                    <small class="form-text text-muted">A IA gera o conteúdo em HTML básico. Você pode editar as tags livremente.</small>
-                </div>
+                    <div>
+                        <label for="content" class="block text-sm font-bold text-gray-700 mb-1">Conteúdo (HTML)</label>
+                        <textarea id="content" name="content" rows="15" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 font-mono text-sm">{{ old('content', $post->content) }}</textarea>
+                        <p class="text-xs text-gray-500 mt-1">A IA gera o conteúdo em HTML básico. Você pode editar as tags livremente.</p>
+                    </div>
 
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label for="scheduled_at" class="font-weight-bold">Data de Agendamento</label>
-                            <input type="datetime-local" class="form-control" id="scheduled_at" name="scheduled_at" value="{{ old('scheduled_at', $post->scheduled_at ? $post->scheduled_at->format('Y-m-d\TH:i') : '') }}">
-                            <small class="form-text text-muted">Deixe em branco para permitir que o sistema agende automaticamente.</small>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                            <label for="scheduled_at" class="block text-sm font-bold text-gray-700 mb-1">Data de Agendamento</label>
+                            <input type="datetime-local" id="scheduled_at" name="scheduled_at" value="{{ old('scheduled_at', $post->scheduled_at ? $post->scheduled_at->format('Y-m-d\TH:i') : '') }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                            <p class="text-xs text-gray-500 mt-1">Deixe em branco para permitir que o sistema agende automaticamente.</p>
                         </div>
                     </div>
-                </div>
 
-                <div class="mt-4">
-                    <button type="submit" class="btn btn-primary">Salvar Alterações</button>
-                    <a href="{{ route('admin.posts.index') }}" class="btn btn-secondary">Voltar</a>
+                    <div class="pt-4 border-t border-gray-200 flex items-center space-x-3">
+                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow transition-colors">
+                            Salvar Alterações
+                        </button>
+                        <a href="{{ route('admin.posts.index') }}" class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">
+                            Cancelar
+                        </a>
+                    </div>
                 </div>
             </form>
         </div>
