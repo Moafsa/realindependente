@@ -54,7 +54,10 @@ class PostAutomationService
 
             for ($i = 0; $i < $needed; $i++) {
                 try {
-                    $generated = $this->aiService->generateBlogPost($context);
+                    $totalPosts = Post::count();
+                    $rotationIndex = ($totalPosts + $i) % 6;
+                    
+                    $generated = $this->aiService->generateRotatedBlogPost($context, $rotationIndex);
                     
                     Post::create([
                         'title' => $generated['data']['title'],

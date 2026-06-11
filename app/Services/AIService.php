@@ -805,4 +805,194 @@ class AIService
             throw $e;
         }
     }
+    /**
+     * Generate a rotated blog post based on index.
+     */
+    public function generateRotatedBlogPost(string $baseContext, int $rotationIndex): array
+    {
+        try {
+            switch ($rotationIndex) {
+                case 0:
+                    return $this->generateAthleteShowcasePost($baseContext);
+                case 1:
+                    return $this->generatePlanPromotionPost($baseContext);
+                case 2:
+                    return $this->generateMatchEventPost($baseContext);
+                case 3:
+                    return $this->generateCoachProfilePost($baseContext);
+                case 4:
+                    return $this->generateTeamShowcasePost($baseContext);
+                case 5:
+                default:
+                    return $this->generateSeoTrendPost($baseContext);
+            }
+        } catch (\Exception $e) {
+            Log::error("AIService: Erro na geração rotativa index {$rotationIndex}. Fallback para SeoTrendPost.", ['error' => $e->getMessage()]);
+            return $this->generateSeoTrendPost($baseContext);
+        }
+    }
+
+    /**
+     * Helper to get system settings context
+     */
+    private function getSystemContext(): string
+    {
+        $settings = \App\Models\SiteSetting::getPublicSettings()->pluck('value', 'key');
+        $siteName = $settings->get('site_name', 'Nosso Clube');
+        $siteDescription = $settings->get('site_description', 'Um clube esportivo focado em excelência.');
+        return "- NOME DO CLUBE/ESCOLA: {$siteName}\n- DESCRIÇÃO: {$siteDescription}\n";
+    }
+
+    private function generateAthleteShowcasePost(string $baseContext): array
+    {
+        $athlete = \App\Models\Athlete::with('performanceRecords')
+            ->whereHas('performanceRecords')
+            ->inRandomOrder()
+            ->first();
+
+        if (!$athlete) {
+            return $this->generateSeoTrendPost($baseContext);
+        }
+
+        $latestPerformance = $athlete->getLatestPerformanceAttribute();
+        $metric = $latestPerformance ? $latestPerformance->metric : 'Desempenho Geral';
+        $score = $latestPerformance ? $latestPerformance->value : 'Ótimo';
+
+        $prompt = "Você é um Jornalista Esportivo Especializado escrevendo para o blog da escolinha.\n";
+        $prompt .= $this->getSystemContext();
+        $prompt .= "TEMA: Destaque de Atleta\n";
+        $prompt .= "ATLETA: {$athlete->user->name} (Idade: {$athlete->age}, Posição: {$athlete->position})\n";
+        $prompt .= "DESEMPENHO RECENTE: {$metric} - Nota/Status: {$score}\n\n";
+        $prompt .= "INSTRUÇÕES:\n";
+        $prompt .= "Escreva um post elogiando a evolução desse atleta na nossa escolinha. Fale sobre o comprometimento e como a nossa metodologia ajudou. Seja profissional, como uma matéria de jornal esportivo destacando uma jovem promessa.\n";
+
+        return $this->executeBlogPrompt($prompt);
+    }
+
+    private function generatePlanPromotionPost(string $baseContext): array
+    {
+        $plan = \App\Models\Product::where('type', 'subscription')->inRandomOrder()->first();
+
+        if (!$plan) {
+            return $this->generateSeoTrendPost($baseContext);
+        }
+
+        $prompt = "Você é um Redator Especialista em Marketing Esportivo escrevendo para o blog da escolinha.\n";
+        $prompt .= $this->getSystemContext();
+        $prompt .= "TEMA: Benefícios do Plano de Treinamento\n";
+        $prompt .= "PLANO/PRODUTO: {$plan->name}\n";
+        $prompt .= "DESCRIÇÃO DO PLANO: {$plan->description}\n\n";
+        $prompt .= "INSTRUÇÕES:\n";
+        $prompt .= "Escreva um post explicando por que os benefícios deste plano são cruciais para a evolução de um atleta moderno. Não faça parecer uma propaganda agressiva (compre agora), mas sim um artigo educativo sobre a importância do investimento no desenvolvimento esportivo.\n";
+
+        return $this->executeBlogPrompt($prompt);
+    }
+
+    private function generateMatchEventPost(string $baseContext): array
+    {
+        $prompt = "Você é um Jornalista Esportivo cobrindo os eventos da escolinha.\n";
+        $prompt .= $this->getSystemContext();
+        $prompt .= "TEMA: Cobertura de Jogos e Eventos\n\n";
+        $prompt .= "INSTRUÇÕES:\n";
+        $prompt .= "Escreva um post sobre a importância da vivência em campeonatos e amistosos para a formação do caráter e controle emocional dos jovens atletas. Fale sobre o clima nos dias de jogos da nossa escolinha, a presença dos pais e a união das equipes.\n";
+
+        return $this->executeBlogPrompt($prompt);
+    }
+
+    private function generateCoachProfilePost(string $baseContext): array
+    {
+        $coach = \App\Models\User::where('role', 'coach')->orWhere('role', 'admin')->inRandomOrder()->first();
+        $coachName = $coach ? $coach->name : 'Nossa Comissão Técnica';
+
+        $prompt = "Você é um Jornalista Esportivo escrevendo um perfil sobre os bastidores da escolinha.\n";
+        $prompt .= $this->getSystemContext();
+        $prompt .= "TEMA: Perfil da Comissão Técnica\n";
+        $prompt .= "PROFISSIONAL EM DESTAQUE: {$coachName}\n\n";
+        $prompt .= "INSTRUÇÕES:\n";
+        $prompt .= "Escreva um post apresentando o papel fundamental desse profissional (ou da comissão técnica) no desenvolvimento diário dos nossos atletas. Foco na liderança, dedicação e impacto positivo.\n";
+
+        return $this->executeBlogPrompt($prompt);
+    }
+
+    private function generateTeamShowcasePost(string $baseContext): array
+    {
+        $team = \App\Models\Team::inRandomOrder()->first();
+        $teamName = $team ? $team->name : 'Nossas Categorias de Base';
+
+        $prompt = "Você é um Jornalista Esportivo Especializado nas Categorias de Base.\n";
+        $prompt .= $this->getSystemContext();
+        $prompt .= "TEMA: Destaque de Categoria/Equipe\n";
+        $prompt .= "EQUIPE: {$teamName}\n\n";
+        $prompt .= "INSTRUÇÕES:\n";
+        $prompt .= "Escreva um post focado nos desafios, na união e no processo de formação dessa categoria específica. Fale sobre o amadurecimento tático e coletivo que ocorre nessa faixa etária na nossa escolinha.\n";
+
+        return $this->executeBlogPrompt($prompt);
+    }
+
+    private function generateSeoTrendPost(string $baseContext): array
+    {
+        $prompt = "Você é um Jornalista Esportivo e Redator de SEO.\n";
+        $prompt .= $this->getSystemContext();
+        $prompt .= "CONTEXTO EXTRA: {$baseContext}\n";
+        $prompt .= "TEMA: Assuntos do Momento e Dicas de Futebol (Nutrição, Tática, Psicologia ou Físico)\n\n";
+        $prompt .= "INSTRUÇÕES:\n";
+        $prompt .= "Escolha UM tema em alta no futebol moderno de base (ex: impacto da nutrição, inteligência emocional, controle de bola) e escreva um artigo altamente informativo e engajador. Relacione a importância desse tema com a metodologia da nossa escolinha.\n";
+
+        return $this->executeBlogPrompt($prompt);
+    }
+
+    /**
+     * Formats the prompt and calls OpenAI for the blog post generation
+     */
+    private function executeBlogPrompt(string $systemPrompt): array
+    {
+        $fullPrompt = $systemPrompt . "\n\n";
+        $fullPrompt .= "DIRETRIZES TÉCNICAS OBRIGATÓRIAS:\n";
+        $fullPrompt .= "1. O post deve ter uma estrutura rica usando tags HTML (<h1> para o título principal no json, <h2> e <h3> para os subtítulos no conteúdo, <ul> e <li> para listas).\n";
+        $fullPrompt .= "2. Use palavras de transição e negritos (<strong>) em termos importantes.\n";
+        $fullPrompt .= "3. O tamanho deve ser ideal para leitura (400-600 palavras).\n\n";
+        
+        $fullPrompt .= "Retorne a resposta EXCLUSIVAMENTE em formato JSON com a seguinte estrutura:\n";
+        $fullPrompt .= "{\n";
+        $fullPrompt .= "  \"title\": \"Título jornalístico atrativo\",\n";
+        $fullPrompt .= "  \"excerpt\": \"Resumo do post (máx 160 caracteres)\",\n";
+        $fullPrompt .= "  \"content\": \"Conteúdo completo, rico em tags HTML\",\n";
+        $fullPrompt .= "  \"meta_description\": \"Descrição para SEO\"\n";
+        $fullPrompt .= "}";
+
+        try {
+            $response = $this->callOpenAI($fullPrompt);
+            $content = $response['choices'][0]['message']['content'] ?? '';
+            
+            // Clean content from markdown code blocks if present
+            $content = preg_replace('/```json\s?(.*?)\s?```/s', '$1', $content);
+            
+            $decoded = json_decode(trim($content), true);
+            
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                Log::error('AIService: Erro ao decodificar JSON no executeBlogPrompt', [
+                    'content' => $content,
+                    'error' => json_last_error_msg()
+                ]);
+                throw new \Exception('A IA retornou um formato inválido.');
+            }
+
+            return [
+                'data' => [
+                    'title' => $decoded['title'] ?? 'Novo Post',
+                    'content' => $decoded['content'] ?? '',
+                    'excerpt' => $decoded['excerpt'] ?? '',
+                    'meta_description' => $decoded['meta_description'] ?? ''
+                ],
+                'tokens' => $response['usage']['total_tokens'] ?? 0,
+                'model' => $this->model
+            ];
+            
+        } catch (\Exception $e) {
+            Log::error('AIService: Erro na geração automática do blog', [
+                'error' => $e->getMessage()
+            ]);
+            throw $e;
+        }
+    }
 }
