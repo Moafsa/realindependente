@@ -52,7 +52,7 @@
                 </div>
 
                 <div>
-                    <label for="cycle" class="block text-sm font-bold text-gray-700 mb-2">Ciclo de Cobrança <span class="text-red-500">*</span></label>
+                    <label for="cycle" class="block text-sm font-bold text-gray-700 mb-2">Ciclo de Cobrança Padrão <span class="text-red-500">*</span></label>
                     <select name="cycle" id="cycle" required
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 @error('cycle') border-red-500 @enderror">
                         <option value="MONTHLY" {{ old('cycle') == 'MONTHLY' ? 'selected' : '' }}>Mensal</option>
@@ -61,6 +61,25 @@
                         <option value="YEARLY" {{ old('cycle') == 'YEARLY' ? 'selected' : '' }}>Anual</option>
                     </select>
                     @error('cycle') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                </div>
+
+                <div class="md:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 border border-gray-200 rounded-lg bg-gray-50">
+                    <div class="sm:col-span-3">
+                        <h3 class="text-sm font-bold text-gray-700">Descontos por Frequência (%)</h3>
+                        <p class="text-xs text-gray-500 mb-2">Permita que o atleta escolha uma frequência diferente e ganhe desconto. Deixe 0 para desativar a frequência.</p>
+                    </div>
+                    <div>
+                        <label for="discount_quarterly" class="block text-xs font-bold text-gray-700 mb-1">Trimestral (%)</label>
+                        <input type="number" step="0.01" min="0" max="100" name="discount_quarterly" id="discount_quarterly" value="{{ old('discount_quarterly', '0') }}" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="discount_semiannually" class="block text-xs font-bold text-gray-700 mb-1">Semestral (%)</label>
+                        <input type="number" step="0.01" min="0" max="100" name="discount_semiannually" id="discount_semiannually" value="{{ old('discount_semiannually', '0') }}" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="discount_yearly" class="block text-xs font-bold text-gray-700 mb-1">Anual (%)</label>
+                        <input type="number" step="0.01" min="0" max="100" name="discount_yearly" id="discount_yearly" value="{{ old('discount_yearly', '0') }}" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500">
+                    </div>
                 </div>
 
                 <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6 p-6 bg-blue-50 rounded-2xl border border-blue-100">

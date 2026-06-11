@@ -46,9 +46,10 @@ class CartService
      *
      * @param Product $product
      * @param int $quantity
+     * @param array $options
      * @return bool
      */
-    public function add(Product $product, int $quantity = 1): bool
+    public function add(Product $product, int $quantity = 1, array $options = []): bool
     {
         // Check if product is available
         if (!$product->is_available) {
@@ -71,10 +72,14 @@ class CartService
             }
             
             $cart[$product->id]['quantity'] = $newQuantity;
+            if (!empty($options)) {
+                $cart[$product->id]['options'] = array_merge($cart[$product->id]['options'] ?? [], $options);
+            }
         } else {
             $cart[$product->id] = [
                 'product_id' => $product->id,
                 'quantity' => $quantity,
+                'options' => $options,
                 'added_at' => now()->toDateTimeString(),
             ];
         }
@@ -155,7 +160,24 @@ class CartService
         foreach ($cart as $item) {
             $product = Product::find($item['product_id']);
             if ($product) {
-                $subtotal = $product->price * $item['quantity'];
+                $price = $product->price;
+                if ($product->type === 'subscription') {
+                    $cycle = $item['options']['cycle'] ?? ($product->attributes['cycle'] ?? 'MONTHLY');
+                    
+                    // Calcular desconto baseado no ciclo
+                    if ($cycle === 'QUARTERLY') {
+                        $discount = floatval($product->attributes['discount_quarterly'] ?? 0);
+                        $price = ($price * 3) * (1 - ($discount / 100));
+                    } elseif ($cycle === 'SEMIANNUALLY') {
+                        $discount = floatval($product->attributes['discount_semiannually'] ?? 0);
+                        $price = ($price * 6) * (1 - ($discount / 100));
+                    } elseif ($cycle === 'YEARLY') {
+                        $discount = floatval($product->attributes['discount_yearly'] ?? 0);
+                        $price = ($price * 12) * (1 - ($discount / 100));
+                    }
+                }
+                
+                $subtotal = $price * $item['quantity'];
                 if ($product->type === 'subscription') {
                     $subtotal += floatval($product->attributes['setup_fee'] ?? 0);
                 }
@@ -196,16 +218,36 @@ class CartService
         foreach ($cart as $item) {
             $product = Product::find($item['product_id']);
             if ($product) {
-                $subtotal = (float) $product->price * $item['quantity'];
+                $price = $product->price;
+                $cycle = 'MONTHLY';
+                if ($product->type === 'subscription') {
+                    $cycle = $item['options']['cycle'] ?? ($product->attributes['cycle'] ?? 'MONTHLY');
+                    
+                    // Calcular desconto baseado no ciclo
+                    if ($cycle === 'QUARTERLY') {
+                        $discount = floatval($product->attributes['discount_quarterly'] ?? 0);
+                        $price = ($price * 3) * (1 - ($discount / 100));
+                    } elseif ($cycle === 'SEMIANNUALLY') {
+                        $discount = floatval($product->attributes['discount_semiannually'] ?? 0);
+                        $price = ($price * 6) * (1 - ($discount / 100));
+                    } elseif ($cycle === 'YEARLY') {
+                        $discount = floatval($product->attributes['discount_yearly'] ?? 0);
+                        $price = ($price * 12) * (1 - ($discount / 100));
+                    }
+                }
+                
+                $subtotal = (float) $price * $item['quantity'];
                 if ($product->type === 'subscription') {
                     $setupFee = floatval($product->attributes['setup_fee'] ?? 0);
                     $subtotal += $setupFee;
                     $product->setup_fee_display = $setupFee;
+                    $product->selected_cycle = $cycle;
                 }
                 
                 $items[] = [
                     'product' => $product,
                     'quantity' => $item['quantity'],
+                    'options' => $item['options'] ?? [],
                     'subtotal' => $subtotal,
                 ];
             }

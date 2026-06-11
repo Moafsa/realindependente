@@ -138,7 +138,11 @@ class TenantRegisterController extends Controller
                 $plan = \App\Models\Product::find($request->plan_id);
                 if ($plan) {
                     $this->cartService->clear();
-                    $this->cartService->add($plan, 1);
+                    $options = [];
+                    if ($request->filled('cycle')) {
+                        $options['cycle'] = $request->cycle;
+                    }
+                    $this->cartService->add($plan, 1, $options);
                     return redirect()->route('site.checkout');
                 }
             }

@@ -77,11 +77,11 @@
                 
                 @if(isset($plan))
                 <input type="hidden" name="plan_id" value="{{ $plan->id }}">
-                <div class="mb-8 p-6 bg-blue-50 border border-blue-100 rounded-3xl flex items-center justify-between">
+                <div class="mb-8 p-6 bg-blue-50 border border-blue-100 rounded-3xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
                         <p class="text-xs font-bold text-blue-500 uppercase tracking-widest mb-1">Plano Selecionado</p>
                         <h3 class="text-xl font-bold text-gray-900">{{ $plan->name }}</h3>
-                        <p class="text-sm text-gray-500">R$ {{ number_format($plan->price, 2, ',', '.') }} / 
+                        <p class="text-sm text-gray-500 font-medium">R$ {{ number_format($plan->price, 2, ',', '.') }} / 
                             @php
                                 $cycleLabels = [
                                     'MONTHLY' => 'mensal',
@@ -89,14 +89,72 @@
                                     'SEMIANNUALLY' => 'semestral',
                                     'YEARLY' => 'anual'
                                 ];
-                                echo $cycleLabels[$plan->attributes['cycle'] ?? 'MONTHLY'] ?? 'mensal';
+                                $defaultCycle = $plan->attributes['cycle'] ?? 'MONTHLY';
+                                echo $cycleLabels[$defaultCycle] ?? 'mensal';
                             @endphp
                         </p>
+                        @if(!empty($plan->attributes['setup_fee']) && $plan->attributes['setup_fee'] > 0)
+                        <p class="text-xs text-blue-600 font-bold mt-2 bg-blue-100 inline-block px-2 py-1 rounded">
+                            + R$ {{ number_format($plan->attributes['setup_fee'], 2, ',', '.') }} (Taxa de Matrícula na 1ª fatura)
+                        </p>
+                        @endif
                     </div>
-                    <div class="bg-blue-100 text-blue-600 p-3 rounded-2xl">
+                    <div class="bg-blue-100 text-blue-600 p-3 rounded-2xl hidden sm:block">
                         <i class="fas fa-check-circle text-2xl"></i>
                     </div>
                 </div>
+                
+                @php
+                    $discountQ = floatval($plan->attributes['discount_quarterly'] ?? 0);
+                    $discountS = floatval($plan->attributes['discount_semiannually'] ?? 0);
+                    $discountY = floatval($plan->attributes['discount_yearly'] ?? 0);
+                    $hasDiscounts = $discountQ > 0 || $discountS > 0 || $discountY > 0;
+                @endphp
+                
+                @if($hasDiscounts && $defaultCycle === 'MONTHLY')
+                <div class="mb-8">
+                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Escolha a Frequência de Pagamento</label>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <label class="flex flex-col p-4 bg-white border-2 border-primary rounded-xl cursor-pointer hover:bg-blue-50 transition-all relative">
+                            <input type="radio" name="cycle" value="MONTHLY" class="absolute top-4 right-4" checked>
+                            <span class="text-sm font-bold text-gray-900 mb-1">Mensal</span>
+                            <span class="text-xs text-gray-500">R$ {{ number_format($plan->price, 2, ',', '.') }} / mês</span>
+                        </label>
+                        
+                        @if($discountQ > 0)
+                        @php $priceQ = ($plan->price * 3) * (1 - ($discountQ / 100)); @endphp
+                        <label class="flex flex-col p-4 bg-white border-2 border-transparent rounded-xl cursor-pointer hover:bg-blue-50 transition-all relative has-[:checked]:border-primary">
+                            <input type="radio" name="cycle" value="QUARTERLY" class="absolute top-4 right-4">
+                            <span class="text-sm font-bold text-gray-900 mb-1">Trimestral</span>
+                            <span class="text-xs text-gray-500">R$ {{ number_format($priceQ, 2, ',', '.') }}</span>
+                            <span class="text-[10px] font-bold text-green-600 bg-green-100 px-1.5 py-0.5 rounded mt-2 self-start">{{ $discountQ }}% OFF</span>
+                        </label>
+                        @endif
+                        
+                        @if($discountS > 0)
+                        @php $priceS = ($plan->price * 6) * (1 - ($discountS / 100)); @endphp
+                        <label class="flex flex-col p-4 bg-white border-2 border-transparent rounded-xl cursor-pointer hover:bg-blue-50 transition-all relative has-[:checked]:border-primary">
+                            <input type="radio" name="cycle" value="SEMIANNUALLY" class="absolute top-4 right-4">
+                            <span class="text-sm font-bold text-gray-900 mb-1">Semestral</span>
+                            <span class="text-xs text-gray-500">R$ {{ number_format($priceS, 2, ',', '.') }}</span>
+                            <span class="text-[10px] font-bold text-green-600 bg-green-100 px-1.5 py-0.5 rounded mt-2 self-start">{{ $discountS }}% OFF</span>
+                        </label>
+                        @endif
+                        
+                        @if($discountY > 0)
+                        @php $priceY = ($plan->price * 12) * (1 - ($discountY / 100)); @endphp
+                        <label class="flex flex-col p-4 bg-white border-2 border-transparent rounded-xl cursor-pointer hover:bg-blue-50 transition-all relative has-[:checked]:border-primary">
+                            <input type="radio" name="cycle" value="YEARLY" class="absolute top-4 right-4">
+                            <span class="text-sm font-bold text-gray-900 mb-1">Anual</span>
+                            <span class="text-xs text-gray-500">R$ {{ number_format($priceY, 2, ',', '.') }}</span>
+                            <span class="text-[10px] font-bold text-green-600 bg-green-100 px-1.5 py-0.5 rounded mt-2 self-start">{{ $discountY }}% OFF</span>
+                        </label>
+                        @endif
+                    </div>
+                </div>
+                @else
+                <input type="hidden" name="cycle" value="{{ $defaultCycle }}">
+                @endif
                 @endif
                 
                 @if($errors->any())

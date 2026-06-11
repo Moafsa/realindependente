@@ -63,6 +63,11 @@ class SubscriptionPlanController extends Controller
             $attributes['setup_fee'] = $request->input('setup_fee', 0);
             $attributes['evaluation_frequency'] = $request->input('evaluation_frequency');
             
+            // Frequências com desconto
+            $attributes['discount_quarterly'] = $request->input('discount_quarterly', 0);
+            $attributes['discount_semiannually'] = $request->input('discount_semiannually', 0);
+            $attributes['discount_yearly'] = $request->input('discount_yearly', 0);
+            
             // Características pré-prontas
             $attributes['features'] = [
                 'insurance' => $request->boolean('features.insurance'),
@@ -136,6 +141,11 @@ class SubscriptionPlanController extends Controller
             $attributes['cycle'] = $request->input('cycle');
             $attributes['setup_fee'] = $request->input('setup_fee', 0);
             $attributes['evaluation_frequency'] = $request->input('evaluation_frequency');
+
+            // Frequências com desconto
+            $attributes['discount_quarterly'] = $request->input('discount_quarterly', 0);
+            $attributes['discount_semiannually'] = $request->input('discount_semiannually', 0);
+            $attributes['discount_yearly'] = $request->input('discount_yearly', 0);
             
             // Características pré-prontas
             $attributes['features'] = [

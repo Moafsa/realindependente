@@ -463,10 +463,7 @@
                                 <p class="text-xs text-blue-700">A plataforma está configurada para cobrar uma taxa administrativa automática sobre cada venda. O valor líquido irá diretamente para sua conta Asaas após o desconto da taxa da plataforma.</p>
                             </div>
                             
-                            <div>
-                                <label class="block text-sm font-medium mb-1 text-gray-400">ID da Carteira Platform (Somente Leitura)</label>
-                                <input type="text" value="{{ config('services.asaas.wallet_id') }}" disabled class="w-full p-2 border rounded-lg bg-gray-50 text-gray-400 cursor-not-allowed text-xs">
-                            </div>
+
                         </div>
                     </div>
                 </div>

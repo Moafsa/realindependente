@@ -528,10 +528,31 @@ class SiteController extends Controller
 
             try {
                 if ($subscriptionPlan) {
+                    // Recuperar opções do carrinho para a assinatura
+                    $cartItem = null;
+                    foreach ($items as $item) {
+                        if ($item['product']->id === $subscriptionPlan->id) {
+                            $cartItem = $item;
+                            break;
+                        }
+                    }
+
                     // Cria assinatura no Asaas
-                    $cycle = $subscriptionPlan->attributes['cycle'] ?? 'MONTHLY';
+                    $cycle = $cartItem['options']['cycle'] ?? ($subscriptionPlan->attributes['cycle'] ?? 'MONTHLY');
                     $setupFee = floatval($subscriptionPlan->attributes['setup_fee'] ?? 0);
+                    
+                    // Preço base
                     $basePrice = $subscriptionPlan->price;
+                    if ($cycle === 'QUARTERLY') {
+                        $discount = floatval($subscriptionPlan->attributes['discount_quarterly'] ?? 0);
+                        $basePrice = ($basePrice * 3) * (1 - ($discount / 100));
+                    } elseif ($cycle === 'SEMIANNUALLY') {
+                        $discount = floatval($subscriptionPlan->attributes['discount_semiannually'] ?? 0);
+                        $basePrice = ($basePrice * 6) * (1 - ($discount / 100));
+                    } elseif ($cycle === 'YEARLY') {
+                        $discount = floatval($subscriptionPlan->attributes['discount_yearly'] ?? 0);
+                        $basePrice = ($basePrice * 12) * (1 - ($discount / 100));
+                    }
 
                     // Calcular próxima data da assinatura recorrente
                     $firstDueDate = now()->addDays(7);
