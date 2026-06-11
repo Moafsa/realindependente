@@ -845,7 +845,7 @@ class AIService
 
     private function generateAthleteShowcasePost(string $baseContext): array
     {
-        $athlete = \App\Models\Athlete::with('performanceRecords')
+        $athlete = \App\Models\Athlete::with(['performanceRecords', 'user'])
             ->whereHas('performanceRecords')
             ->inRandomOrder()
             ->first();
@@ -857,6 +857,11 @@ class AIService
         $latestPerformance = $athlete->getLatestPerformanceAttribute();
         $metric = $latestPerformance ? $latestPerformance->metric : 'Desempenho Geral';
         $score = $latestPerformance ? $latestPerformance->value : 'Ótimo';
+        
+        $realImageUrl = null;
+        if ($athlete->user && $athlete->user->avatar) {
+            $realImageUrl = \Illuminate\Support\Facades\Storage::disk('public')->url($athlete->user->avatar);
+        }
 
         $prompt = "Você é um Jornalista Esportivo Especializado escrevendo para o blog da escolinha.\n";
         $prompt .= $this->getSystemContext();
@@ -866,7 +871,7 @@ class AIService
         $prompt .= "INSTRUÇÕES:\n";
         $prompt .= "Escreva um post elogiando a evolução desse atleta na nossa escolinha. Fale sobre o comprometimento e como a nossa metodologia ajudou. Seja profissional, como uma matéria de jornal esportivo destacando uma jovem promessa.\n";
 
-        return $this->executeBlogPrompt($prompt);
+        return $this->executeBlogPrompt($prompt, $realImageUrl);
     }
 
     private function generatePlanPromotionPost(string $baseContext): array
@@ -903,6 +908,11 @@ class AIService
     {
         $coach = \App\Models\User::where('role', 'coach')->orWhere('role', 'admin')->inRandomOrder()->first();
         $coachName = $coach ? $coach->name : 'Nossa Comissão Técnica';
+        
+        $realImageUrl = null;
+        if ($coach && $coach->avatar) {
+            $realImageUrl = \Illuminate\Support\Facades\Storage::disk('public')->url($coach->avatar);
+        }
 
         $prompt = "Você é um Jornalista Esportivo escrevendo um perfil sobre os bastidores da escolinha.\n";
         $prompt .= $this->getSystemContext();
@@ -911,13 +921,18 @@ class AIService
         $prompt .= "INSTRUÇÕES:\n";
         $prompt .= "Escreva um post apresentando o papel fundamental desse profissional (ou da comissão técnica) no desenvolvimento diário dos nossos atletas. Foco na liderança, dedicação e impacto positivo.\n";
 
-        return $this->executeBlogPrompt($prompt);
+        return $this->executeBlogPrompt($prompt, $realImageUrl);
     }
 
     private function generateTeamShowcasePost(string $baseContext): array
     {
         $team = \App\Models\Team::inRandomOrder()->first();
         $teamName = $team ? $team->name : 'Nossas Categorias de Base';
+
+        $realImageUrl = null;
+        if ($team && $team->logo) {
+            $realImageUrl = \Illuminate\Support\Facades\Storage::disk('public')->url($team->logo);
+        }
 
         $prompt = "Você é um Jornalista Esportivo Especializado nas Categorias de Base.\n";
         $prompt .= $this->getSystemContext();
@@ -926,7 +941,7 @@ class AIService
         $prompt .= "INSTRUÇÕES:\n";
         $prompt .= "Escreva um post focado nos desafios, na união e no processo de formação dessa categoria específica. Fale sobre o amadurecimento tático e coletivo que ocorre nessa faixa etária na nossa escolinha.\n";
 
-        return $this->executeBlogPrompt($prompt);
+        return $this->executeBlogPrompt($prompt, $realImageUrl);
     }
 
     private function generateSeoTrendPost(string $baseContext): array
@@ -944,25 +959,50 @@ class AIService
     /**
      * Formats the prompt and calls OpenAI for the blog post generation
      */
-    private function executeBlogPrompt(string $systemPrompt): array
+    private function executeBlogPrompt(string $systemPrompt, ?string $realImageUrl = null): array
     {
         $fullPrompt = $systemPrompt . "\n\n";
-        $fullPrompt .= "DIRETRIZES TÉCNICAS OBRIGATÓRIAS:\n";
-        $fullPrompt .= "1. O post deve ter uma estrutura rica usando tags HTML (<h1> para o título principal no json, <h2> e <h3> para os subtítulos no conteúdo, <ul> e <li> para listas).\n";
-        $fullPrompt .= "2. Use palavras de transição e negritos (<strong>) em termos importantes.\n";
-        $fullPrompt .= "3. O tamanho deve ser ideal para leitura (400-600 palavras).\n\n";
+        $fullPrompt .= "DIRETRIZES TÉCNICAS OBRIGATÓRIAS DE SEO E TAMANHO:\n";
+        $fullPrompt .= "1. O post DEVE ter entre 1000 e 1500 palavras, sendo um artigo denso, profundo e de alto valor agregado.\n";
+        $fullPrompt .= "2. O post deve ter uma estrutura rica usando tags HTML (<h1> para o título principal no json, <h2> e <h3> para os subtítulos no conteúdo, <ul> e <li> para listas).\n";
+        $fullPrompt .= "3. INSERIR LINKS INTERNOS: Crie links usando a tag <a> para outras páginas (ex: <a href=\"/planos\">nossos planos de treinamento</a>, <a href=\"/contato\">fale conosco</a>).\n";
+        $fullPrompt .= "4. INSERIR LINKS EXTERNOS: Crie links para fontes confiáveis (ex: <a href=\"https://www.cbf.com.br\" target=\"_blank\">CBF</a> ou sites de saúde esportiva).\n";
+        
+        if ($realImageUrl) {
+            $fullPrompt .= "5. IMAGEM REAL DISPONÍVEL: Você tem a foto oficial para este post. Insira esta tag HTML exatamente onde a imagem deve aparecer: <img src=\"{$realImageUrl}\" alt=\"Foto oficial\" class=\"w-full rounded-lg my-6 shadow-md\" />\n";
+            $fullPrompt .= "Não gere 'image_prompts', usaremos a foto real.\n\n";
+        } else {
+            $fullPrompt .= "5. IMAGENS GERADAS POR IA: O post DEVE conter pelo menos 1 imagem (se ~1000 palavras) ou 2 imagens (se ~1500 palavras). Para onde as imagens devem entrar, insira a tag exatamente assim: [IMAGE_PROMPT: \"Descreva a imagem desejada aqui, em inglês, focando em fotorrealismo\"].\n\n";
+        }
         
         $fullPrompt .= "Retorne a resposta EXCLUSIVAMENTE em formato JSON com a seguinte estrutura:\n";
         $fullPrompt .= "{\n";
         $fullPrompt .= "  \"title\": \"Título jornalístico atrativo\",\n";
         $fullPrompt .= "  \"excerpt\": \"Resumo do post (máx 160 caracteres)\",\n";
-        $fullPrompt .= "  \"content\": \"Conteúdo completo, rico em tags HTML\",\n";
+        $fullPrompt .= "  \"content\": \"Conteúdo completo (1000+ palavras), rico em tags HTML, com links <a> e as tags de imagem/placeholders solicitados\",\n";
         $fullPrompt .= "  \"meta_description\": \"Descrição para SEO\"\n";
         $fullPrompt .= "}";
 
         try {
-            $response = $this->callOpenAI($fullPrompt);
-            $content = $response['choices'][0]['message']['content'] ?? '';
+            // Increase max_tokens significantly to allow 1500 words
+            $startTime = microtime(true);
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $this->apiKey,
+                'Content-Type' => 'application/json',
+            ])->timeout(180)
+            ->post($this->baseUrl . '/chat/completions', [
+                'model' => $this->model,
+                'messages' => [['role' => 'user', 'content' => $fullPrompt]],
+                'max_tokens' => 3500,
+                'temperature' => 0.7,
+            ]);
+
+            if (!$response->successful()) {
+                throw new \Exception('Erro na API da OpenAI: ' . $response->body());
+            }
+
+            $responseData = $response->json();
+            $content = $responseData['choices'][0]['message']['content'] ?? '';
             
             // Clean content from markdown code blocks if present
             $content = preg_replace('/```json\s?(.*?)\s?```/s', '$1', $content);
@@ -970,29 +1010,88 @@ class AIService
             $decoded = json_decode(trim($content), true);
             
             if (json_last_error() !== JSON_ERROR_NONE) {
-                Log::error('AIService: Erro ao decodificar JSON no executeBlogPrompt', [
-                    'content' => $content,
-                    'error' => json_last_error_msg()
-                ]);
+                Log::error('AIService: Erro ao decodificar JSON no executeBlogPrompt', ['error' => json_last_error_msg()]);
                 throw new \Exception('A IA retornou um formato inválido.');
+            }
+
+            $htmlContent = $decoded['content'] ?? '';
+            $coverImage = null;
+
+            // Process AI images if no real image was provided
+            if (!$realImageUrl) {
+                // Find all [IMAGE_PROMPT: "..."] matches
+                preg_match_all('/\[IMAGE_PROMPT:\s*\"(.*?)\"\]/', $htmlContent, $matches);
+                
+                if (!empty($matches[0])) {
+                    foreach ($matches[0] as $index => $placeholder) {
+                        $imgPrompt = $matches[1][$index];
+                        $generatedUrl = $this->generateBlogImage($imgPrompt);
+                        
+                        if ($generatedUrl) {
+                            if ($index === 0) {
+                                $coverImage = $generatedUrl; // Save first image as cover
+                            }
+                            $imgTag = "<img src=\"{$generatedUrl}\" alt=\"Imagem ilustrativa\" class=\"w-full rounded-lg my-6 shadow-md\" />";
+                            $htmlContent = str_replace($placeholder, $imgTag, $htmlContent);
+                        } else {
+                            // If failed to generate, just remove the placeholder
+                            $htmlContent = str_replace($placeholder, '', $htmlContent);
+                        }
+                    }
+                }
+            } else {
+                $coverImage = $realImageUrl;
             }
 
             return [
                 'data' => [
                     'title' => $decoded['title'] ?? 'Novo Post',
-                    'content' => $decoded['content'] ?? '',
+                    'content' => $htmlContent,
                     'excerpt' => $decoded['excerpt'] ?? '',
-                    'meta_description' => $decoded['meta_description'] ?? ''
+                    'meta_description' => $decoded['meta_description'] ?? '',
+                    'image_url' => $coverImage
                 ],
-                'tokens' => $response['usage']['total_tokens'] ?? 0,
+                'tokens' => $responseData['usage']['total_tokens'] ?? 0,
                 'model' => $this->model
             ];
             
         } catch (\Exception $e) {
-            Log::error('AIService: Erro na geração automática do blog', [
-                'error' => $e->getMessage()
-            ]);
+            Log::error('AIService: Erro na geração automática do blog', ['error' => $e->getMessage()]);
             throw $e;
+        }
+    }
+
+    /**
+     * Generate an image for the blog using DALL-E 2.
+     */
+    private function generateBlogImage(string $prompt): ?string
+    {
+        try {
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $this->apiKey,
+                'Content-Type' => 'application/json',
+            ])->timeout(60)->post($this->baseUrl . '/images/generations', [
+                'model' => 'dall-e-2',
+                'prompt' => "Fotografia profissional, realista e de alta qualidade: " . substr($prompt, 0, 900),
+                'n' => 1,
+                'size' => '1024x1024',
+            ]);
+
+            if ($response->successful()) {
+                $data = $response->json();
+                $imageUrl = $data['data'][0]['url'] ?? null;
+                
+                if ($imageUrl) {
+                    $imageContent = file_get_contents($imageUrl);
+                    $filename = 'blog/ai_img_' . time() . '_' . uniqid() . '.jpg';
+                    \Illuminate\Support\Facades\Storage::disk('public')->put($filename, $imageContent);
+                    return \Illuminate\Support\Facades\Storage::disk('public')->url($filename);
+                }
+            }
+            return null;
+        } catch (\Exception $e) {
+            Log::error('AIService: Erro ao gerar imagem do blog', ['error' => $e->getMessage()]);
+            return null;
         }
     }
 }
