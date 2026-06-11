@@ -49,7 +49,9 @@ class SiteController extends Controller
             // Lista de equipes/categorias
             $teams = Team::withCount('athletes')
                 ->where('is_active', true)
-                ->get();
+                ->get()
+                ->sortBy('name', SORT_NATURAL | SORT_FLAG_CASE)
+                ->values();
                 
             // Estatísticas para a home
             $stats = [
@@ -99,21 +101,8 @@ class SiteController extends Controller
             $teams = Team::with('coach')->withCount('athletes')
                 ->where('is_active', true)
                 ->get()
-                ->groupBy('category')
-                ->map(function($categoryTeams, $category) {
-                    $firstTeam = $categoryTeams->first();
-                    return (object)[
-                        'id' => $firstTeam->id,
-                        'name' => $category,
-                        'category' => $category,
-                        'athletes_count' => $categoryTeams->sum('athletes_count'),
-                        'level' => $firstTeam->level,
-                        'description' => $firstTeam->description,
-                        'logo' => $firstTeam->logo,
-                        'color_primary' => $firstTeam->color_primary,
-                        'coach' => $firstTeam->coach,
-                    ];
-                })->values();
+                ->sortBy('name', SORT_NATURAL | SORT_FLAG_CASE)
+                ->values();
         } catch (\Exception $e) {
             // Se não houver tenant ativo ou tabela não existir, retornar array vazio
             $teams = collect([]);
