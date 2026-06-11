@@ -307,6 +307,17 @@ class AIService
             'temperature' => 0.7,
         ]);
 
+        $duration = microtime(true) - $startTime;
+
+        if (!$response->successful()) {
+            Log::error('AIService: Erro na API da OpenAI', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+                'duration' => $duration
+            ]);
+            throw new \Exception('Erro na API da OpenAI: ' . $response->body());
+        }
+
         Log::info('AIService: Resposta da OpenAI recebida com sucesso', [
             'duration' => $duration,
             'tokens_used' => $response['usage']['total_tokens'] ?? 0
@@ -611,9 +622,20 @@ class AIService
      */
     public function generateProBlogPost(string $topic, string $description, string $wordCount, string $keywords): array
     {
+        // Resgata o contexto do sistema para ajudar a IA
+        $settings = \App\Models\SiteSetting::getPublicSettings()->pluck('value', 'key');
+        $siteName = $settings->get('site_name', 'Nosso Clube');
+        $siteDescription = $settings->get('site_description', 'Um clube esportivo focado em excelência.');
+        $methodology = $settings->get('methodology_title', '') . ' - ' . $settings->get('methodology_subtitle', '');
+        
         $prompt = "Você é um Copywriter Especialista em SEO e Redator Chefe de um grande portal esportivo. ";
         $prompt .= "Sua missão é criar um artigo de blog altamente profissional e otimizado para os motores de busca.\n\n";
         
+        $prompt .= "DADOS DO NOSSO CLUBE/SISTEMA (Use para contexto, mas sem forçar se não encaixar perfeitamente):\n";
+        $prompt .= "- NOME DO CLUBE/PROJETO: {$siteName}\n";
+        $prompt .= "- DESCRIÇÃO: {$siteDescription}\n";
+        $prompt .= "- METODOLOGIA: {$methodology}\n\n";
+
         $prompt .= "PARÂMETROS OBRIGATÓRIOS DO POST:\n";
         $prompt .= "- TEMA PRINCIPAL: {$topic}\n";
         $prompt .= "- INSTRUÇÕES E CONTEXTO: {$description}\n";
@@ -624,7 +646,8 @@ class AIService
         $prompt .= "1. O post deve ter uma estrutura rica usando as tags HTML corretamente (<h1> para o título principal no json, <h2> e <h3> para os subtítulos no conteúdo).\n";
         $prompt .= "2. Distribua as palavras-chave naturalmente ao longo do texto.\n";
         $prompt .= "3. Use palavras de transição, negritos (<strong>) em termos importantes, e listas (<ul>/<li>) quando fizer sentido para tornar o texto escaneável e agradável.\n";
-        $prompt .= "4. O tom deve ser profissional, engajador e adequado para leitores interessados no tema.\n\n";
+        $prompt .= "4. O tom deve ser profissional, engajador e adequado para leitores interessados no tema.\n";
+        $prompt .= "5. Se as INSTRUÇÕES E CONTEXTO forem curtas ou incompletas, crie conteúdo rico e complementar baseado no Tema Principal usando sua base de conhecimento e os Dados do Clube.\n\n";
         
         $prompt .= "Retorne a resposta EXCLUSIVAMENTE em formato JSON com a seguinte estrutura:\n";
         $prompt .= "{\n";
