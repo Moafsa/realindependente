@@ -1071,7 +1071,7 @@ class AIService
                 'Authorization' => 'Bearer ' . $this->apiKey,
                 'Content-Type' => 'application/json',
             ])->timeout(60)->post($this->baseUrl . '/images/generations', [
-                'model' => 'dall-e-2',
+                'model' => 'gpt-image-2',
                 'prompt' => "Fotografia profissional, realista e de alta qualidade: " . substr($prompt, 0, 900),
                 'n' => 1,
                 'size' => '1024x1024',
