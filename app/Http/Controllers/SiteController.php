@@ -788,14 +788,25 @@ class SiteController extends Controller
                         return redirect()->back()->withErrors(['error' => 'Este domínio já está sendo usado por outro clube.']);
                     }
 
-                    // Update or create
+                    // Domínio personalizado (apex) + www automático
                     $tenant->domains()->updateOrCreate(
-                        ['is_primary' => false],
-                        ['domain' => $domainName, 'is_verified' => false]
+                        ['domain' => $domainName],
+                        ['is_primary' => false, 'is_verified' => false]
                     );
+                    if (! str_starts_with($domainName, 'www.')) {
+                        $tenant->domains()->updateOrCreate(
+                            ['domain' => 'www.'.$domainName],
+                            ['is_primary' => false, 'is_verified' => false]
+                        );
+                    }
                 } else {
                     // If empty, remove custom domain
                     $tenant->domains()->where('is_primary', false)->delete();
+                }
+
+                // Tenta verificar DNS imediatamente após salvar o domínio
+                if (! empty($domainName)) {
+                    Artisan::call('domains:verify');
                 }
             }
 
@@ -836,15 +847,16 @@ class SiteController extends Controller
                 // Handle file uploads
                 if ($request->hasFile("settings.{$key}")) {
                     $file = $request->file("settings.{$key}");
-                    $path = $file->storeOptimized('site');
+                    $uploadDisk = config('filesystems.default', 'public');
+                    $path = $file->storeOptimized('site', $uploadDisk);
                     $value = $path;
-                    Log::info("SiteController@update: Arquivo salvo: {$key} -> {$path}");
+                    Log::info("SiteController@update: Arquivo salvo: {$key} -> {$path}", ['disk' => $uploadDisk]);
                 } elseif ($type === 'image' && empty($value)) {
                     // Skip updating image if no new file and value is empty (to avoid clearing existing)
                     continue;
                 }
                 
-                SiteSetting::set($key, $value, $type, null, $isPublic);
+                SiteSetting::set($key, $value, $type, null, $isPublic, false);
                 
                 // If we are updating the site name, also update the tenant's name in the central database
                 if ($key === 'site_name' && !empty($value)) {
@@ -863,8 +875,12 @@ class SiteController extends Controller
 
             return redirect()->back()->with('success', 'Configurações atualizadas com sucesso!');
 
-        } catch (\Exception $e) {
-            Log::error('SiteController@update: Erro ao salvar', ['error' => $e->getMessage()]);
+        } catch (\Throwable $e) {
+            Log::error('SiteController@update: Erro ao salvar', [
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
             return redirect()->back()
                 ->withErrors(['error' => 'Erro ao atualizar configurações: ' . $e->getMessage()]);
         }
