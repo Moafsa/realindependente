@@ -46,22 +46,10 @@ class SiteController extends Controller
             // Contagem de categorias únicas
             $categoriesCount = Team::where('is_active', true)->distinct('category')->count('category');
             
-            // Lista de categorias com soma de atletas
+            // Lista de equipes/categorias
             $teams = Team::withCount('athletes')
                 ->where('is_active', true)
-                ->get()
-                ->groupBy('category')
-                ->map(function($categoryTeams, $category) {
-                    $firstTeam = $categoryTeams->first();
-                    return (object)[
-                        'id' => $firstTeam->id, // Mantemos o ID do primeiro time para o link por enquanto
-                        'name' => $category, // O nome principal agora é a Categoria
-                        'category' => $category,
-                        'athletes_count' => $categoryTeams->sum('athletes_count'),
-                        'level' => $firstTeam->level,
-                        'description' => $firstTeam->description,
-                    ];
-                })->values();
+                ->get();
                 
             // Estatísticas para a home
             $stats = [
