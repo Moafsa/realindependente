@@ -35,6 +35,7 @@
             <button onclick="switchTab('contato')" id="tab-contato" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Contato</button>
             <button onclick="switchTab('home')" id="tab-home" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Início</button>
             <button onclick="switchTab('sobre')" id="tab-sobre" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Sobre</button>
+            <button onclick="switchTab('treinadores')" id="tab-treinadores" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Treinadores</button>
             <button onclick="switchTab('atletas')" id="tab-atletas" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Atletas</button>
             <button onclick="switchTab('equipes')" id="tab-equipes" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Equipes</button>
             <button onclick="switchTab('loja')" id="tab-loja" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Loja</button>
@@ -308,7 +309,19 @@
                     </div>
                 </div>
 
-                <!-- Tabs: Atletas, Equipes, Loja -->
+                <!-- Tabs: Treinadores, Atletas, Equipes, Loja -->
+                <div id="content-treinadores" class="tab-content hidden space-y-6"><div class="bg-white shadow p-6 rounded-lg">
+                    <div class="mb-2 h-24 w-full bg-gray-50 border rounded flex items-center justify-center overflow-hidden" id="coaches-banner-preview">
+                        <img src="{{ $settings->firstWhere('key', 'coaches_banner') ? Storage::url($settings->firstWhere('key', 'coaches_banner')->value) : '' }}" class="w-full h-full object-cover {{ $settings->firstWhere('key', 'coaches_banner') ? '' : 'hidden' }}">
+                        @if(!$settings->firstWhere('key', 'coaches_banner'))
+                            <span class="text-xs text-gray-400">Sem imagem</span>
+                        @endif
+                    </div>
+                    <input type="file" name="settings[coaches_banner]" onchange="handleImageUpload(this, 'coaches-banner-preview')" class="w-full border p-2 mb-4 rounded-lg text-sm">
+                    <input type="text" id="coaches_title" name="settings[coaches_title]" value="{{ $settings->firstWhere('key', 'coaches_title')->value ?? '' }}" oninput="updatePreview()" placeholder="Título" class="w-full border p-2 mb-4 rounded-lg">
+                    <textarea id="coaches_subtitle" name="settings[coaches_subtitle]" rows="2" oninput="updatePreview()" placeholder="Subtítulo" class="w-full border p-2 mb-4 rounded-lg text-sm">{{ $settings->firstWhere('key', 'coaches_subtitle')->value ?? '' }}</textarea>
+                    <textarea name="settings[coaches_description]" rows="3" placeholder="Texto de Descrição" class="w-full border p-2 rounded-lg text-sm">{{ $settings->firstWhere('key', 'coaches_description')->value ?? '' }}</textarea>
+                </div></div>
                 <div id="content-atletas" class="tab-content hidden space-y-6"><div class="bg-white shadow p-6 rounded-lg">
                     <div class="mb-2 h-24 w-full bg-gray-50 border rounded flex items-center justify-center overflow-hidden" id="athletes-banner-preview">
                         <img src="{{ $settings->firstWhere('key', 'athletes_banner') ? Storage::url($settings->firstWhere('key', 'athletes_banner')->value) : '' }}" class="w-full h-full object-cover {{ $settings->firstWhere('key', 'athletes_banner') ? '' : 'hidden' }}">

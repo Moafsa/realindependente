@@ -89,13 +89,14 @@
                                     'SEMIANNUALLY' => 'semestral',
                                     'YEARLY' => 'anual'
                                 ];
-                                $defaultCycle = $plan->attributes['cycle'] ?? 'MONTHLY';
+                                $attrs = $plan->attributes ?? [];
+                                $defaultCycle = $attrs['cycle'] ?? 'MONTHLY';
                                 echo $cycleLabels[$defaultCycle] ?? 'mensal';
                             @endphp
                         </p>
-                        @if(!empty($plan->attributes['setup_fee']) && $plan->attributes['setup_fee'] > 0)
+                        @if(!empty($attrs['setup_fee']) && $attrs['setup_fee'] > 0)
                         <p class="text-xs text-blue-600 font-bold mt-2 bg-blue-100 inline-block px-2 py-1 rounded">
-                            + R$ {{ number_format($plan->attributes['setup_fee'], 2, ',', '.') }} (Taxa de Matrícula na 1ª fatura)
+                            + R$ {{ number_format($attrs['setup_fee'], 2, ',', '.') }} (Taxa de Matrícula na 1ª fatura)
                         </p>
                         @endif
                     </div>
@@ -105,12 +106,13 @@
                 </div>
                 
                 @php
-                    $discountQ = floatval($plan->attributes['discount_quarterly'] ?? 0);
-                    $discountS = floatval($plan->attributes['discount_semiannually'] ?? 0);
-                    $discountY = floatval($plan->attributes['discount_yearly'] ?? 0);
+                    $discountQ = floatval($attrs['discount_quarterly'] ?? 0);
+                    $discountS = floatval($attrs['discount_semiannually'] ?? 0);
+                    $discountY = floatval($attrs['discount_yearly'] ?? 0);
                     $hasDiscounts = $discountQ > 0 || $discountS > 0 || $discountY > 0;
-                    $setupFee = floatval($plan->attributes['setup_fee'] ?? 0);
+                    $setupFee = floatval($attrs['setup_fee'] ?? 0);
                 @endphp
+
                 
                 @if($hasDiscounts)
                 <div class="mb-8">

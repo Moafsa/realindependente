@@ -76,10 +76,23 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             @forelse($teams as $team)
-            <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow border-t-4 border-primary">
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow border-t-4 border-primary relative">
                 <div class="p-6">
-                    <h3 class="text-2xl font-bold text-gray-900 mb-1">{{ $team->name }}</h3>
-                    <p class="text-primary font-medium mb-4">{{ ucfirst($team->category) }}</p>
+                    <div class="flex items-center space-x-4 mb-4">
+                        @if($team->logo_url)
+                            <div class="w-16 h-16 bg-gray-50 rounded-full border border-gray-100 flex items-center justify-center p-2 shrink-0">
+                                <img src="{{ $team->logo_url }}" alt="{{ $team->name }}" class="w-full h-full object-contain">
+                            </div>
+                        @else
+                            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center text-primary shrink-0">
+                                <i class="fas fa-users fa-xl"></i>
+                            </div>
+                        @endif
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-900 mb-1">{{ $team->name }}</h3>
+                            <p class="text-primary font-medium">{{ ucfirst($team->category) }}</p>
+                        </div>
+                    </div>
                     
                     <div class="space-y-3">
                         <div class="flex justify-between">

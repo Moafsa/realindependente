@@ -27,9 +27,9 @@
         if (!$favicon) {
             $favicon = \App\Models\SiteSetting::getCentral('site_logo');
         }
-        $faviconUrl = $favicon ? \Illuminate\Support\Facades\Storage::url($favicon) : asset('favicons/nexts_favicon.png');
+        $faviconUrl = $favicon ? \Illuminate\Support\Facades\Storage::url($favicon) . '?v=2' : asset('favicons/nexts_favicon.png');
     @endphp
-    <link rel="icon" type="image/png" href="{{ $faviconUrl }}">
+    <link rel="icon" href="{{ $faviconUrl }}">
     <link rel="apple-touch-icon" href="{{ $faviconUrl }}">
 
     <!-- Fonts -->

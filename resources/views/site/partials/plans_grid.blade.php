@@ -16,9 +16,9 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+        <div class="flex flex-wrap justify-center gap-8">
             @forelse($plans as $plan)
-            <div class="bg-white rounded-2xl shadow-xl overflow-hidden hover:shadow-2xl transition-shadow flex flex-col border border-gray-100 {{ $plan->is_featured ? 'ring-4 ring-primary transform scale-105' : '' }}">
+            <div class="w-full md:w-[340px] shrink-0 bg-white rounded-2xl shadow-xl overflow-hidden hover:shadow-2xl transition-shadow flex flex-col border border-gray-100 {{ $plan->is_featured ? 'ring-4 ring-primary transform scale-105' : '' }}">
                 @if($plan->is_featured)
                 <div class="bg-primary text-white text-center py-2 text-sm font-bold uppercase tracking-widest">
                     Mais Popular
@@ -27,17 +27,18 @@
                 <div class="p-8 text-center border-b border-gray-100">
                     <h3 class="text-2xl font-bold text-gray-900 mb-2">{{ $plan->name }}</h3>
                     @php
+                        $attrs = $plan->attributes ?? [];
                         $basePrice = $plan->price;
-                        $discountQ = floatval($plan->attributes['discount_quarterly'] ?? 0);
-                        $discountS = floatval($plan->attributes['discount_semiannually'] ?? 0);
-                        $discountY = floatval($plan->attributes['discount_yearly'] ?? 0);
+                        $discountQ = floatval($attrs['discount_quarterly'] ?? 0);
+                        $discountS = floatval($attrs['discount_semiannually'] ?? 0);
+                        $discountY = floatval($attrs['discount_yearly'] ?? 0);
                         
                         $priceM = $basePrice;
                         $priceQ = ($basePrice * 3) * (1 - ($discountQ / 100));
                         $priceS = ($basePrice * 6) * (1 - ($discountS / 100));
                         $priceY = ($basePrice * 12) * (1 - ($discountY / 100));
 
-                        $cycle = $plan->attributes['cycle'] ?? 'MONTHLY';
+                        $cycle = $attrs['cycle'] ?? 'MONTHLY';
                     @endphp
                     <div class="mt-4 flex items-baseline justify-center text-5xl font-extrabold text-gray-900">
                         <span class="text-3xl font-medium text-gray-500 mr-2">R$</span>
@@ -63,8 +64,8 @@
                 
                 <div class="p-8 flex flex-col flex-1 bg-gray-50">
                     @php
-                        $features = $plan->attributes['features'] ?? [];
-                        $training = $plan->attributes['training_details'] ?? [];
+                        $features = $attrs['features'] ?? [];
+                        $training = $attrs['training_details'] ?? [];
                         
                         $featureLabels = [
                             'insurance' => 'Seguro Atleta',
@@ -83,19 +84,19 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                                 </svg>
                                 {{ $label }}
-                                @if($key === 'evaluation' && !empty($plan->attributes['evaluation_frequency']))
-                                    <span class="text-xs text-gray-500 ml-1">({{ $plan->attributes['evaluation_frequency'] }})</span>
+                                @if($key === 'evaluation' && !empty($attrs['evaluation_frequency']))
+                                    <span class="text-xs text-gray-500 ml-1">({{ $attrs['evaluation_frequency'] }})</span>
                                 @endif
                             </div>
                             @endif
                         @endforeach
 
-                        @if(!empty($plan->attributes['setup_fee']) && $plan->attributes['setup_fee'] > 0)
+                        @if(!empty($attrs['setup_fee']) && $attrs['setup_fee'] > 0)
                         <div class="flex items-center text-sm text-gray-700">
                             <svg class="w-5 h-5 text-blue-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
-                            <span class="font-bold mr-1">Taxa de Inscrição:</span> R$ {{ number_format($plan->attributes['setup_fee'], 2, ',', '.') }}
+                            <span class="font-bold mr-1">Taxa de Inscrição:</span> R$ {{ number_format($attrs['setup_fee'], 2, ',', '.') }}
                         </div>
                         @endif
 
