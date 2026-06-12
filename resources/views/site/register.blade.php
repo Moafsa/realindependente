@@ -109,52 +109,70 @@
                     $discountS = floatval($plan->attributes['discount_semiannually'] ?? 0);
                     $discountY = floatval($plan->attributes['discount_yearly'] ?? 0);
                     $hasDiscounts = $discountQ > 0 || $discountS > 0 || $discountY > 0;
+                    $setupFee = floatval($plan->attributes['setup_fee'] ?? 0);
                 @endphp
                 
-                @if($hasDiscounts && $defaultCycle === 'MONTHLY')
+                @if($hasDiscounts)
                 <div class="mb-8">
                     <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Escolha a Frequência de Pagamento</label>
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <label class="flex flex-col p-4 bg-white border-2 border-primary rounded-xl cursor-pointer hover:bg-blue-50 transition-all relative">
-                            <input type="radio" name="cycle" value="MONTHLY" class="absolute top-4 right-4" checked>
+                        <label class="flex flex-col p-4 bg-white border-2 border-transparent rounded-xl cursor-pointer hover:bg-blue-50 transition-all relative has-[:checked]:border-primary">
+                            <input type="radio" name="cycle" value="MONTHLY" class="absolute top-4 right-4" {{ $defaultCycle === 'MONTHLY' ? 'checked' : '' }}>
                             <span class="text-sm font-bold text-gray-900 mb-1">Mensal</span>
                             <span class="text-xs text-gray-500">R$ {{ number_format($plan->price, 2, ',', '.') }} / mês</span>
+                            @if($setupFee > 0)
+                            <span class="text-[10px] text-blue-600 font-bold mt-1">Total hoje: R$ {{ number_format($plan->price + $setupFee, 2, ',', '.') }}</span>
+                            @endif
                         </label>
                         
                         @if($discountQ > 0)
                         @php $priceQ = ($plan->price * 3) * (1 - ($discountQ / 100)); @endphp
                         <label class="flex flex-col p-4 bg-white border-2 border-transparent rounded-xl cursor-pointer hover:bg-blue-50 transition-all relative has-[:checked]:border-primary">
-                            <input type="radio" name="cycle" value="QUARTERLY" class="absolute top-4 right-4">
+                            <input type="radio" name="cycle" value="QUARTERLY" class="absolute top-4 right-4" {{ $defaultCycle === 'QUARTERLY' ? 'checked' : '' }}>
                             <span class="text-sm font-bold text-gray-900 mb-1">Trimestral</span>
                             <span class="text-xs text-gray-500">R$ {{ number_format($priceQ, 2, ',', '.') }}</span>
-                            <span class="text-[10px] font-bold text-green-600 bg-green-100 px-1.5 py-0.5 rounded mt-2 self-start">{{ $discountQ }}% OFF</span>
+                            <div class="flex items-center space-x-2 mt-2">
+                                <span class="text-[10px] font-bold text-green-600 bg-green-100 px-1.5 py-0.5 rounded">{{ $discountQ }}% OFF</span>
+                            </div>
+                            @if($setupFee > 0)
+                            <span class="text-[10px] text-blue-600 font-bold mt-1">Total hoje: R$ {{ number_format($priceQ + $setupFee, 2, ',', '.') }}</span>
+                            @endif
                         </label>
                         @endif
                         
                         @if($discountS > 0)
                         @php $priceS = ($plan->price * 6) * (1 - ($discountS / 100)); @endphp
                         <label class="flex flex-col p-4 bg-white border-2 border-transparent rounded-xl cursor-pointer hover:bg-blue-50 transition-all relative has-[:checked]:border-primary">
-                            <input type="radio" name="cycle" value="SEMIANNUALLY" class="absolute top-4 right-4">
+                            <input type="radio" name="cycle" value="SEMIANNUALLY" class="absolute top-4 right-4" {{ $defaultCycle === 'SEMIANNUALLY' ? 'checked' : '' }}>
                             <span class="text-sm font-bold text-gray-900 mb-1">Semestral</span>
                             <span class="text-xs text-gray-500">R$ {{ number_format($priceS, 2, ',', '.') }}</span>
-                            <span class="text-[10px] font-bold text-green-600 bg-green-100 px-1.5 py-0.5 rounded mt-2 self-start">{{ $discountS }}% OFF</span>
+                            <div class="flex items-center space-x-2 mt-2">
+                                <span class="text-[10px] font-bold text-green-600 bg-green-100 px-1.5 py-0.5 rounded">{{ $discountS }}% OFF</span>
+                            </div>
+                            @if($setupFee > 0)
+                            <span class="text-[10px] text-blue-600 font-bold mt-1">Total hoje: R$ {{ number_format($priceS + $setupFee, 2, ',', '.') }}</span>
+                            @endif
                         </label>
                         @endif
                         
                         @if($discountY > 0)
                         @php $priceY = ($plan->price * 12) * (1 - ($discountY / 100)); @endphp
                         <label class="flex flex-col p-4 bg-white border-2 border-transparent rounded-xl cursor-pointer hover:bg-blue-50 transition-all relative has-[:checked]:border-primary">
-                            <input type="radio" name="cycle" value="YEARLY" class="absolute top-4 right-4">
+                            <input type="radio" name="cycle" value="YEARLY" class="absolute top-4 right-4" {{ $defaultCycle === 'YEARLY' ? 'checked' : '' }}>
                             <span class="text-sm font-bold text-gray-900 mb-1">Anual</span>
                             <span class="text-xs text-gray-500">R$ {{ number_format($priceY, 2, ',', '.') }}</span>
-                            <span class="text-[10px] font-bold text-green-600 bg-green-100 px-1.5 py-0.5 rounded mt-2 self-start">{{ $discountY }}% OFF</span>
+                            <div class="flex items-center space-x-2 mt-2">
+                                <span class="text-[10px] font-bold text-green-600 bg-green-100 px-1.5 py-0.5 rounded">{{ $discountY }}% OFF</span>
+                            </div>
+                            @if($setupFee > 0)
+                            <span class="text-[10px] text-blue-600 font-bold mt-1">Total hoje: R$ {{ number_format($priceY + $setupFee, 2, ',', '.') }}</span>
+                            @endif
                         </label>
                         @endif
                     </div>
                 </div>
                 @else
-                <input type="hidden" name="cycle" value="{{ $defaultCycle }}">
-                @endif
+                <input type="hidden" name="cycle" value="MONTHLY">
                 @endif
                 
                 @if($errors->any())

@@ -29,7 +29,11 @@ class TeamController extends Controller
                 $query->where('category', $request->category);
             }
 
-            $teams = $query->orderBy('name')->get();
+            $teams = $query->get()->sortBy(function($team) {
+                preg_match('/\d+/', $team->name, $matches);
+                $num = $matches ? (int)$matches[0] : 999;
+                return sprintf('%03d-%s', $num, strtolower($team->name));
+            })->values();
         } catch (\Exception $e) {
             $categories = [];
             $teams = collect([]);

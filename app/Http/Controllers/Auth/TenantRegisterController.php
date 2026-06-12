@@ -48,7 +48,9 @@ class TenantRegisterController extends Controller
         $legal['terms'] = strtr($legal['terms'], $replacements);
         $legal['insurance'] = strtr($legal['insurance'], $replacements);
 
-        return view('site.register', compact('legal', 'plan'));
+        $defaultCycle = request('cycle', 'MONTHLY');
+
+        return view('site.register', compact('legal', 'plan', 'defaultCycle'));
     }
 
     /**

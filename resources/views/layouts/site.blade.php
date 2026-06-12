@@ -77,7 +77,6 @@
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            height: 4rem; /* h-16 */
         }
     </style>
 </head>
@@ -85,13 +84,13 @@
     <!-- Navigation -->
     <nav class="bg-white shadow-lg sticky-header" id="main-nav">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-24">
+            <div id="nav-container" class="flex justify-between h-24 transition-all duration-300">
                 <div class="flex">
                     <!-- Logo -->
                     <div class="flex-shrink-0 flex items-center">
-                        <a href="{{ route('site.home') }}" class="text-5xl font-bold text-primary">
+                        <a href="{{ route('site.home') }}" class="text-5xl font-bold text-primary flex items-center h-full">
                             @if($settings['site_logo'] ?? false)
-                                <img src="{{ Storage::url($settings['site_logo']) }}" alt="{{ $settings['site_name'] ?? 'Nexts' }}" class="h-16 w-auto transition-all" id="site-logo">
+                                <img src="{{ Storage::url($settings['site_logo']) }}" alt="{{ $settings['site_name'] ?? 'Nexts' }}" class="h-16 w-auto transition-all duration-300" id="site-logo">
                             @else
                                 {{ $settings['site_name'] ?? 'Nexts' }}
                             @endif
@@ -401,15 +400,30 @@
 
             // Sticky Header Scroll Effect
             const nav = document.getElementById('main-nav');
+            const navContainer = document.getElementById('nav-container');
             const logo = document.getElementById('site-logo');
             
             window.addEventListener('scroll', function() {
                 if (window.scrollY > 10) {
                     nav.classList.add('scrolled');
-                    if (logo) logo.classList.replace('h-20', 'h-14');
+                    if (navContainer) {
+                        navContainer.classList.remove('h-24');
+                        navContainer.classList.add('h-16');
+                    }
+                    if (logo) {
+                        logo.classList.remove('h-16');
+                        logo.classList.add('h-10');
+                    }
                 } else {
                     nav.classList.remove('scrolled');
-                    if (logo) logo.classList.replace('h-14', 'h-20');
+                    if (navContainer) {
+                        navContainer.classList.remove('h-16');
+                        navContainer.classList.add('h-24');
+                    }
+                    if (logo) {
+                        logo.classList.remove('h-10');
+                        logo.classList.add('h-16');
+                    }
                 }
             });
         });

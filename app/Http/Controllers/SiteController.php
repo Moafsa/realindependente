@@ -50,13 +50,17 @@ class SiteController extends Controller
             $teams = Team::withCount('athletes')
                 ->where('is_active', true)
                 ->get()
-                ->sortBy('name', SORT_NATURAL | SORT_FLAG_CASE)
+                ->sortBy(function($team) {
+                    preg_match('/\d+/', $team->name, $matches);
+                    $num = $matches ? (int)$matches[0] : 999;
+                    return sprintf('%03d-%s', $num, strtolower($team->name));
+                })
                 ->values();
                 
             // Estatísticas para a home
             $stats = [
-                'athletes' => $athletesCount,
-                'teams' => $categoriesCount, // Agora mostra o número real de categorias
+                'athletes' => SiteSetting::get('athletes_count', $athletesCount),
+                'teams' => SiteSetting::get('categories_count', $categoriesCount),
                 'history_years' => SiteSetting::get('history_years', 10),
                 'titles' => SiteSetting::get('titles_count', 0),
             ];
@@ -64,7 +68,13 @@ class SiteController extends Controller
             // Últimos posts do blog
             $latestPosts = Post::published()->limit(3)->get();
 
-            return view('site.home', compact('teams', 'stats', 'latestPosts', 'settings'));
+            // Planos ativos
+            $plans = Product::where('is_active', true)
+                ->where('type', 'subscription')
+                ->orderBy('price')
+                ->get();
+
+            return view('site.home', compact('teams', 'stats', 'latestPosts', 'settings', 'plans'));
         } catch (\Throwable $e) {
             // Fallback em caso de erro (ex: banco não migrado)
             Log::error('SiteController@home: ' . $e->getMessage(), ['exception' => $e]);
@@ -78,6 +88,7 @@ class SiteController extends Controller
                 ],
                 'settings' => [],
                 'latestPosts' => collect([]),
+                'plans' => collect([]),
             ]);
         }
     }
@@ -101,7 +112,11 @@ class SiteController extends Controller
             $teams = Team::with('coach')->withCount('athletes')
                 ->where('is_active', true)
                 ->get()
-                ->sortBy('name', SORT_NATURAL | SORT_FLAG_CASE)
+                ->sortBy(function($team) {
+                    preg_match('/\d+/', $team->name, $matches);
+                    $num = $matches ? (int)$matches[0] : 999;
+                    return sprintf('%03d-%s', $num, strtolower($team->name));
+                })
                 ->values();
         } catch (\Exception $e) {
             // Se não houver tenant ativo ou tabela não existir, retornar array vazio
@@ -282,8 +297,9 @@ class SiteController extends Controller
     /**
      * Handle direct plan subscription.
      */
-    public function subscribe(Product $product)
+    public function subscribe(Request $request, Product $product)
     {
+        $cycle = $request->query('cycle', 'MONTHLY');
         if ($product->type !== 'subscription') {
             return redirect()->route('site.store')->with('error', 'Este produto não é um plano de assinatura.');
         }
@@ -294,14 +310,14 @@ class SiteController extends Controller
 
         // Clear cart first for subscriptions
         $this->cartService->clear();
-        $added = $this->cartService->add($product, 1);
+        $added = $this->cartService->add($product, 1, ['cycle' => $cycle]);
 
         if (!$added) {
             return redirect()->route('site.store')->with('error', 'Não foi possível adicionar o plano ao carrinho. Verifique se o produto está disponível.');
         }
 
         if (!Auth::check()) {
-            return redirect()->route('site.register', ['plan_id' => $product->id]);
+            return redirect()->route('site.register', ['plan_id' => $product->id, 'cycle' => $cycle]);
         }
 
         return redirect()->route('site.checkout');

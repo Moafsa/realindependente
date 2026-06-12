@@ -205,12 +205,18 @@
 
                         <h3 class="text-md font-bold mt-8 mb-4 border-b pb-2">Estatísticas</h3>
                         <div class="grid grid-cols-2 gap-4">
-                            <div><label class="text-xs text-gray-500 uppercase">Label Atletas</label><input type="text" name="settings[stats_athletes_label]" value="{{ $settings->firstWhere('key', 'stats_athletes_label')->value ?? 'Atletas Ativos' }}" class="w-full p-2 border rounded-lg text-sm"></div>
+                            <div>
+                                <label class="text-xs text-gray-500 uppercase">Label Atletas</label><input type="text" name="settings[stats_athletes_label]" value="{{ $settings->firstWhere('key', 'stats_athletes_label')->value ?? 'Atletas Ativos' }}" class="w-full p-2 border rounded-lg text-sm mb-2">
+                                <label class="text-xs text-gray-500 uppercase">Qtd. Atletas (Deixe em branco para Automático)</label><input type="number" name="settings[athletes_count]" value="{{ $settings->firstWhere('key', 'athletes_count')->value ?? '' }}" class="w-full p-2 border rounded-lg text-sm">
+                            </div>
                             <div>
                                 <label class="text-xs text-gray-500 uppercase">Label História</label><input type="text" name="settings[stats_history_label]" value="{{ $settings->firstWhere('key', 'stats_history_label')->value ?? 'Anos de História' }}" class="w-full p-2 border rounded-lg text-sm mb-2">
                                 <label class="text-xs text-gray-500 uppercase">Anos de História (Número)</label><input type="number" name="settings[history_years]" value="{{ $settings->firstWhere('key', 'history_years')->value ?? '10' }}" class="w-full p-2 border rounded-lg text-sm">
                             </div>
-                            <div><label class="text-xs text-gray-500 uppercase">Label Categorias</label><input type="text" name="settings[stats_teams_label]" value="{{ $settings->firstWhere('key', 'stats_teams_label')->value ?? 'Categorias' }}" class="w-full p-2 border rounded-lg text-sm"></div>
+                            <div>
+                                <label class="text-xs text-gray-500 uppercase">Label Categorias</label><input type="text" name="settings[stats_teams_label]" value="{{ $settings->firstWhere('key', 'stats_teams_label')->value ?? 'Categorias' }}" class="w-full p-2 border rounded-lg text-sm mb-2">
+                                <label class="text-xs text-gray-500 uppercase">Qtd. Categorias (Deixe em branco para Automático)</label><input type="number" name="settings[categories_count]" value="{{ $settings->firstWhere('key', 'categories_count')->value ?? '' }}" class="w-full p-2 border rounded-lg text-sm">
+                            </div>
                             <div>
                                 <label class="text-xs text-gray-500 uppercase">Label Títulos</label><input type="text" name="settings[stats_titles_label]" value="{{ $settings->firstWhere('key', 'stats_titles_label')->value ?? 'Títulos Conquistados' }}" class="w-full p-2 border rounded-lg text-sm mb-2">
                                 <label class="text-xs text-gray-500 uppercase">Quantidade de Títulos (Número)</label><input type="number" name="settings[titles_count]" value="{{ $settings->firstWhere('key', 'titles_count')->value ?? '0' }}" class="w-full p-2 border rounded-lg text-sm">

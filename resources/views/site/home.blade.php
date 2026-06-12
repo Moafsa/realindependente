@@ -160,6 +160,13 @@
     </div>
 </section>
 
+<!-- Plans Section -->
+@if(isset($plans) && $plans->count() > 0)
+<section id="planos" class="py-20 bg-gray-50 border-t border-gray-200">
+    @include('site.partials.plans_grid', ['showTitle' => true])
+</section>
+@endif
+
 <!-- Latest News Section -->
 @if($latestPosts->count() > 0)
 <section class="py-20 bg-white">
