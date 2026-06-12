@@ -41,6 +41,7 @@
             <button onclick="switchTab('loja')" id="tab-loja" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Loja</button>
             <button onclick="switchTab('planos')" id="tab-planos" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Planos</button>
             <button onclick="switchTab('dominio')" id="tab-dominio" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Domínio</button>
+            <button onclick="switchTab('galeria')" id="tab-galeria" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Galeria</button>
             <button onclick="switchTab('financeiro')" id="tab-financeiro" class="tab-btn border-transparent text-gray-500 hover:text-gray-700 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-red-600 font-bold">Financeiro</button>
         </nav>
     </div>
@@ -425,8 +426,25 @@
                             </div>
                         </div>
                     </div>
-                </div></div>
+                    </div>
+                </div>
 
+                <!-- Tab: Galeria -->
+                <div id="content-galeria" class="tab-content hidden space-y-6">
+                    <div class="bg-white shadow rounded-lg p-6">
+                        <h2 class="text-lg font-semibold mb-2">Galeria de Fotos e Vídeos</h2>
+                        <p class="text-sm text-gray-500 mb-6">Esta galeria será exibida na seção principal do seu site.</p>
+                        
+                        @php
+                            // Fetch general gallery items for the site (galleryable_type and id are null)
+                            $siteGalleryItems = \App\Models\GalleryItem::whereNull('galleryable_type')->whereNull('galleryable_id')->orderBy('sort_order')->orderBy('created_at', 'desc')->get();
+                        @endphp
+                        
+                        <x-gallery-manager :galleryItems="$siteGalleryItems" galleryableType="" galleryableId="" />
+                    </div>
+                </div>
+
+                <!-- Tab: Domínio Personalizado -->
                 <div id="content-dominio" class="tab-content hidden space-y-6">
                     <div class="bg-white shadow p-6 rounded-lg">
                         <h2 class="text-lg font-bold mb-4">Domínio Customizado</h2>

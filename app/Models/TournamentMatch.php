@@ -16,6 +16,7 @@ class TournamentMatch extends Model
         'match_time',
         'location',
         'status',
+        'stream_url',
     ];
 
     protected $casts = [

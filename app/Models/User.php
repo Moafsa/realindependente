@@ -179,4 +179,12 @@ class User extends Authenticatable
     {
         $this->notify(new \App\Notifications\WhatsAppResetPassword($token));
     }
+
+    /**
+     * Get the user's gallery items (photos/videos)
+     */
+    public function galleryItems()
+    {
+        return $this->morphMany(GalleryItem::class, 'galleryable')->orderBy('sort_order')->orderBy('created_at', 'desc');
+    }
 }

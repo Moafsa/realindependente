@@ -80,11 +80,13 @@ class TournamentMatchController extends Controller
         $request->validate([
             'home_score' => 'required|integer|min:0',
             'away_score' => 'required|integer|min:0',
+            'stream_url' => 'nullable|url'
         ]);
 
         $match->update([
             'home_score' => $request->home_score,
             'away_score' => $request->away_score,
+            'stream_url' => $request->stream_url,
             'status' => 'completed'
         ]);
 

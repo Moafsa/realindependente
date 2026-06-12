@@ -73,6 +73,43 @@
                     </p>
                 </section>
 
+                <!-- Athlete Gallery -->
+                @if($athlete->galleryItems->count() > 0)
+                <section class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 mt-8">
+                    <h2 class="text-2xl font-black uppercase italic tracking-tighter mb-6 flex items-center">
+                        <span class="w-8 h-1 bg-blue-500 mr-4"></span> Galeria de Fotos e Vídeos
+                    </h2>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        @foreach($athlete->galleryItems as $item)
+                            <div class="relative group rounded-2xl overflow-hidden aspect-square bg-gray-800 border border-white/10">
+                                @if($item->type === 'image')
+                                    <img src="{{ Storage::url($item->url) }}" alt="{{ $item->title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                @elseif($item->type === 'video')
+                                    @php
+                                        preg_match('%(?:youtube(?:-nocookie)?\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)/|.*[?&]v=)|youtu\.be/)([^"&?/\s]{11})%i', $item->url, $match);
+                                        $youtubeId = $match[1] ?? null;
+                                    @endphp
+                                    @if($youtubeId)
+                                        <img src="https://img.youtube.com/vi/{{ $youtubeId }}/maxresdefault.jpg" onerror="this.src='https://img.youtube.com/vi/{{ $youtubeId }}/hqdefault.jpg'" alt="{{ $item->title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                    @endif
+                                    <a href="{{ $item->url }}" target="_blank" class="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/40 transition-colors">
+                                        <div class="bg-blue-600 text-white rounded-full p-4 transform group-hover:scale-110 transition-transform">
+                                            <svg class="w-6 h-6 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg>
+                                        </div>
+                                    </a>
+                                @endif
+                                
+                                @if($item->title)
+                                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 pt-12">
+                                        <p class="text-white font-bold text-xs truncate">{{ $item->title }}</p>
+                                    </div>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                </section>
+                @endif
+
                 <!-- Evolution Chart -->
                 <section class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8">
                     <div class="flex justify-between items-center mb-8">
@@ -113,6 +150,38 @@
                         <svg class="h-32 w-32" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L4.5 20.29L5.21 21L12 18L18.79 21L19.5 20.29L12 2Z"></path></svg>
                     </div>
                 </div>
+
+                @php
+                    $activeMatch = null;
+                    if ($athlete->team_id) {
+                        $activeMatch = \App\Models\TournamentMatch::where(function($q) use ($athlete) {
+                            $q->where('home_team_id', $athlete->team_id)
+                              ->orWhere('away_team_id', $athlete->team_id);
+                        })->whereNotNull('stream_url')->where('status', 'scheduled')->orWhere('status', 'ongoing')->latest()->first();
+                    }
+                @endphp
+                
+                @if($activeMatch && $activeMatch->stream_url)
+                <!-- Live Stream Card -->
+                <div class="bg-red-600 rounded-3xl p-8 shadow-2xl relative overflow-hidden group">
+                    <div class="relative z-10">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="w-3 h-3 bg-white rounded-full animate-pulse"></span>
+                            <h3 class="text-white text-xs font-black uppercase tracking-[0.2em]">AO VIVO AGORA</h3>
+                        </div>
+                        <div class="text-xl font-black uppercase italic tracking-tighter mb-4 text-white">
+                            {{ $activeMatch->homeTeam->name ?? 'Home' }} x {{ $activeMatch->awayTeam->name ?? 'Away' }}
+                        </div>
+                        <a href="{{ $activeMatch->stream_url }}" target="_blank" class="inline-flex items-center text-sm font-bold uppercase tracking-widest bg-white text-red-600 hover:bg-gray-100 px-6 py-3 rounded-2xl transition-all shadow-lg">
+                            Assistir Partida <svg class="ml-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg>
+                        </a>
+                    </div>
+                    <!-- Decorative Icon -->
+                    <div class="absolute -bottom-4 -right-4 opacity-20 transform rotate-12 group-hover:rotate-0 transition-transform duration-500">
+                        <svg class="h-32 w-32 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"></path></svg>
+                    </div>
+                </div>
+                @endif
 
                 <!-- Attributes Card -->
                 <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8">

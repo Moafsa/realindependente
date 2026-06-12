@@ -77,7 +77,7 @@
                             </div>
 
                             <div class="flex items-center ml-4">
-                                <button onclick="openScoreModal({{ $match->id }}, {{ $match->home_score ?? 0 }}, {{ $match->away_score ?? 0 }})" 
+                                <button onclick="openScoreModal({{ $match->id }}, {{ $match->home_score ?? 0 }}, {{ $match->away_score ?? 0 }}, '{{ $match->stream_url ?? '' }}')" 
                                         class="p-2 text-gray-400 hover:text-blue-600 transition">
                                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                 </button>
@@ -136,6 +136,14 @@
                         <input type="number" name="away_score" id="modal_away_score" min="0" required class="text-center text-2xl font-bold w-full border-gray-300 rounded-md">
                     </div>
                 </div>
+                </div>
+                
+                <div class="mt-4 text-left">
+                    <label class="block text-xs font-semibold text-gray-700 uppercase">URL da Transmissão Ao Vivo (Opcional)</label>
+                    <input type="url" name="stream_url" id="modal_stream_url" placeholder="https://youtube.com/watch?v=..." class="mt-1 block w-full border-gray-300 rounded-md shadow-sm sm:text-sm">
+                    <p class="text-[10px] text-gray-500 mt-1">Se preenchido, aparecerá na tela do atleta/equipe.</p>
+                </div>
+
                 <div class="flex justify-end space-x-3 pt-4 border-t">
                     <button type="button" onclick="document.getElementById('scoreModal').classList.add('hidden')" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 transition">
                         Cancelar
@@ -150,11 +158,12 @@
 </div>
 
 <script>
-    function openScoreModal(matchId, home, away) {
+    function openScoreModal(matchId, home, away, streamUrl = '') {
         const form = document.getElementById('scoreForm');
         form.action = `/matches/${matchId}/update-score`;
         document.getElementById('modal_home_score').value = home;
         document.getElementById('modal_away_score').value = away;
+        document.getElementById('modal_stream_url').value = streamUrl;
         document.getElementById('scoreModal').classList.remove('hidden');
     }
 </script>

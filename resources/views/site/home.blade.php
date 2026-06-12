@@ -173,6 +173,50 @@
     </div>
 </section>
 
+<!-- Gallery Section -->
+@php
+    $siteGalleryItems = \App\Models\GalleryItem::whereNull('galleryable_type')->whereNull('galleryable_id')->orderBy('sort_order')->orderBy('created_at', 'desc')->get();
+@endphp
+@if($siteGalleryItems->count() > 0)
+<section id="galeria" class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <h2 class="text-base text-primary font-bold tracking-wide uppercase">Mídia</h2>
+            <p class="mt-2 text-4xl font-extrabold text-gray-900 sm:text-5xl">Nossa Galeria</p>
+        </div>
+        
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            @foreach($siteGalleryItems as $item)
+                <div class="relative group rounded-2xl overflow-hidden aspect-video bg-gray-100 shadow-md">
+                    @if($item->type === 'image')
+                        <img src="{{ Storage::url($item->url) }}" alt="{{ $item->title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                    @elseif($item->type === 'video')
+                        @php
+                            preg_match('%(?:youtube(?:-nocookie)?\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)/|.*[?&]v=)|youtu\.be/)([^"&?/\s]{11})%i', $item->url, $match);
+                            $youtubeId = $match[1] ?? null;
+                        @endphp
+                        @if($youtubeId)
+                            <img src="https://img.youtube.com/vi/{{ $youtubeId }}/maxresdefault.jpg" onerror="this.src='https://img.youtube.com/vi/{{ $youtubeId }}/hqdefault.jpg'" alt="{{ $item->title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        @endif
+                        <a href="{{ $item->url }}" target="_blank" class="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/40 transition-colors">
+                            <div class="bg-primary/90 text-white rounded-full p-4 transform group-hover:scale-110 transition-transform">
+                                <i class="fas fa-play text-xl ml-1"></i>
+                            </div>
+                        </a>
+                    @endif
+                    
+                    @if($item->title)
+                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 pt-12">
+                            <p class="text-white font-bold text-sm truncate">{{ $item->title }}</p>
+                        </div>
+                    @endif
+                </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+@endif
+
 <!-- Plans Section -->
 @if(isset($plans) && $plans->count() > 0)
 <section id="planos" class="py-20 bg-gray-50 border-t border-gray-200">

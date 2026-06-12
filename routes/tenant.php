@@ -131,6 +131,10 @@ Route::middleware([
         Route::get('/coaches/extract', [CoachController::class, 'extract'])->name('admin.coaches.extract');
         Route::get('/coach/profile', [CoachController::class, 'profile'])->name('admin.coach.profile');
         Route::post('/coach/profile', [CoachController::class, 'updateProfile'])->name('admin.coach.profile.update');
+
+        // Galleries
+        Route::post('/galleries', [\App\Http\Controllers\Tenant\GalleryItemController::class, 'store'])->name('admin.galleries.store');
+        Route::delete('/galleries/{galleryItem}', [\App\Http\Controllers\Tenant\GalleryItemController::class, 'destroy'])->name('admin.galleries.destroy');
     });
 
     // Admin ONLY Routes

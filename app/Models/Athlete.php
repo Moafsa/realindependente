@@ -309,6 +309,14 @@ class Athlete extends Model
     }
 
     /**
+     * Get the athlete's gallery items (photos/videos)
+     */
+    public function galleryItems()
+    {
+        return $this->morphMany(GalleryItem::class, 'galleryable')->orderBy('sort_order')->orderBy('created_at', 'desc');
+    }
+
+    /**
      * Scope to get athletes by team.
      */
     public function scopeByTeam($query, $teamId)

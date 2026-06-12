@@ -79,6 +79,42 @@
                         @endforeach
                     </div>
                 </div>
+                </div>
+                @endif
+
+                <!-- Coach Gallery -->
+                @if($coach->galleryItems->count() > 0)
+                <div>
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-6 uppercase tracking-wider">Mídia & Trabalhos</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        @foreach($coach->galleryItems as $item)
+                            <div class="relative group rounded-2xl overflow-hidden aspect-video bg-gray-100 dark:bg-gray-800 shadow-md">
+                                @if($item->type === 'image')
+                                    <img src="{{ Storage::url($item->url) }}" alt="{{ $item->title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                @elseif($item->type === 'video')
+                                    @php
+                                        preg_match('%(?:youtube(?:-nocookie)?\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)/|.*[?&]v=)|youtu\.be/)([^"&?/\s]{11})%i', $item->url, $match);
+                                        $youtubeId = $match[1] ?? null;
+                                    @endphp
+                                    @if($youtubeId)
+                                        <img src="https://img.youtube.com/vi/{{ $youtubeId }}/maxresdefault.jpg" onerror="this.src='https://img.youtube.com/vi/{{ $youtubeId }}/hqdefault.jpg'" alt="{{ $item->title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                    @endif
+                                    <a href="{{ $item->url }}" target="_blank" class="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/40 transition-colors">
+                                        <div class="bg-blue-600/90 text-white rounded-full p-4 transform group-hover:scale-110 transition-transform">
+                                            <svg class="w-5 h-5 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg>
+                                        </div>
+                                    </a>
+                                @endif
+                                
+                                @if($item->title)
+                                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 pt-12">
+                                        <p class="text-white font-bold text-xs truncate">{{ $item->title }}</p>
+                                    </div>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
                 @endif
 
                 <!-- Teams Assigned -->

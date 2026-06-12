@@ -129,6 +129,11 @@
                         class="tab-button px-6 py-4 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
                     Documentos
                 </button>
+                <button onclick="showTab('gallery')" 
+                        id="tab-gallery"
+                        class="tab-button px-6 py-4 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                    Galeria
+                </button>
             </nav>
         </div>
 
@@ -162,6 +167,11 @@
             <!-- Documents Tab -->
             <div id="content-documents" class="tab-content hidden">
                 @include('athletes.partials.documents', ['athlete' => $athlete])
+            </div>
+
+            <!-- Gallery Tab -->
+            <div id="content-gallery" class="tab-content hidden">
+                <x-gallery-manager :galleryItems="$athlete->galleryItems" galleryableType="App\Models\Athlete" :galleryableId="$athlete->id" />
             </div>
         </div>
     </div>

@@ -142,6 +142,12 @@
             </div>
         </div>
     </form>
+
+    <!-- Coach Gallery -->
+    <div class="mt-8">
+        <h2 class="text-2xl font-black text-white tracking-tight mb-4">Galeria de Mídia</h2>
+        <x-gallery-manager :galleryItems="$coach->galleryItems" galleryableType="App\Models\User" :galleryableId="$coach->id" />
+    </div>
 </div>
 
 <script>
