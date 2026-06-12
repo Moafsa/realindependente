@@ -90,7 +90,9 @@
                                     'YEARLY' => 'anual'
                                 ];
                                 $attrs = $plan->attributes ?? [];
-                                $defaultCycle = $attrs['cycle'] ?? 'MONTHLY';
+                                $requestedCycle = request('cycle');
+                                $validCycles = ['MONTHLY', 'QUARTERLY', 'SEMIANNUALLY', 'YEARLY'];
+                                $defaultCycle = in_array($requestedCycle, $validCycles) ? $requestedCycle : ($attrs['cycle'] ?? 'MONTHLY');
                                 echo $cycleLabels[$defaultCycle] ?? 'mensal';
                             @endphp
                         </p>
