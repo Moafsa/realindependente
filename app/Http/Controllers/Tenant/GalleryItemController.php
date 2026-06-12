@@ -36,7 +36,7 @@ class GalleryItemController extends Controller
         $item->is_highlight = $request->boolean('is_highlight', false);
 
         if ($request->type === 'image' && $request->hasFile('image')) {
-            $path = $request->file('image')->store('gallery', 'public');
+            $path = $request->file('image')->storeOptimized('gallery');
             $item->url = $path;
         } elseif ($request->type === 'video') {
             $item->url = $request->url;
@@ -58,7 +58,7 @@ class GalleryItemController extends Controller
         }
 
         if ($galleryItem->type === 'image' && $galleryItem->url) {
-            Storage::disk('public')->delete($galleryItem->url);
+            Storage::delete($galleryItem->url);
         }
 
         $galleryItem->delete();
