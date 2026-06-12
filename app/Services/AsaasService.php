@@ -32,7 +32,19 @@ class AsaasService
         $this->apiKey = $dbApiKey ?: config('services.asaas.api_key');
         $this->baseUrl = $dbBaseUrl ?: config('services.asaas.base_url', 'https://sandbox.asaas.com/api/v3');
         $this->environment = $dbEnv ?: config('services.asaas.environment', 'sandbox');
-        $this->walletId = $dbWalletId ?: config('services.asaas.wallet_id');
+        
+        $platformWalletId = $dbWalletId ?: config('services.asaas.wallet_id');
+        $tenantWalletId = \App\Models\SiteSetting::get('asaas_wallet_id') ?: config('services.asaas.wallet_id');
+
+        // Não faz split se:
+        // 1. A carteira do tenant for a mesma da plataforma
+        // 2. O tenant não tiver API Key própria (está usando a da plataforma)
+        // 3. Estivermos no painel central (tenancy não inicializado)
+        if ($tenantWalletId === $platformWalletId || empty($dbApiKey) || !(function_exists('tenancy') && tenancy()->initialized)) {
+            $this->walletId = null;
+        } else {
+            $this->walletId = $platformWalletId;
+        }
     }
 
     /**
