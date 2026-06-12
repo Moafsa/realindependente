@@ -20,7 +20,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Share site settings with all site views
-        \Illuminate\Support\Facades\View::composer(['layouts.site', 'site.*', 'layouts.dashboard', 'layouts.portal', 'layouts.admin', 'marketing.*'], function ($view) {
+        \Illuminate\Support\Facades\View::composer(['layouts.site', 'site.*', 'layouts.dashboard', 'layouts.portal', 'layouts.admin', 'marketing.*', 'auth.*'], function ($view) {
             // Não sobrescrever as configurações no editor do site, que precisa da coleção completa
             if ($view->getName() === 'site.editor') {
                 return;
