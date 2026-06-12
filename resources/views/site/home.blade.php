@@ -80,12 +80,12 @@
                 <div class="p-6">
                     <div class="flex items-center space-x-4 mb-4">
                         @if($team->logo_url)
-                            <div class="w-16 h-16 bg-gray-50 rounded-full border border-gray-100 flex items-center justify-center p-2 shrink-0">
-                                <img src="{{ $team->logo_url }}" alt="{{ $team->name }}" class="w-full h-full object-contain">
+                            <div class="w-24 h-24 bg-gray-50 rounded-full border border-gray-100 flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
+                                <img src="{{ $team->logo_url }}" alt="{{ $team->name }}" class="w-full h-full object-cover">
                             </div>
                         @else
-                            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center text-primary shrink-0">
-                                <i class="fas fa-users fa-xl"></i>
+                            <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center text-primary shrink-0 shadow-sm">
+                                <i class="fas fa-users fa-2x"></i>
                             </div>
                         @endif
                         <div>
