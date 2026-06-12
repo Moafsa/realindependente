@@ -3,12 +3,29 @@
 @section('title', 'Nossa Comissão Técnica')
 
 @section('content')
+<!-- Hero Section -->
+<section class="relative text-white" 
+         style="background: {{ ($settings['coaches_banner'] ?? false) ? 'url(' . Storage::url($settings['coaches_banner']) . ')' : 'linear-gradient(to right, var(--primary-color), var(--secondary-color))' }}; background-size: cover; background-position: center;">
+    <div class="absolute inset-0 bg-black opacity-50"></div>
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+        <div class="text-center">
+            <h1 class="text-4xl md:text-6xl font-bold mb-6">
+                {{ $settings['coaches_title'] ?? 'Comissão Técnica' }}
+            </h1>
+            <p class="text-xl md:text-2xl mb-8 opacity-90">
+                {{ $settings['coaches_subtitle'] ?? 'Conheça os profissionais responsáveis por lapidar nossos talentos.' }}
+            </p>
+            @if(!empty($settings['coaches_description']))
+            <p class="text-lg mb-12 max-w-3xl mx-auto">
+                {{ $settings['coaches_description'] }}
+            </p>
+            @endif
+        </div>
+    </div>
+</section>
+
 <section class="py-20 bg-gray-50 dark:bg-gray-900">
     <div class="container mx-auto px-6">
-        <div class="text-center mb-16">
-            <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-4">Comissão Técnica</h1>
-            <p class="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">Conheça os profissionais responsáveis por lapidar os talentos do {{ config('app.name') }}.</p>
-        </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
             @forelse($coaches as $coach)
