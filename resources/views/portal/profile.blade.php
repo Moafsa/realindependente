@@ -38,7 +38,6 @@
                         <img src="{{ $athlete ? $athlete->profile_picture_url : (auth()->user()->avatar_url ?? 'https://ui-avatars.com/api/?name=' . urlencode(auth()->user()->name)) }}" 
                              alt="{{ $athlete ? $athlete->full_name : auth()->user()->name }}" 
                              class="h-24 w-24 rounded-2xl border-4 border-[#0a0a0a] object-cover shadow-2xl mx-auto">
-                        @if($athlete)
                         <button onclick="document.getElementById('profile-picture-input').click()" 
                                 class="absolute -bottom-2 -right-2 bg-blue-600 text-white rounded-xl p-2 hover:bg-blue-700 transition-all shadow-lg shadow-blue-600/20 border-2 border-[#0a0a0a]">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -46,7 +45,6 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
                             </svg>
                         </button>
-                        @endif
                     </div>
                     <h2 class="text-xl font-black text-white mt-4 uppercase italic tracking-tight">{{ $athlete ? $athlete->full_name : auth()->user()->name }}</h2>
                     <p class="text-xs text-blue-400 font-bold uppercase tracking-widest mt-1">{{ $athlete ? ($athlete->subcategory ?? 'Categoria não definida') : auth()->user()->role }}</p>
@@ -82,7 +80,6 @@
                         <h3 class="text-sm font-black text-white uppercase italic tracking-widest">Informações da Conta</h3>
                     </div>
 
-                    @if($athlete && in_array(auth()->user()->role, ['athlete', 'guardian']))
                     <input type="file" id="profile-picture-input" name="profile_picture" accept="image/*" class="hidden" onchange="handleImageUpload(this); document.getElementById('profile-form').submit();">
                     <div class="p-6 space-y-6">
                         <div>
@@ -524,6 +521,55 @@
                                     <a href="{{ $athlete->athlete_document_url }}" target="_blank" class="text-xs text-blue-400 font-black uppercase tracking-widest hover:text-blue-300">Ver Arquivo</a>
                                     @endif
                                     <input type="file" name="athlete_document" accept=".pdf,.jpg,.jpeg,.png" class="text-xs text-gray-400 font-black tracking-widest w-full md:w-auto">
+                                </div>
+                            </div>
+                            <!-- Comprovante de Residência -->
+                            <div class="flex flex-col md:flex-row md:items-center justify-between p-4 bg-white/5 rounded-xl border border-white/5 gap-4">
+                                <div class="flex items-center space-x-3">
+                                    <div class="h-10 w-10 rounded-xl bg-green-500/10 text-green-400 flex items-center justify-center">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-white font-bold uppercase tracking-tight">Comprovante de Residência</p>
+                                        @if($athlete->residence_proof_path)
+                                            <p class="text-[10px] text-green-400 uppercase tracking-widest">Documento Enviado</p>
+                                        @else
+                                            <p class="text-[10px] text-rose-500 uppercase tracking-widest font-bold">Pendente</p>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-3 w-full md:w-auto">
+                                    @if($athlete->residence_proof_path)
+                                    <a href="{{ route('tenant.assets', ['path' => $athlete->residence_proof_path]) }}" target="_blank" class="text-xs text-blue-400 font-black uppercase tracking-widest hover:text-blue-300">Ver Arquivo</a>
+                                    @endif
+                                    <input type="file" name="residence_proof" accept=".pdf,.jpg,.jpeg,.png" class="text-xs text-gray-400 font-black tracking-widest w-full md:w-auto">
+                                </div>
+                            </div>
+
+                            <!-- Documento do Responsável -->
+                            <div class="flex flex-col md:flex-row md:items-center justify-between p-4 bg-white/5 rounded-xl border border-white/5 gap-4">
+                                <div class="flex items-center space-x-3">
+                                    <div class="h-10 w-10 rounded-xl bg-orange-500/10 text-orange-400 flex items-center justify-center">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-white font-bold uppercase tracking-tight">Documento do Responsável</p>
+                                        @if($athlete->guardian_document_path)
+                                            <p class="text-[10px] text-green-400 uppercase tracking-widest">Documento Enviado</p>
+                                        @else
+                                            <p class="text-[10px] text-rose-500 uppercase tracking-widest font-bold">Pendente</p>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-3 w-full md:w-auto">
+                                    @if($athlete->guardian_document_path)
+                                    <a href="{{ route('tenant.assets', ['path' => $athlete->guardian_document_path]) }}" target="_blank" class="text-xs text-blue-400 font-black uppercase tracking-widest hover:text-blue-300">Ver Arquivo</a>
+                                    @endif
+                                    <input type="file" name="guardian_document_file" accept=".pdf,.jpg,.jpeg,.png" class="text-xs text-gray-400 font-black tracking-widest w-full md:w-auto">
                                 </div>
                             </div>
                         </div>

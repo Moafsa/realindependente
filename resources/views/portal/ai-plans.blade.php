@@ -496,7 +496,7 @@ function viewContent(contentId) {
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('Erro ao carregar detalhes do plano.');
+        Swal.fire({ icon: 'error', title: 'Oops...', text: 'Erro ao carregar detalhes do plano.', customClass: { popup: 'rounded-3xl dark:bg-[#0f172a] border border-white/5 shadow-2xl', title: 'text-gray-900 dark:text-white', confirmButton: 'rounded-xl font-medium px-6 py-2.5 bg-blue-600 text-white' } });
     });
 }
 
@@ -560,13 +560,12 @@ function uploadMealPhoto(input) {
             `;
             document.getElementById('contentDetails').innerHTML = resultHtml;
             document.getElementById('contentModal').classList.remove('hidden');
-        } else {
-            alert('Erro: ' + data.message);
+            Swal.fire({ icon: 'error', title: 'Oops...', text: 'Erro: ' + data.message, customClass: { popup: 'rounded-3xl dark:bg-[#0f172a] border border-white/5 shadow-2xl', title: 'text-gray-900 dark:text-white', confirmButton: 'rounded-xl font-medium px-6 py-2.5 bg-blue-600 text-white' } });
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('Erro ao enviar foto');
+        Swal.fire({ icon: 'error', title: 'Oops...', text: 'Erro ao enviar foto', customClass: { popup: 'rounded-3xl dark:bg-[#0f172a] border border-white/5 shadow-2xl', title: 'text-gray-900 dark:text-white', confirmButton: 'rounded-xl font-medium px-6 py-2.5 bg-blue-600 text-white' } });
     })
     .finally(() => {
         btn.innerHTML = originalContent;
@@ -595,13 +594,13 @@ function viewContent(contentId) {
             if (data.success) {
                 container.innerHTML = formatContent(data);
             } else {
-                alert('Erro ao carregar conteúdo');
+                Swal.fire({ icon: 'error', title: 'Oops...', text: 'Erro ao carregar conteúdo', customClass: { popup: 'rounded-3xl dark:bg-[#0f172a] border border-white/5 shadow-2xl', title: 'text-gray-900 dark:text-white', confirmButton: 'rounded-xl font-medium px-6 py-2.5 bg-blue-600 text-white' } });
                 closeViewModal();
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Erro de conexão');
+            Swal.fire({ icon: 'error', title: 'Oops...', text: 'Erro de conexão', customClass: { popup: 'rounded-3xl dark:bg-[#0f172a] border border-white/5 shadow-2xl', title: 'text-gray-900 dark:text-white', confirmButton: 'rounded-xl font-medium px-6 py-2.5 bg-blue-600 text-white' } });
             closeViewModal();
         });
 }
@@ -643,27 +642,45 @@ function toggleFavorite(contentId) {
 }
 
 function acceptPlan(contentId) {
-    if (!confirm('Deseja aceitar este plano e começar seu protocolo agora?')) return;
-
-    fetch(`/portal/ai-plans/${contentId}/accept`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+    Swal.fire({
+        title: 'Você tem certeza?',
+        text: "Deseja aceitar este plano e começar seu protocolo agora?",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#2563eb',
+        cancelButtonColor: '#475569',
+        confirmButtonText: 'Sim, Aceitar!',
+        cancelButtonText: 'Cancelar',
+        customClass: {
+            popup: 'rounded-3xl dark:bg-[#0f172a] border border-white/5 shadow-2xl',
+            title: 'text-gray-900 dark:text-white font-bold',
+            confirmButton: 'rounded-xl font-medium px-6 py-2.5',
+            cancelButton: 'rounded-xl font-medium px-6 py-2.5',
         }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert(data.message);
-            location.reload();
-        } else {
-            alert('Erro: ' + data.message);
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(`/portal/ai-plans/${contentId}/accept`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire({ icon: 'success', title: 'Sucesso!', text: data.message, customClass: { popup: 'rounded-3xl dark:bg-[#0f172a] border border-white/5 shadow-2xl', title: 'text-gray-900 dark:text-white', confirmButton: 'rounded-xl font-medium px-6 py-2.5 bg-blue-600 text-white' } }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({ icon: 'error', title: 'Oops...', text: 'Erro: ' + data.message, customClass: { popup: 'rounded-3xl dark:bg-[#0f172a] border border-white/5 shadow-2xl', title: 'text-gray-900 dark:text-white', confirmButton: 'rounded-xl font-medium px-6 py-2.5 bg-blue-600 text-white' } });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({ icon: 'error', title: 'Oops...', text: 'Erro ao aceitar plano', customClass: { popup: 'rounded-3xl dark:bg-[#0f172a] border border-white/5 shadow-2xl', title: 'text-gray-900 dark:text-white', confirmButton: 'rounded-xl font-medium px-6 py-2.5 bg-blue-600 text-white' } });
+            });
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Erro ao aceitar plano');
     });
 }
 

@@ -27,10 +27,12 @@ class TenantBillingController extends Controller
         try {
             if ($tenant->asaas_customer_id) {
                 // Fetch charges from Asaas (limit to 20)
-                $response = $this->asaasService->getCustomerCharges($tenant->asaas_customer_id, [
-                    'limit' => 20,
-                    'order' => 'desc'
-                ]);
+                $response = tenancy()->central(function () use ($tenant) {
+                    return $this->asaasService->getCustomerCharges($tenant->asaas_customer_id, [
+                        'limit' => 20,
+                        'order' => 'desc'
+                    ]);
+                });
                 
                 $invoices = $response['data'] ?? [];
                 
@@ -61,10 +63,12 @@ class TenantBillingController extends Controller
                 return back()->with('error', 'Configuração de pagamento não encontrada.');
             }
 
-            $response = $this->asaasService->getCustomerCharges($tenant->asaas_customer_id, [
-                'status' => 'PENDING',
-                'limit' => 1
-            ]);
+            $response = tenancy()->central(function () use ($tenant) {
+                return $this->asaasService->getCustomerCharges($tenant->asaas_customer_id, [
+                    'status' => 'PENDING',
+                    'limit' => 1
+                ]);
+            });
 
             $invoice = $response['data'][0] ?? null;
 
@@ -73,10 +77,12 @@ class TenantBillingController extends Controller
             }
             
             // If no pending, check overdue
-            $response = $this->asaasService->getCustomerCharges($tenant->asaas_customer_id, [
-                'status' => 'OVERDUE',
-                'limit' => 1
-            ]);
+            $response = tenancy()->central(function () use ($tenant) {
+                return $this->asaasService->getCustomerCharges($tenant->asaas_customer_id, [
+                    'status' => 'OVERDUE',
+                    'limit' => 1
+                ]);
+            });
             
             $invoice = $response['data'][0] ?? null;
             

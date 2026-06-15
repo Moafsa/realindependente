@@ -81,7 +81,7 @@
     @endif
 
     <!-- Document Warning -->
-    @if($athlete && (!$athlete->medical_certificate_path || !$athlete->athlete_document_path))
+    @if($athlete && (!$athlete->medical_certificate_path || !$athlete->athlete_document_path || !$athlete->residence_proof_path || !$athlete->guardian_document_path))
     <div class="max-w-7xl mx-auto pt-6 px-4 sm:px-6 lg:px-8">
         <div class="glass-card p-6 border-l-4 border-rose-500 bg-rose-500/10 flex flex-col md:flex-row items-center justify-between gap-4">
             <div class="flex items-center space-x-4">
@@ -93,14 +93,7 @@
                 <div>
                     <h3 class="text-white font-bold uppercase tracking-tight italic">Documentação Pendente</h3>
                     <p class="text-sm text-gray-300">
-                        @if(!$athlete->medical_certificate_path && !$athlete->athlete_document_path)
-                            Você precisa enviar seu <span class="text-white font-bold">Documento de Identificação</span> e <span class="text-white font-bold">Atestado Médico</span>.
-                        @elseif(!$athlete->medical_certificate_path)
-                            Você precisa enviar seu <span class="text-white font-bold">Atestado Médico</span>.
-                        @elseif(!$athlete->athlete_document_path)
-                            Você precisa enviar seu <span class="text-white font-bold">Documento de Identificação</span>.
-                        @endif
-                        Para sua segurança e regularização, por favor envie o quanto antes.
+                        Você possui documentos pendentes. Para sua segurança e regularização, por favor envie o quanto antes.
                     </p>
                 </div>
             </div>

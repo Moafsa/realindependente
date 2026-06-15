@@ -318,9 +318,15 @@ class PortalController extends Controller
                 'specialties' => 'nullable|string|max:255',
                 'certificate_files.*' => 'nullable|file|mimes:pdf,jpg,png,jpeg|max:5120',
                 'certificate_names.*' => 'nullable|string|max:255',
+                'profile_picture' => 'nullable|image|max:5120',
             ]);
 
             $userData = $request->only(['name', 'email']);
+            
+            if ($request->hasFile('profile_picture')) {
+                $path = $request->file('profile_picture')->store('avatars', 'public');
+                $userData['avatar'] = $path;
+            }
             
             if ($user->isCoach()) {
                 $userData = array_merge($userData, $request->only(['phone', 'bio', 'education', 'experience', 'specialties']));
@@ -383,6 +389,9 @@ class PortalController extends Controller
             'positions.*' => 'string|max:255',
             'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
             'medical_certificate' => 'nullable|file|mimes:pdf,jpg,png,jpeg|max:5120',
+            'athlete_document' => 'nullable|file|mimes:pdf,jpg,png,jpeg|max:5120',
+            'residence_proof' => 'nullable|file|mimes:pdf,jpg,png,jpeg|max:5120',
+            'guardian_document_file' => 'nullable|file|mimes:pdf,jpg,png,jpeg|max:5120',
             'bio' => 'nullable|string|max:1000',
             'jersey_number' => 'nullable|string|max:10',
             'height' => 'nullable|numeric|min:0|max:300',
@@ -402,7 +411,7 @@ class PortalController extends Controller
             'x_url' => 'nullable|url|max:255',
         ]);
 
-        $athlete->fill($request->except(['profile_picture', 'medical_certificate']));
+        $athlete->fill($request->except(['profile_picture', 'medical_certificate', 'athlete_document', 'residence_proof', 'guardian_document_file']));
 
         // Handle profile picture upload
         if ($request->hasFile('profile_picture')) {

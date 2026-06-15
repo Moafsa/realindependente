@@ -78,6 +78,7 @@
             background: #0f172a;
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body class="font-sans antialiased @yield('body_class', 'bg-[#0f172a]') text-gray-100">
@@ -245,7 +246,7 @@
                         <!-- User menu -->
                         <div class="relative">
                             <div class="flex items-center text-sm">
-                                <img class="h-8 w-8 rounded-full border border-white/10" src="{{ auth()->user()->avatar_url }}" alt="{{ auth()->user()->name }}">
+                                <img class="h-8 w-8 rounded-full border border-white/10 object-cover" src="{{ Auth::user()->athlete->profile_picture_url ?? 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->name) }}" alt="{{ auth()->user()->name }}">
                                 <span class="ml-2 text-gray-200 hidden sm:block">{{ auth()->user()->name }}</span>
                             </div>
                         </div>

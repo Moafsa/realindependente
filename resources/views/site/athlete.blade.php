@@ -50,7 +50,17 @@
                         <div class="text-[10px] text-gray-500 font-black uppercase tracking-widest">Idade</div>
                     </div>
                     <div class="bg-white/5 backdrop-blur-md border border-white/10 p-4 rounded-2xl text-center min-w-[120px]">
-                        <div class="text-3xl font-black text-blue-500 italic">{{ $athlete->height ? number_format($athlete->height, 0) : '--' }}<small class="text-xs">cm</small></div>
+                        <div class="text-3xl font-black text-blue-500 italic">
+                            @if($athlete->height)
+                                @if($athlete->height < 3)
+                                    {{ number_format($athlete->height, 2, ',', '.') }}<small class="text-xs">m</small>
+                                @else
+                                    {{ number_format($athlete->height, 0) }}<small class="text-xs">cm</small>
+                                @endif
+                            @else
+                                --
+                            @endif
+                        </div>
                         <div class="text-[10px] text-gray-500 font-black uppercase tracking-widest">Altura</div>
                     </div>
                 </div>

@@ -46,8 +46,9 @@ class AsaasService
 
         $platformWalletId = $dbWalletId ?: config('services.asaas.wallet_id');
         $tenantWalletId = \App\Models\SiteSetting::get('asaas_wallet_id') ?: config('services.asaas.wallet_id');
+        $platformApiKey = config('services.asaas.api_key');
 
-        if ($tenantWalletId === $platformWalletId || empty($dbApiKey) || !(function_exists('tenancy') && tenancy()->initialized)) {
+        if ($tenantWalletId === $platformWalletId || empty($dbApiKey) || $dbApiKey === $platformApiKey || !(function_exists('tenancy') && tenancy()->initialized)) {
             return null;
         }
 
