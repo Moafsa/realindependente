@@ -70,6 +70,7 @@ class TenantRegisterController extends Controller
             'positions' => 'required|array|min:1',
             'height' => 'nullable|numeric|min:0.5|max:2.5',
             'weight' => 'nullable|numeric|min:10|max:200',
+            'dominant_limb' => 'nullable|string|in:Destro,Canhoto,Ambidestro',
             'medical_conditions' => 'nullable|string|max:1000',
             'allergies' => 'nullable|string|max:1000',
             'guardian_name' => 'required|string|max:255',
@@ -104,6 +105,7 @@ class TenantRegisterController extends Controller
                 'subcategory' => Athlete::calculateSubcategory($request->birth_date),
                 'positions' => $request->positions,
                 'position' => $request->positions[0], // Keep for backward compatibility
+                'dominant_limb' => $request->dominant_limb,
                 'height' => $request->height,
                 'weight' => $request->weight,
                 'medical_conditions' => $request->medical_conditions ? explode(',', $request->medical_conditions) : [],

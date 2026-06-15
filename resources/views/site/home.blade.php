@@ -105,6 +105,7 @@
                         </div>
                     </div>
                     
+                    @if(isset($team->id) && $team->id)
                     <div class="mt-6 pt-6 border-t border-gray-100">
                         <a href="{{ route('site.team', $team->id) }}" class="text-primary font-semibold hover:text-secondary flex items-center">
                             Ver detalhes
@@ -113,6 +114,7 @@
                             </svg>
                         </a>
                     </div>
+                    @endif
                 </div>
             </div>
             @empty

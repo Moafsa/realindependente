@@ -394,6 +394,12 @@ class PortalController extends Controller
             'guardian_contact' => 'nullable|string|max:255',
             'guardian_document' => 'nullable|string|max:255',
             'guardian_email' => 'nullable|email|max:255',
+            'dominant_limb' => 'nullable|string|in:Destro,Canhoto,Ambidestro',
+            'instagram_url' => 'nullable|url|max:255',
+            'facebook_url' => 'nullable|url|max:255',
+            'tiktok_url' => 'nullable|url|max:255',
+            'youtube_url' => 'nullable|url|max:255',
+            'x_url' => 'nullable|url|max:255',
         ]);
 
         $athlete->fill($request->except(['profile_picture', 'medical_certificate']));
@@ -432,6 +438,70 @@ class PortalController extends Controller
 
         return redirect()->route('portal.profile')
             ->with('success', 'Perfil atualizado com sucesso!');
+    }
+
+    public function updateHistory(\Illuminate\Http\Request $request)
+    {
+        $athlete = \Illuminate\Support\Facades\Auth::user()->athlete;
+        
+        if (!$athlete) {
+            return redirect()->route('login')->with('error', 'Usuário não possui atleta associado.');
+        }
+
+        // Handle new history rows
+        if ($request->has('new_history') && is_array($request->new_history)) {
+            foreach ($request->new_history as $id => $data) {
+                if (!empty($data['club_name']) && !empty($data['start_date'])) {
+                    $logoUrl = null;
+                    if (isset($data['logo']) && $data['logo'] instanceof \Illuminate\Http\UploadedFile) {
+                        $logoUrl = $data['logo']->storeOptimized('club_logos');
+                    }
+                    
+                    \App\Models\AthleteHistory::create([
+                        'athlete_id' => $athlete->id,
+                        'club_name' => $data['club_name'],
+                        'club_logo_url' => $logoUrl,
+                        'start_date' => $data['start_date'],
+                        'end_date' => !empty($data['end_date']) ? $data['end_date'] : null,
+                    ]);
+                }
+            }
+        }
+
+        // Handle existing history updates
+        if ($request->has('history') && is_array($request->history)) {
+            foreach ($request->history as $historyId => $data) {
+                $history = \App\Models\AthleteHistory::where('id', $historyId)->where('athlete_id', $athlete->id)->first();
+                if ($history) {
+                    if (isset($data['logo']) && $data['logo'] instanceof \Illuminate\Http\UploadedFile) {
+                        $data['club_logo_url'] = $data['logo']->storeOptimized('club_logos');
+                    }
+                    unset($data['logo']);
+                    if (empty($data['end_date'])) {
+                        $data['end_date'] = null;
+                    }
+                    $history->update($data);
+                }
+            }
+        }
+
+        return redirect()->route('portal.profile')->with('success', 'Histórico de clubes atualizado com sucesso!');
+    }
+
+    public function deleteHistory($id)
+    {
+        $athlete = \Illuminate\Support\Facades\Auth::user()->athlete;
+        if (!$athlete) {
+            return redirect()->route('login')->with('error', 'Usuário não possui atleta associado.');
+        }
+
+        $history = \App\Models\AthleteHistory::where('id', $id)->where('athlete_id', $athlete->id)->first();
+        if ($history) {
+            $history->delete();
+            return redirect()->route('portal.profile')->with('success', 'Histórico removido com sucesso!');
+        }
+
+        return redirect()->route('portal.profile')->with('error', 'Histórico não encontrado.');
     }
 
     /**
@@ -879,8 +949,8 @@ class PortalController extends Controller
             ->count();
             
         if ($unreadMessagesCount > 0) {
-            $msgPreview = $lastUnreadMsg->content;
-            if (!$msgPreview && $lastUnreadMsg->attachment_path) {
+            $msgPreview = $lastUnreadMsg ? $lastUnreadMsg->content : '';
+            if (!$msgPreview && $lastUnreadMsg && $lastUnreadMsg->attachment_path) {
                 $msgPreview = $lastUnreadMsg->attachment_type === 'image' ? '📸 Enviou uma foto' : '📄 Enviou um documento';
             }
 

@@ -151,6 +151,19 @@
                             </div>
                         </div>
 
+                        <div>
+                            <label for="dominant_limb" class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">
+                                Membro Forte
+                            </label>
+                            <select name="dominant_limb" id="dominant_limb"
+                                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                                <option value="" class="bg-gray-800" {{ old('dominant_limb', $athlete->dominant_limb) == '' ? 'selected' : '' }}>Não informado</option>
+                                <option value="Destro" class="bg-gray-800" {{ old('dominant_limb', $athlete->dominant_limb) == 'Destro' ? 'selected' : '' }}>Destro</option>
+                                <option value="Canhoto" class="bg-gray-800" {{ old('dominant_limb', $athlete->dominant_limb) == 'Canhoto' ? 'selected' : '' }}>Canhoto</option>
+                                <option value="Ambidestro" class="bg-gray-800" {{ old('dominant_limb', $athlete->dominant_limb) == 'Ambidestro' ? 'selected' : '' }}>Ambidestro</option>
+                            </select>
+                        </div>
+
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label for="height" class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">
@@ -187,6 +200,54 @@
                                    value="{{ old('address', $athlete->address) }}"
                                    class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
                         </div>
+
+                        <!-- Redes Sociais -->
+                        <div class="pt-6 border-t border-white/5">
+                            <h4 class="text-sm font-black text-white uppercase tracking-widest mb-4">Redes Sociais</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label for="instagram_url" class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">
+                                        Instagram (URL do perfil)
+                                    </label>
+                                    <input type="url" name="instagram_url" id="instagram_url" 
+                                           value="{{ old('instagram_url', $athlete->instagram_url) }}" placeholder="https://instagram.com/seu_usuario"
+                                           class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                                </div>
+                                <div>
+                                    <label for="tiktok_url" class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">
+                                        TikTok (URL do perfil)
+                                    </label>
+                                    <input type="url" name="tiktok_url" id="tiktok_url" 
+                                           value="{{ old('tiktok_url', $athlete->tiktok_url) }}" placeholder="https://tiktok.com/@seu_usuario"
+                                           class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                                </div>
+                                <div>
+                                    <label for="youtube_url" class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">
+                                        YouTube (URL do canal)
+                                    </label>
+                                    <input type="url" name="youtube_url" id="youtube_url" 
+                                           value="{{ old('youtube_url', $athlete->youtube_url) }}" placeholder="https://youtube.com/@seu_canal"
+                                           class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                                </div>
+                                <div>
+                                    <label for="facebook_url" class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">
+                                        Facebook (URL do perfil)
+                                    </label>
+                                    <input type="url" name="facebook_url" id="facebook_url" 
+                                           value="{{ old('facebook_url', $athlete->facebook_url) }}" placeholder="https://facebook.com/seu_usuario"
+                                           class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                                </div>
+                                <div>
+                                    <label for="x_url" class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">
+                                        X / Twitter (URL do perfil)
+                                    </label>
+                                    <input type="url" name="x_url" id="x_url" 
+                                           value="{{ old('x_url', $athlete->x_url) }}" placeholder="https://x.com/seu_usuario"
+                                           class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                     @else
                     <div class="p-6 space-y-6">
@@ -410,6 +471,63 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Documents Section (Inside Form) -->
+                    <div class="border-t border-white/5">
+                        <div class="px-6 py-4 border-b border-white/5">
+                            <h3 class="text-sm font-black text-white uppercase italic tracking-widest">Documentos e Atestados</h3>
+                        </div>
+                        <div class="p-6 space-y-4">
+                            <!-- Atestado Médico -->
+                            <div class="flex flex-col md:flex-row md:items-center justify-between p-4 bg-white/5 rounded-xl border border-white/5 gap-4">
+                                <div class="flex items-center space-x-3">
+                                    <div class="h-10 w-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-white font-bold uppercase tracking-tight">Atestado Médico</p>
+                                        @if($athlete->medical_certificate_path)
+                                            <p class="text-[10px] text-green-400 uppercase tracking-widest">Atestado Enviado</p>
+                                        @else
+                                            <p class="text-[10px] text-rose-500 uppercase tracking-widest font-bold">Pendente</p>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-3 w-full md:w-auto">
+                                    @if($athlete->medical_certificate_path)
+                                    <a href="{{ $athlete->medical_certificate_url }}" target="_blank" class="text-xs text-blue-400 font-black uppercase tracking-widest hover:text-blue-300">Ver Arquivo</a>
+                                    @endif
+                                    <input type="file" name="medical_certificate" accept=".pdf,.jpg,.jpeg,.png" class="text-xs text-gray-400 font-black tracking-widest w-full md:w-auto">
+                                </div>
+                            </div>
+                            <!-- Documento de Identificação -->
+                            <div class="flex flex-col md:flex-row md:items-center justify-between p-4 bg-white/5 rounded-xl border border-white/5 gap-4">
+                                <div class="flex items-center space-x-3">
+                                    <div class="h-10 w-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"></path>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs text-white font-bold uppercase tracking-tight">Documento de Identificação (RG/CNH)</p>
+                                        @if($athlete->athlete_document_path)
+                                            <p class="text-[10px] text-green-400 uppercase tracking-widest">Documento Enviado</p>
+                                        @else
+                                            <p class="text-[10px] text-rose-500 uppercase tracking-widest font-bold">Pendente</p>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-3 w-full md:w-auto">
+                                    @if($athlete->athlete_document_path)
+                                    <a href="{{ $athlete->athlete_document_url }}" target="_blank" class="text-xs text-blue-400 font-black uppercase tracking-widest hover:text-blue-300">Ver Arquivo</a>
+                                    @endif
+                                    <input type="file" name="athlete_document" accept=".pdf,.jpg,.jpeg,.png" class="text-xs text-gray-400 font-black tracking-widest w-full md:w-auto">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     @endif
 
                     <div class="px-6 py-4 border-t border-white/5 flex justify-end">
@@ -422,32 +540,57 @@
             </div>
 
             @if($athlete)
-            <!-- Documents Section -->
-            <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-xl">
-                <div class="px-6 py-4 border-b border-white/5">
-                    <h3 class="text-sm font-black text-white uppercase italic tracking-widest">Documentos e Atestados</h3>
-                </div>
-                <div class="p-6 space-y-4">
-                    <div class="flex items-center justify-between p-4 bg-white/5 rounded-xl border border-white/5">
-                        <div class="flex items-center space-x-3">
-                            <div class="h-10 w-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-                                </svg>
+            <!-- Club History Section -->
+            <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl shadow-xl mt-6">
+                <form action="{{ route('portal.profile.history.update') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="px-6 py-4 border-b border-white/5 flex justify-between items-center">
+                        <h3 class="text-sm font-black text-white uppercase italic tracking-widest">Histórico de Clubes</h3>
+                        <button type="button" onclick="addHistoryRow()" class="text-xs font-bold text-blue-400 hover:text-blue-300 transition-colors flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                            Adicionar Novo
+                        </button>
+                    </div>
+                    <div class="p-6 space-y-4">
+                        <div id="history-container" class="space-y-4">
+                            @forelse($athlete->history as $history)
+                            <div class="p-4 bg-white/5 rounded-xl border border-white/5 relative group">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Clube</label>
+                                        <input type="text" name="history[{{ $history->id }}][club_name]" value="{{ $history->club_name }}" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white text-sm" required>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Escudo (opcional)</label>
+                                        <input type="file" name="history[{{ $history->id }}][logo]" accept="image/*" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white text-sm">
+                                        @if($history->club_logo_url)
+                                            <p class="text-[10px] text-green-400 mt-1">Já possui logo. Envie outra para substituir.</p>
+                                        @endif
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Data de Entrada</label>
+                                        <input type="date" name="history[{{ $history->id }}][start_date]" value="{{ $history->start_date->format('Y-m-d') }}" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white text-sm" required>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Data de Saída (Deixe em branco se for o atual)</label>
+                                        <input type="date" name="history[{{ $history->id }}][end_date]" value="{{ $history->end_date ? $history->end_date->format('Y-m-d') : '' }}" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white text-sm">
+                                    </div>
+                                </div>
+                                <div class="mt-3 flex justify-end">
+                                    <a href="{{ route('portal.profile.history.delete', $history->id) }}" onclick="return confirm('Excluir este histórico?')" class="text-xs text-rose-500 hover:text-rose-400 font-bold uppercase tracking-widest">Remover</a>
+                                </div>
                             </div>
-                            <div>
-                                <p class="text-xs text-white font-bold uppercase tracking-tight">Atestado Médico</p>
-                                <p class="text-[10px] text-gray-500 uppercase tracking-widest">Validade: {{ $athlete->medical_expiry_date ?? 'Não informada' }}</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center space-x-3">
-                            @if($athlete->medical_certificate_path)
-                            <a href="{{ $athlete->medical_certificate_url }}" target="_blank" class="text-xs text-blue-400 font-black uppercase tracking-widest hover:text-blue-300">Ver</a>
-                            @endif
-                            <button onclick="document.getElementById('medical-cert-input').click()" class="text-xs text-gray-400 font-black uppercase tracking-widest hover:text-white">Upload</button>
+                            @empty
+                            <p class="text-xs text-gray-500 italic text-center">Nenhum histórico adicionado ainda.</p>
+                            @endforelse
                         </div>
                     </div>
-                </div>
+                    <div class="px-6 py-4 border-t border-white/5 flex justify-end">
+                        <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all">
+                            Salvar Histórico
+                        </button>
+                    </div>
+                </form>
             </div>
             @endif
         </div>
@@ -478,6 +621,41 @@
                     <button type="button" onclick="this.parentElement.parentElement.remove()" class="p-3 bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white rounded-xl transition-all">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                     </button>
+                </div>
+            `;
+            container.appendChild(row);
+        }
+
+        function addHistoryRow() {
+            const container = document.getElementById('history-container');
+            // Remove the empty message if it exists
+            const emptyMsg = container.querySelector('p.text-center');
+            if(emptyMsg) emptyMsg.remove();
+            
+            const newId = 'new_' + Date.now();
+            const row = document.createElement('div');
+            row.className = 'p-4 bg-white/5 rounded-xl border border-white/5 relative group mt-4';
+            row.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Clube</label>
+                        <input type="text" name="new_history[${newId}][club_name]" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white text-sm" required>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Escudo (opcional)</label>
+                        <input type="file" name="new_history[${newId}][logo]" accept="image/*" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Data de Entrada</label>
+                        <input type="date" name="new_history[${newId}][start_date]" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white text-sm" required>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Data de Saída</label>
+                        <input type="date" name="new_history[${newId}][end_date]" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-white text-sm">
+                    </div>
+                </div>
+                <div class="mt-3 flex justify-end">
+                    <button type="button" onclick="this.closest('.group').remove()" class="text-xs text-rose-500 hover:text-rose-400 font-bold uppercase tracking-widest">Cancelar</button>
                 </div>
             `;
             container.appendChild(row);

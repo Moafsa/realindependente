@@ -80,30 +80,61 @@
     </div>
     @endif
 
+    <!-- Document Warning -->
+    @if($athlete && (!$athlete->medical_certificate_path || !$athlete->athlete_document_path))
+    <div class="max-w-7xl mx-auto pt-6 px-4 sm:px-6 lg:px-8">
+        <div class="glass-card p-6 border-l-4 border-rose-500 bg-rose-500/10 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center space-x-4">
+                <div class="w-12 h-12 rounded-full bg-rose-500/20 flex items-center justify-center">
+                    <svg class="w-6 h-6 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-white font-bold uppercase tracking-tight italic">Documentação Pendente</h3>
+                    <p class="text-sm text-gray-300">
+                        @if(!$athlete->medical_certificate_path && !$athlete->athlete_document_path)
+                            Você precisa enviar seu <span class="text-white font-bold">Documento de Identificação</span> e <span class="text-white font-bold">Atestado Médico</span>.
+                        @elseif(!$athlete->medical_certificate_path)
+                            Você precisa enviar seu <span class="text-white font-bold">Atestado Médico</span>.
+                        @elseif(!$athlete->athlete_document_path)
+                            Você precisa enviar seu <span class="text-white font-bold">Documento de Identificação</span>.
+                        @endif
+                        Para sua segurança e regularização, por favor envie o quanto antes.
+                    </p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <a href="{{ route('portal.profile') }}" class="px-8 py-3 bg-rose-600 hover:bg-rose-500 text-white font-black uppercase tracking-widest text-xs rounded-xl transition-all shadow-lg shadow-rose-500/20">
+                    ENVIAR AGORA
+                </a>
+            </div>
+        </div>
+    </div>
+    @endif
+
     <!-- Top Header -->
     <div class="max-w-7xl mx-auto pt-10 px-4 sm:px-6 lg:px-8">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
             @php
-                $isNew = $athlete && $athlete->created_at && $athlete->created_at->diffInDays(now()) < 14 && ($stats['completed_trainings'] ?? 0) < 3;
+                $completedTrainings = $stats['completed_trainings'] ?? 0;
                 
-                if ($isNew) {
-                    if (($stats['completed_trainings'] ?? 0) == 0) {
-                        $statusText = 'FASE DE INÍCIO';
-                        $statusColor = 'text-blue-400';
-                        $statusBg = 'bg-blue-400/10 border-blue-400/20';
-                        $iconColor = 'text-blue-400';
-                        $greetingText = 'Complete seu primeiro treino para iniciar as métricas.';
-                    } else {
-                        $statusText = 'EM AVALIAÇÃO';
-                        $statusColor = 'text-purple-400';
-                        $statusBg = 'bg-purple-400/10 border-purple-400/20';
-                        $iconColor = 'text-purple-400';
-                        $greetingText = 'Continue treinando para calibrar sua Inteligência Artificial.';
-                    }
+                if ($completedTrainings == 0) {
+                    $statusText = 'FASE DE INÍCIO';
+                    $statusColor = 'text-blue-400';
+                    $statusBg = 'bg-blue-400/10 border-blue-400/20';
+                    $iconColor = 'text-blue-400';
+                    $greetingText = 'Complete seu primeiro treino para iniciar as métricas.';
+                } elseif ($completedTrainings < 3) {
+                    $statusText = 'EM AVALIAÇÃO';
+                    $statusColor = 'text-purple-400';
+                    $statusBg = 'bg-purple-400/10 border-purple-400/20';
+                    $iconColor = 'text-purple-400';
+                    $greetingText = 'Continue treinando para calibrar sua Inteligência Artificial.';
                 } else {
                     $performanceChange = $stats['performance_change'] ?? 0;
                     if ($performanceChange > 5) {
-                        $statusText = 'EM ALTA PERFORMANCE';
+                        $statusText = 'ALTA PERFORMANCE';
                         $statusColor = 'text-green-400';
                         $statusBg = 'bg-green-400/10 border-green-400/20';
                         $iconColor = 'text-green-400';
@@ -227,11 +258,11 @@
         <div class="glass-card p-8 border-l-2 border-yellow-500/30">
             <span class="text-gray-500 text-xs font-bold uppercase tracking-widest block mb-6">Status no Clube</span>
             <div class="flex items-baseline space-x-2">
-                <span class="text-4xl md:text-5xl font-black text-white leading-none truncate" title="{{ strtoupper($athlete->subcategory) ?: 'N/A' }}">{{ strtoupper($athlete->subcategory) ?: 'N/A' }}</span>
+                <span class="text-3xl md:text-4xl font-black text-white leading-none truncate" title="{{ strtoupper($athlete->subcategory) ?: 'N/A' }}">{{ strtoupper($athlete->subcategory) ?: 'N/A' }}</span>
             </div>
             <div class="mt-6 inline-flex items-center text-[10px] text-yellow-500 font-black bg-yellow-400/10 px-4 py-2 rounded-full uppercase tracking-widest border border-yellow-500/20">
                 <svg class="w-3 h-3 mr-2" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                Elite Performance
+                {{ $statusText ?? 'Em Avaliação' }}
             </div>
         </div>
     </div>

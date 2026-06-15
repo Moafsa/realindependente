@@ -97,6 +97,8 @@ Route::middleware([
             'destroy' => 'admin.athletes.destroy',
         ])->where(['athlete' => '[0-9]+']);
         Route::post('/athletes/{athlete}/toggle-status', [AthleteController::class, 'toggleStatus'])->name('admin.athletes.toggle-status');
+        Route::post('/athletes/{athlete}/history', [AthleteController::class, 'updateHistory'])->name('admin.athletes.history.update');
+        Route::get('/athletes/{athlete}/history/{id}/delete', [AthleteController::class, 'deleteHistory'])->name('admin.athletes.history.delete');
         Route::post('/athletes/{athlete}/documents', [AthleteController::class, 'updateDocuments'])->name('admin.athletes.documents.update');
         Route::get('/athletes/{athlete}/performance-data', [AthleteController::class, 'getPerformanceData'])->name('admin.athletes.performance-data');
         Route::get('/athletes/{athlete}/financial-history', [AthleteController::class, 'getFinancialHistory'])->name('admin.athletes.financial-history');
@@ -237,6 +239,8 @@ Route::middleware([
         Route::get('/', [PortalController::class, 'dashboard'])->name('dashboard');
         Route::get('/profile', [PortalController::class, 'profile'])->name('profile');
         Route::put('/profile', [PortalController::class, 'updateProfile'])->name('profile.update');
+        Route::post('/profile/history', [PortalController::class, 'updateHistory'])->name('profile.history.update');
+        Route::get('/profile/history/{id}/delete', [PortalController::class, 'deleteHistory'])->name('profile.history.delete');
         Route::get('/performance', [PortalController::class, 'performance'])->name('performance');
         Route::get('/performance-data', [PortalController::class, 'getPerformanceData'])->name('performance-data');
         Route::get('/ai-plans', [PortalController::class, 'aiPlans'])->name('ai-plans');

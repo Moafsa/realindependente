@@ -108,18 +108,21 @@ class AppServiceProvider extends ServiceProvider
                                     });
                                 }
                                 $pendingCount = $pendingQuery->count();
-                                if ($pendingCount === 1) {
-                                    $lastPendingAthleteId = $pendingQuery->first()?->athlete_id;
+                                if ($pendingCount > 0) {
+                                    // Pega o ID do atleta com o plano mais recente que está pendente
+                                    $lastPendingAthleteId = clone $pendingQuery;
+                                    $lastPendingAthleteId = $lastPendingAthleteId->latest('generated_at')->first()?->athlete_id;
                                 }
                             }
                         } catch (\Throwable $e) {}
 
                         try {
                             if (!$isAdmin && $user->role === 'athlete' && $user->athlete) {
+                                $lastMuralView = \Illuminate\Support\Facades\Cache::get('user_mural_view_' . $user->id, now()->subMonths(3));
                                 $muralCount = \App\Models\MuralNotice::where(function($q) use ($user) {
                                         $q->where('team_id', $user->athlete->team_id)->orWhereNull('team_id');
                                     })
-                                    ->where('created_at', '>=', now()->subDay())
+                                    ->where('created_at', '>', $lastMuralView)
                                     ->count();
                             }
                         } catch (\Throwable $e) {}

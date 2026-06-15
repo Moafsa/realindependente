@@ -43,19 +43,34 @@ class SiteController extends Controller
             // Contagem de atletas ativos
             $athletesCount = Athlete::where('is_active', true)->count();
             
-            // Contagem de categorias únicas
-            $categoriesCount = Team::where('is_active', true)->distinct('category')->count('category');
+            // Agrupar atletas por subcategoria base
+            $subcategories = Athlete::where('is_active', true)
+                ->whereNotNull('subcategory')
+                ->select('subcategory', DB::raw('count(*) as athletes_count'))
+                ->groupBy('subcategory')
+                ->get();
+
+            // Contagem de categorias únicas (subcategorias)
+            $categoriesCount = $subcategories->count();
             
-            // Lista de equipes/categorias
-            $teams = Team::withCount('athletes')
-                ->where('is_active', true)
-                ->get()
-                ->sortBy(function($team) {
-                    preg_match('/\d+/', $team->name, $matches);
-                    $num = $matches ? (int)$matches[0] : 999;
-                    return sprintf('%03d-%s', $num, strtolower($team->name));
-                })
-                ->values();
+            // Criar "pseudo-teams" para a view da home
+            $teams = $subcategories->map(function($sub) {
+                return (object)[
+                    'id' => null, // Não tem ID único de team
+                    'name' => 'Categoria ' . $sub->subcategory,
+                    'category' => $sub->subcategory,
+                    'level' => 'Competitivo',
+                    'description' => 'Atletas na categoria ' . $sub->subcategory . ' em desenvolvimento e preparação para o alto rendimento.',
+                    'athletes_count' => $sub->athletes_count,
+                    'primary_color' => null,
+                    'secondary_color' => null,
+                    'logo' => null,
+                ];
+            })->sortBy(function($team) {
+                preg_match('/\d+/', $team->name, $matches);
+                $num = $matches ? (int)$matches[0] : 999;
+                return sprintf('%03d-%s', $num, strtolower($team->name));
+            })->values();
                 
             // Estatísticas para a home
             $stats = [

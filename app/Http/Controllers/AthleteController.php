@@ -144,6 +144,12 @@ class AthleteController extends Controller
             'jersey_number' => 'nullable|string|max:10',
             'height' => 'nullable|numeric|min:0|max:300',
             'weight' => 'nullable|numeric|min:0|max:500',
+            'dominant_limb' => 'nullable|string|in:Destro,Canhoto,Ambidestro',
+            'instagram_url' => 'nullable|url|max:255',
+            'facebook_url' => 'nullable|url|max:255',
+            'tiktok_url' => 'nullable|url|max:255',
+            'youtube_url' => 'nullable|url|max:255',
+            'x_url' => 'nullable|url|max:255',
             'emergency_contact' => 'nullable|string|max:20',
             'medical_conditions' => 'nullable|array',
             'allergies' => 'nullable|array',
@@ -310,6 +316,12 @@ class AthleteController extends Controller
             'jersey_number' => 'nullable|string|max:10',
             'height' => 'nullable|numeric|min:0|max:300',
             'weight' => 'nullable|numeric|min:0|max:500',
+            'dominant_limb' => 'nullable|string|in:Destro,Canhoto,Ambidestro',
+            'instagram_url' => 'nullable|url|max:255',
+            'facebook_url' => 'nullable|url|max:255',
+            'tiktok_url' => 'nullable|url|max:255',
+            'youtube_url' => 'nullable|url|max:255',
+            'x_url' => 'nullable|url|max:255',
             'emergency_contact' => 'nullable|string|max:20',
             'medical_conditions' => 'nullable|string',
             'allergies' => 'nullable|string',
@@ -1043,5 +1055,72 @@ class AthleteController extends Controller
         });
 
         return view('athletes.nutrition-comparison', compact('athlete', 'activePlan', 'targetNutrients', 'dailyTotals', 'logs'));
+    }
+
+    public function updateHistory(\Illuminate\Http\Request $request, Athlete $athlete)
+    {
+        $user = auth()->user();
+        if ($user->role === 'coach') {
+            if (!$athlete->team || $athlete->team->coach_id !== $user->id) {
+                abort(403, 'Acesso negado. Você não tem permissão para atualizar o histórico deste atleta.');
+            }
+        }
+
+        // Handle new history rows
+        if ($request->has('new_history') && is_array($request->new_history)) {
+            foreach ($request->new_history as $id => $data) {
+                if (!empty($data['club_name']) && !empty($data['start_date'])) {
+                    $logoUrl = null;
+                    if (isset($data['logo']) && $data['logo'] instanceof \Illuminate\Http\UploadedFile) {
+                        $logoUrl = $data['logo']->storeOptimized('club_logos');
+                    }
+                    
+                    \App\Models\AthleteHistory::create([
+                        'athlete_id' => $athlete->id,
+                        'club_name' => $data['club_name'],
+                        'club_logo_url' => $logoUrl,
+                        'start_date' => $data['start_date'],
+                        'end_date' => !empty($data['end_date']) ? $data['end_date'] : null,
+                    ]);
+                }
+            }
+        }
+
+        // Handle existing history updates
+        if ($request->has('history') && is_array($request->history)) {
+            foreach ($request->history as $historyId => $data) {
+                $history = \App\Models\AthleteHistory::where('id', $historyId)->where('athlete_id', $athlete->id)->first();
+                if ($history) {
+                    if (isset($data['logo']) && $data['logo'] instanceof \Illuminate\Http\UploadedFile) {
+                        $data['club_logo_url'] = $data['logo']->storeOptimized('club_logos');
+                    }
+                    unset($data['logo']);
+                    if (empty($data['end_date'])) {
+                        $data['end_date'] = null;
+                    }
+                    $history->update($data);
+                }
+            }
+        }
+
+        return redirect()->route('admin.athletes.show', $athlete)->with('success', 'Histórico de clubes atualizado com sucesso!');
+    }
+
+    public function deleteHistory(Athlete $athlete, $id)
+    {
+        $user = auth()->user();
+        if ($user->role === 'coach') {
+            if (!$athlete->team || $athlete->team->coach_id !== $user->id) {
+                abort(403, 'Acesso negado. Você não tem permissão para remover o histórico deste atleta.');
+            }
+        }
+
+        $history = \App\Models\AthleteHistory::where('id', $id)->where('athlete_id', $athlete->id)->first();
+        if ($history) {
+            $history->delete();
+            return redirect()->route('admin.athletes.show', $athlete)->with('success', 'Histórico removido com sucesso!');
+        }
+
+        return redirect()->route('admin.athletes.show', $athlete)->with('error', 'Histórico não encontrado.');
     }
 }

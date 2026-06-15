@@ -134,6 +134,11 @@
                         class="tab-button px-6 py-4 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
                     Galeria
                 </button>
+                <button onclick="showTab('history')" 
+                        id="tab-history"
+                        class="tab-button px-6 py-4 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                    Histórico
+                </button>
             </nav>
         </div>
 
@@ -172,6 +177,11 @@
             <!-- Gallery Tab -->
             <div id="content-gallery" class="tab-content hidden">
                 <x-gallery-manager :galleryItems="$athlete->galleryItems" galleryableType="App\Models\Athlete" :galleryableId="$athlete->id" />
+            </div>
+
+            <!-- History Tab -->
+            <div id="content-history" class="tab-content hidden">
+                @include('athletes.partials.history', ['athlete' => $athlete])
             </div>
         </div>
     </div>

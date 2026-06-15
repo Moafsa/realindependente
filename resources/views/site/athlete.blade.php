@@ -39,7 +39,7 @@
                         {{ explode(' ', $athlete->full_name)[0] }} <span class="text-blue-500">{{ explode(' ', $athlete->full_name)[1] ?? '' }}</span>
                     </h1>
                     <p class="text-xl md:text-2xl text-gray-400 font-bold uppercase tracking-tight italic">
-                        {{ $athlete->position ?? 'Atleta' }} • {{ $athlete->team->name ?? 'Sem Equipe' }}
+                        {{ is_array($athlete->positions) && count($athlete->positions) > 0 ? implode(', ', $athlete->positions) : ($athlete->position ?? 'Atleta') }} • {{ $athlete->team->name ?? 'Sem Equipe' }}
                     </p>
                 </div>
 
@@ -73,35 +73,58 @@
                     </p>
                 </section>
 
-                <!-- Athlete Gallery -->
-                @if($athlete->galleryItems->count() > 0)
+                <!-- Athlete Gallery (Photos) -->
+                @php $photos = $athlete->galleryItems->where('type', 'image'); @endphp
+                @if($photos->count() > 0)
                 <section class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 mt-8">
                     <h2 class="text-2xl font-black uppercase italic tracking-tighter mb-6 flex items-center">
-                        <span class="w-8 h-1 bg-blue-500 mr-4"></span> Galeria de Fotos e Vídeos
+                        <span class="w-8 h-1 bg-blue-500 mr-4"></span> Fotos
                     </h2>
                     <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                        @foreach($athlete->galleryItems as $item)
-                            <div class="relative group rounded-2xl overflow-hidden aspect-square bg-gray-800 border border-white/10">
-                                @if($item->type === 'image')
-                                    <img src="{{ Storage::url($item->url) }}" alt="{{ $item->title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-                                @elseif($item->type === 'video')
-                                    @php
-                                        preg_match('%(?:youtube(?:-nocookie)?\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)/|.*[?&]v=)|youtu\.be/)([^"&?/\s]{11})%i', $item->url, $match);
-                                        $youtubeId = $match[1] ?? null;
-                                    @endphp
-                                    @if($youtubeId)
-                                        <img src="https://img.youtube.com/vi/{{ $youtubeId }}/maxresdefault.jpg" onerror="this.src='https://img.youtube.com/vi/{{ $youtubeId }}/hqdefault.jpg'" alt="{{ $item->title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-                                    @endif
-                                    <a href="{{ $item->url }}" target="_blank" class="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/40 transition-colors">
-                                        <div class="bg-blue-600 text-white rounded-full p-4 transform group-hover:scale-110 transition-transform">
-                                            <svg class="w-6 h-6 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg>
-                                        </div>
-                                    </a>
-                                @endif
-                                
+                        @foreach($photos as $index => $item)
+                            <div class="relative group rounded-2xl overflow-hidden aspect-square bg-gray-800 border border-white/10 cursor-pointer" onclick="openLightbox({{ $index }}, 'image')">
+                                <img src="{{ route('tenant.assets', ['path' => $item->url]) }}" alt="{{ $item->title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                                 @if($item->title)
                                     <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 pt-12">
                                         <p class="text-white font-bold text-xs truncate">{{ $item->title }}</p>
+                                    </div>
+                                @endif
+                                <div class="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/30 transition-colors">
+                                    <div class="bg-blue-600/80 text-white rounded-full p-3 opacity-0 group-hover:opacity-100 transform scale-50 group-hover:scale-100 transition-all duration-300">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/></svg>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </section>
+                @endif
+
+                <!-- Athlete Gallery (Videos) -->
+                @php $videos = $athlete->galleryItems->where('type', 'video'); @endphp
+                @if($videos->count() > 0)
+                <section class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 mt-8">
+                    <h2 class="text-2xl font-black uppercase italic tracking-tighter mb-6 flex items-center">
+                        <span class="w-8 h-1 bg-red-500 mr-4"></span> Vídeos
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        @foreach($videos as $index => $item)
+                            <div class="relative group rounded-2xl overflow-hidden aspect-video bg-gray-800 border border-white/10 cursor-pointer" onclick="openLightbox({{ $index }}, 'video')">
+                                @php
+                                    preg_match('%(?:youtube(?:-nocookie)?\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)/|.*[?&]v=)|youtu\.be/)([^"&?/\s]{11})%i', $item->url, $match);
+                                    $youtubeId = $match[1] ?? null;
+                                @endphp
+                                @if($youtubeId)
+                                    <img src="https://img.youtube.com/vi/{{ $youtubeId }}/maxresdefault.jpg" onerror="this.src='https://img.youtube.com/vi/{{ $youtubeId }}/hqdefault.jpg'" alt="{{ $item->title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                @endif
+                                <div class="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/40 transition-colors">
+                                    <div class="bg-red-600 text-white rounded-full p-4 transform group-hover:scale-110 transition-transform shadow-[0_0_20px_rgba(220,38,38,0.5)]">
+                                        <svg class="w-6 h-6 ml-1" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"></path></svg>
+                                    </div>
+                                </div>
+                                @if($item->title)
+                                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 pt-12 pointer-events-none">
+                                        <p class="text-white font-bold text-sm truncate">{{ $item->title }}</p>
                                     </div>
                                 @endif
                             </div>
@@ -197,25 +220,91 @@
                         </div>
                         <div class="flex justify-between items-center py-3 border-b border-white/5">
                             <span class="text-sm font-bold text-gray-400 uppercase tracking-tight">Membro Forte</span>
-                            <span class="text-sm font-black italic">Destro</span>
+                            <span class="text-sm font-black italic">{{ $athlete->dominant_limb ?? '--' }}</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Share -->
-                <div class="flex gap-4">
-                    <button class="flex-1 bg-white/5 hover:bg-white/10 border border-white/10 p-4 rounded-2xl transition-all flex items-center justify-center group">
-                        <svg class="h-5 w-5 text-gray-400 group-hover:text-blue-500" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/></svg>
-                    </button>
-                    <button class="flex-1 bg-white/5 hover:bg-white/10 border border-white/10 p-4 rounded-2xl transition-all flex items-center justify-center group">
-                        <svg class="h-5 w-5 text-gray-400 group-hover:text-pink-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-                    </button>
-                    <button class="flex-1 bg-white/5 hover:bg-white/10 border border-white/10 p-4 rounded-2xl transition-all flex items-center justify-center group">
-                        <svg class="h-5 w-5 text-gray-400 group-hover:text-green-500" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884 0 2.225.569 3.447 1.698 5.407l-1.047 3.821 3.838-1.005zm10.925-8.032c-.32-.16-.1.896-.24-.16-.14-.14-1.44-.74-2.42-1.18-.18-.08-.34-.14-.48-.2-.48-.18-.7-.1-.94.14-.34.34-1.32 1.32-1.6 1.6-.14.14-.24.16-.56.02-.32-.16-1.36-.5-2.58-1.58-1-.88-1.68-1.98-1.88-2.3-.2-.32-.02-.5.14-.66.14-.14.32-.38.48-.56.16-.18.22-.32.32-.54.1-.22.05-.4-.02-.56-.07-.16-.62-1.5-.86-2.06-.24-.54-.48-.48-.64-.48-.16 0-.34-.02-.52-.02-.18 0-.48.06-.74.34-.26.28-1 1-1 2.42s1.04 2.8 1.18 3c.14.2 2.04 3.12 4.94 4.38.7.3 1.24.48 1.66.62.7.22 1.34.2 1.84.12.56-.08 1.7-.7 1.94-1.38.24-.68.24-1.26.16-1.38-.08-.12-.3-.2-.62-.36z"/></svg>
-                    </button>
+                <!-- Timeline de Clubes -->
+                @if($athlete->history && $athlete->history->count() > 0)
+                <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8">
+                    <h3 class="text-xs font-black text-gray-500 uppercase tracking-[0.2em] mb-6">Histórico de Clubes</h3>
+                    <div class="space-y-6 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-white/20 before:to-transparent">
+                        @foreach($athlete->history->sortByDesc('start_date') as $history)
+                        <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                            <div class="flex items-center justify-center w-10 h-10 rounded-full border border-white/20 bg-[#0f172a] text-blue-500 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 overflow-hidden">
+                                @if($history->club_logo_url)
+                                    <img src="{{ route('tenant.assets', ['path' => $history->club_logo_url]) }}" alt="Logo {{ $history->club_name }}" class="w-full h-full object-cover bg-white">
+                                @else
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                                @endif
+                            </div>
+                            <div class="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-4 rounded-2xl bg-white/5 border border-white/10">
+                                <div class="flex items-center justify-between mb-1">
+                                    <h4 class="font-bold text-white uppercase italic tracking-tighter">{{ $history->club_name }}</h4>
+                                    <span class="text-[10px] font-black uppercase tracking-widest text-blue-400">
+                                        {{ $history->start_date->format('Y') }} - {{ $history->end_date ? $history->end_date->format('Y') : 'Atual' }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
                 </div>
+                @endif
+
+                <!-- Social Media -->
+                @if($athlete->instagram_url || $athlete->facebook_url || $athlete->tiktok_url || $athlete->youtube_url || $athlete->x_url)
+                <div class="flex gap-4 flex-wrap">
+                    @if($athlete->instagram_url)
+                    <a href="{{ $athlete->instagram_url }}" target="_blank" class="flex-1 min-w-[3rem] bg-white/5 hover:bg-white/10 border border-white/10 p-4 rounded-2xl transition-all flex items-center justify-center group">
+                        <svg class="h-5 w-5 text-gray-400 group-hover:text-pink-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                    </a>
+                    @endif
+                    @if($athlete->facebook_url)
+                    <a href="{{ $athlete->facebook_url }}" target="_blank" class="flex-1 min-w-[3rem] bg-white/5 hover:bg-white/10 border border-white/10 p-4 rounded-2xl transition-all flex items-center justify-center group">
+                        <svg class="h-5 w-5 text-gray-400 group-hover:text-blue-500" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                    </a>
+                    @endif
+                    @if($athlete->tiktok_url)
+                    <a href="{{ $athlete->tiktok_url }}" target="_blank" class="flex-1 min-w-[3rem] bg-white/5 hover:bg-white/10 border border-white/10 p-4 rounded-2xl transition-all flex items-center justify-center group">
+                        <svg class="h-5 w-5 text-gray-400 group-hover:text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93v7.2c0 1.96-.5 3.93-1.62 5.46-1.15 1.54-2.88 2.6-4.8 2.92-2.03.32-4.17.07-5.94-1-1.7-1.02-3.05-2.61-3.62-4.52-.58-1.93-.41-4.08.43-5.88 1.05-2.18 3.25-3.83 5.6-4.3 1.95-.38 4.02-.12 5.76.75v3.95c-1.3-.85-2.95-1.22-4.46-.86-1.47.33-2.7 1.38-3.32 2.72-.65 1.4-.55 3.08.28 4.38.82 1.25 2.27 2.05 3.8 2.15 1.48.1 3-.18 4.22-1.03 1.2-.85 1.97-2.2 2.1-3.65v-11.4c-.01-.01-.01-.01-.02-.01z"/></svg>
+                    </a>
+                    @endif
+                    @if($athlete->youtube_url)
+                    <a href="{{ $athlete->youtube_url }}" target="_blank" class="flex-1 min-w-[3rem] bg-white/5 hover:bg-white/10 border border-white/10 p-4 rounded-2xl transition-all flex items-center justify-center group">
+                        <svg class="h-5 w-5 text-gray-400 group-hover:text-red-500" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                    </a>
+                    @endif
+                    @if($athlete->x_url)
+                    <a href="{{ $athlete->x_url }}" target="_blank" class="flex-1 min-w-[3rem] bg-white/5 hover:bg-white/10 border border-white/10 p-4 rounded-2xl transition-all flex items-center justify-center group">
+                        <svg class="h-5 w-5 text-gray-400 group-hover:text-gray-200" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                    </a>
+                    @endif
+                </div>
+                @endif
             </div>
         </div>
+    </div>
+</div>
+
+<!-- Lightbox -->
+<div id="lightbox" class="fixed inset-0 z-[100] bg-black/95 hidden items-center justify-center p-4 backdrop-blur-sm opacity-0 transition-opacity duration-300">
+    <button onclick="closeLightbox()" class="absolute top-6 right-6 text-white hover:text-blue-500 transition-colors bg-white/10 p-3 rounded-full backdrop-blur-md z-50">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+    </button>
+    
+    <button id="lightbox-prev" onclick="lightboxNavigate(-1)" class="absolute left-6 top-1/2 -translate-y-1/2 text-white hover:text-blue-500 transition-colors bg-white/10 p-3 rounded-full backdrop-blur-md z-50 hidden">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+    </button>
+    
+    <button id="lightbox-next" onclick="lightboxNavigate(1)" class="absolute right-6 top-1/2 -translate-y-1/2 text-white hover:text-blue-500 transition-colors bg-white/10 p-3 rounded-full backdrop-blur-md z-50 hidden">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+    </button>
+
+    <div id="lightbox-content" class="w-full h-full flex items-center justify-center max-w-6xl">
+        <img id="lightbox-img" src="" class="max-w-full max-h-[90vh] object-contain rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.5)] transform scale-95 transition-transform duration-300 hidden">
+        <iframe id="lightbox-video" src="" class="w-full aspect-video rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.5)] transform scale-95 transition-transform duration-300 hidden" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
     </div>
 </div>
 
@@ -292,6 +381,112 @@
     if (firstMetric) {
         initChart(firstMetric);
     }
+
+    // Lightbox Logic
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightbox-img');
+    const lightboxVideo = document.getElementById('lightbox-video');
+    const prevBtn = document.getElementById('lightbox-prev');
+    const nextBtn = document.getElementById('lightbox-next');
+    
+    let currentGallery = [];
+    let currentIndex = 0;
+    
+    const photoGallery = [
+        @foreach($photos->values() as $item)
+        { type: 'image', url: "{{ route('tenant.assets', ['path' => $item->url]) }}" },
+        @endforeach
+    ];
+    
+    const videoGallery = [
+        @foreach($videos->values() as $item)
+        @php
+            preg_match('%(?:youtube(?:-nocookie)?\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)/|.*[?&]v=)|youtu\.be/)([^"&?/\s]{11})%i', $item->url, $match);
+            $ytId = $match[1] ?? null;
+            $embedUrl = $ytId ? "https://www.youtube.com/embed/{$ytId}?autoplay=1" : $item->url;
+        @endphp
+        { type: 'video', url: "{{ $embedUrl }}" },
+        @endforeach
+    ];
+
+    window.openLightbox = function(index, galleryType) {
+        currentGallery = galleryType === 'image' ? photoGallery : videoGallery;
+        currentIndex = index;
+        
+        updateLightboxContent();
+        
+        lightbox.classList.remove('hidden');
+        lightbox.classList.add('flex');
+        
+        // Small delay to allow display block to take effect before changing opacity
+        setTimeout(() => {
+            lightbox.classList.remove('opacity-0');
+            if (lightboxImg.classList.contains('scale-95')) lightboxImg.classList.remove('scale-95');
+            if (lightboxVideo.classList.contains('scale-95')) lightboxVideo.classList.remove('scale-95');
+        }, 10);
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function updateLightboxContent() {
+        const item = currentGallery[currentIndex];
+        
+        if (item.type === 'image') {
+            lightboxVideo.classList.add('hidden');
+            lightboxVideo.src = '';
+            lightboxImg.src = item.url;
+            lightboxImg.classList.remove('hidden');
+        } else {
+            lightboxImg.classList.add('hidden');
+            lightboxImg.src = '';
+            lightboxVideo.src = item.url;
+            lightboxVideo.classList.remove('hidden');
+        }
+        
+        if (currentGallery.length > 1) {
+            prevBtn.classList.remove('hidden');
+            nextBtn.classList.remove('hidden');
+        } else {
+            prevBtn.classList.add('hidden');
+            nextBtn.classList.add('hidden');
+        }
+    }
+    
+    window.lightboxNavigate = function(dir) {
+        currentIndex += dir;
+        if (currentIndex < 0) currentIndex = currentGallery.length - 1;
+        if (currentIndex >= currentGallery.length) currentIndex = 0;
+        updateLightboxContent();
+    }
+
+    window.closeLightbox = function() {
+        lightbox.classList.add('opacity-0');
+        lightboxImg.classList.add('scale-95');
+        lightboxVideo.classList.add('scale-95');
+        
+        setTimeout(() => {
+            lightbox.classList.add('hidden');
+            lightbox.classList.remove('flex');
+            lightboxImg.src = '';
+            lightboxVideo.src = '';
+        }, 300); // Wait for transition to complete
+        document.body.style.overflow = 'auto';
+    }
+
+    // Close on click outside
+    lightbox.addEventListener('click', function(e) {
+        if (e.target === lightbox || e.target.id === 'lightbox-content') {
+            closeLightbox();
+        }
+    });
+
+    // Keyboard navigation
+    document.addEventListener('keydown', function(e) {
+        if (!lightbox.classList.contains('hidden')) {
+            if (e.key === 'Escape') closeLightbox();
+            if (e.key === 'ArrowLeft') lightboxNavigate(-1);
+            if (e.key === 'ArrowRight') lightboxNavigate(1);
+        }
+    });
 </script>
 @endpush
 

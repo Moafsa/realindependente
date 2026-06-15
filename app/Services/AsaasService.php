@@ -14,12 +14,27 @@ class AsaasService
 
     public function __construct()
     {
-        // Prioritize tenant/central-specific settings if available in database
+        // Removed eager loading of config because this service can be injected
+        // in a controller constructor before tenancy is initialized.
+        // We will fetch the config dynamically when needed.
+    }
+
+    private function getApiKey(): ?string
+    {
         $dbApiKey = \App\Models\SiteSetting::get('asaas_api_key');
+        return $dbApiKey ?: config('services.asaas.api_key');
+    }
+
+    private function getBaseUrl(): ?string
+    {
         $dbBaseUrl = \App\Models\SiteSetting::get('asaas_api_url');
-        $dbEnv = \App\Models\SiteSetting::get('asaas_environment');
+        return $dbBaseUrl ?: config('services.asaas.base_url', 'https://sandbox.asaas.com/api/v3');
+    }
+
+    private function getWalletId(): ?string
+    {
+        $dbApiKey = \App\Models\SiteSetting::get('asaas_api_key');
         
-        // The wallet ID for splits should always be the platform owner's wallet (from central DB)
         $dbWalletId = null;
         if (function_exists('tenancy') && tenancy()->initialized) {
             $dbWalletId = tenancy()->central(function () {
@@ -28,23 +43,15 @@ class AsaasService
         } else {
             $dbWalletId = \App\Models\SiteSetting::get('asaas_wallet_id');
         }
-        
-        $this->apiKey = $dbApiKey ?: config('services.asaas.api_key');
-        $this->baseUrl = $dbBaseUrl ?: config('services.asaas.base_url', 'https://sandbox.asaas.com/api/v3');
-        $this->environment = $dbEnv ?: config('services.asaas.environment', 'sandbox');
-        
+
         $platformWalletId = $dbWalletId ?: config('services.asaas.wallet_id');
         $tenantWalletId = \App\Models\SiteSetting::get('asaas_wallet_id') ?: config('services.asaas.wallet_id');
 
-        // Não faz split se:
-        // 1. A carteira do tenant for a mesma da plataforma
-        // 2. O tenant não tiver API Key própria (está usando a da plataforma)
-        // 3. Estivermos no painel central (tenancy não inicializado)
         if ($tenantWalletId === $platformWalletId || empty($dbApiKey) || !(function_exists('tenancy') && tenancy()->initialized)) {
-            $this->walletId = null;
-        } else {
-            $this->walletId = $platformWalletId;
+            return null;
         }
+
+        return $platformWalletId;
     }
 
     /**
@@ -53,9 +60,9 @@ class AsaasService
     public function createCustomer(array $data): array
     {
         $response = Http::withHeaders([
-            'access_token' => $this->apiKey,
+            'access_token' => $this->getApiKey(),
             'Content-Type' => 'application/json',
-        ])->post($this->baseUrl . '/customers', [
+        ])->post($this->getBaseUrl() . '/customers', [
             'name' => $data['name'],
             'email' => $data['email'],
             'phone' => $data['phone'] ?? null,
@@ -103,19 +110,20 @@ class AsaasService
         ];
 
         // Adiciona split se houver configuração de taxa administrativa
-        if (isset($data['split_percentage']) && $data['split_percentage'] > 0 && $this->walletId) {
+        $walletId = $this->getWalletId();
+        if (isset($data['split_percentage']) && $data['split_percentage'] > 0 && $walletId) {
             $payload['split'] = [
                 [
-                    'walletId' => $this->walletId,
+                    'walletId' => $walletId,
                     'percentualValue' => $data['split_percentage'],
                 ]
             ];
         }
 
         $response = Http::withHeaders([
-            'access_token' => $this->apiKey,
+            'access_token' => $this->getApiKey(),
             'Content-Type' => 'application/json',
-        ])->post($this->baseUrl . '/payments', $payload);
+        ])->post($this->getBaseUrl() . '/payments', $payload);
 
         if ($response->successful()) {
             return $response->json();
@@ -136,8 +144,8 @@ class AsaasService
     public function getCharge(string $chargeId): array
     {
         $response = Http::withHeaders([
-            'access_token' => $this->apiKey,
-        ])->get($this->baseUrl . '/payments/' . $chargeId);
+            'access_token' => $this->getApiKey(),
+        ])->get($this->getBaseUrl() . '/payments/' . $chargeId);
 
         if ($response->successful()) {
             return $response->json();
@@ -158,8 +166,8 @@ class AsaasService
     public function cancelCharge(string $chargeId): array
     {
         $response = Http::withHeaders([
-            'access_token' => $this->apiKey,
-        ])->delete($this->baseUrl . '/payments/' . $chargeId);
+            'access_token' => $this->getApiKey(),
+        ])->delete($this->getBaseUrl() . '/payments/' . $chargeId);
 
         if ($response->successful()) {
             return $response->json();
@@ -180,8 +188,8 @@ class AsaasService
     public function getCustomer(string $customerId): array
     {
         $response = Http::withHeaders([
-            'access_token' => $this->apiKey,
-        ])->get($this->baseUrl . '/customers/' . $customerId);
+            'access_token' => $this->getApiKey(),
+        ])->get($this->getBaseUrl() . '/customers/' . $customerId);
 
         if ($response->successful()) {
             return $response->json();
@@ -206,8 +214,8 @@ class AsaasService
         ], $filters);
 
         $response = Http::withHeaders([
-            'access_token' => $this->apiKey,
-        ])->get($this->baseUrl . '/payments', $params);
+            'access_token' => $this->getApiKey(),
+        ])->get($this->getBaseUrl() . '/payments', $params);
 
         if ($response->successful()) {
             return $response->json();
@@ -239,19 +247,20 @@ class AsaasService
         ];
 
         // Adiciona split se houver configuração de taxa administrativa
-        if (isset($data['split_percentage']) && $data['split_percentage'] > 0 && $this->walletId) {
+        $walletId = $this->getWalletId();
+        if (isset($data['split_percentage']) && $data['split_percentage'] > 0 && $walletId) {
             $payload['split'] = [
                 [
-                    'walletId' => $this->walletId,
+                    'walletId' => $walletId,
                     'percentualValue' => $data['split_percentage'],
                 ]
             ];
         }
 
         $response = Http::withHeaders([
-            'access_token' => $this->apiKey,
+            'access_token' => $this->getApiKey(),
             'Content-Type' => 'application/json',
-        ])->post($this->baseUrl . '/subscriptions', $payload);
+        ])->post($this->getBaseUrl() . '/subscriptions', $payload);
 
         if ($response->successful()) {
             return $response->json();
@@ -272,8 +281,8 @@ class AsaasService
     public function getSubscription(string $subscriptionId): array
     {
         $response = Http::withHeaders([
-            'access_token' => $this->apiKey,
-        ])->get($this->baseUrl . '/subscriptions/' . $subscriptionId);
+            'access_token' => $this->getApiKey(),
+        ])->get($this->getBaseUrl() . '/subscriptions/' . $subscriptionId);
 
         if ($response->successful()) {
             return $response->json();
@@ -291,8 +300,8 @@ class AsaasService
     public function getSubscriptionPayments(string $subscriptionId): array
     {
         $response = Http::withHeaders([
-            'access_token' => $this->apiKey,
-        ])->get($this->baseUrl . "/subscriptions/{$subscriptionId}/payments");
+            'access_token' => $this->getApiKey(),
+        ])->get($this->getBaseUrl() . "/subscriptions/{$subscriptionId}/payments");
 
         if ($response->successful()) {
             return $response->json();
@@ -313,8 +322,8 @@ class AsaasService
     public function cancelSubscription(string $subscriptionId): array
     {
         $response = Http::withHeaders([
-            'access_token' => $this->apiKey,
-        ])->delete($this->baseUrl . '/subscriptions/' . $subscriptionId);
+            'access_token' => $this->getApiKey(),
+        ])->delete($this->getBaseUrl() . '/subscriptions/' . $subscriptionId);
 
         if ($response->successful()) {
             return $response->json();

@@ -273,6 +273,15 @@
                             </div>
                         </div>
                         <div class="md:col-span-2">
+                            <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Membro Forte</label>
+                            <select name="dominant_limb" class="w-full px-5 py-4 bg-gray-50 border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-primary transition outline-none text-gray-900 font-medium">
+                                <option value="" {{ old('dominant_limb') == '' ? 'selected' : '' }}>Não informado</option>
+                                <option value="Destro" {{ old('dominant_limb') == 'Destro' ? 'selected' : '' }}>Destro</option>
+                                <option value="Canhoto" {{ old('dominant_limb') == 'Canhoto' ? 'selected' : '' }}>Canhoto</option>
+                                <option value="Ambidestro" {{ old('dominant_limb') == 'Ambidestro' ? 'selected' : '' }}>Ambidestro</option>
+                            </select>
+                        </div>
+                        <div class="md:col-span-2">
                             <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Alergias (Opcional)</label>
                             <input type="text" name="allergies" value="{{ old('allergies') }}" 
                                    class="w-full px-5 py-4 bg-gray-50 border-transparent rounded-2xl focus:bg-white focus:ring-2 focus:ring-primary transition-all outline-none text-gray-900 font-medium" 

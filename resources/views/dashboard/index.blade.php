@@ -57,9 +57,9 @@
                 <div class="p-3 bg-purple-500/10 text-purple-400 rounded-xl group-hover:bg-purple-500 group-hover:text-white transition-all">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
                 </div>
-                <span class="text-[10px] font-black text-purple-500 bg-purple-500/10 px-2 py-1 rounded-lg border border-purple-500/20">{{ $stats['total_teams'] }} ELENCOS</span>
+                <span class="text-[10px] font-black text-purple-500 bg-purple-500/10 px-2 py-1 rounded-lg border border-purple-500/20">{{ $stats['total_teams'] }} CATEGORIAS</span>
             </div>
-            <p class="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] mb-1">Equipes / Grupos</p>
+            <p class="text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] mb-1">Subcategorias Base</p>
             <h3 class="text-4xl font-black text-white tracking-tighter">{{ $stats['total_teams'] }}</h3>
         </div>
 

@@ -138,7 +138,7 @@ class DashboardController extends Controller
                 'total_athletes' => $totalAthletes,
                 'athlete_trend' => round($athleteTrend, 1),
                 'active_athletes' => $activeAthletes,
-                'total_teams' => $isCoach ? count($coachTeams) : Team::count(),
+                'total_teams' => Athlete::whereNotNull('subcategory')->distinct('subcategory')->count('subcategory'),
                 'total_branches' => $isCoach ? Branch::whereHas('teams', function($q) use ($user) { $q->where('coach_id', $user->id); })->count() : Branch::count(),
                 'total_orders' => !$isCoach ? Order::count() : 0,
                 'total_revenue' => $totalRevenue,

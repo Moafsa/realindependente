@@ -19,6 +19,12 @@ class Athlete extends Model
         'subcategory',
         'position',
         'positions',
+        'dominant_limb',
+        'instagram_url',
+        'facebook_url',
+        'tiktok_url',
+        'youtube_url',
+        'x_url',
         'profile_picture_url',
         'bio',
         'guardian_name',
@@ -45,6 +51,15 @@ class Athlete extends Model
         'athlete_document_path',
         'residence_proof_path',
         'guardian_document_path',
+    ];
+
+    protected $casts = [
+        'birth_date' => 'date',
+        'positions' => 'array',
+        'is_active' => 'boolean',
+        'terms_accepted' => 'boolean',
+        'insurance_accepted' => 'boolean',
+        'is_verified' => 'boolean',
     ];
 
     protected static function boot()
@@ -240,6 +255,14 @@ class Athlete extends Model
     }
 
     /**
+     * Get the athlete's club history.
+     */
+    public function history()
+    {
+        return $this->hasMany(AthleteHistory::class)->orderBy('start_date', 'desc');
+    }
+
+    /**
      * Get the athlete's age.
      */
     public function getAgeAttribute()
@@ -272,9 +295,8 @@ class Athlete extends Model
             return $value;
         }
         
-        // Se for um path relativo, gera a URL
-        $disk = config('filesystems.default') === 's3' ? 's3' : 'public';
-        return \Illuminate\Support\Facades\Storage::disk($disk)->url($value);
+        // Se for um path relativo, gera a URL via rota de assets do tenant
+        return route('tenant.assets', ['path' => $value]);
     }
 
     /**

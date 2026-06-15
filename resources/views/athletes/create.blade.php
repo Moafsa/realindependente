@@ -189,6 +189,69 @@
                 @enderror
             </div>
 
+            <div>
+                <label for="dominant_limb" class="block text-sm font-medium text-gray-700">Membro Forte</label>
+                <select name="dominant_limb" id="dominant_limb" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                    <option value="">Não informado</option>
+                    <option value="Destro" {{ old('dominant_limb') == 'Destro' ? 'selected' : '' }}>Destro</option>
+                    <option value="Canhoto" {{ old('dominant_limb') == 'Canhoto' ? 'selected' : '' }}>Canhoto</option>
+                    <option value="Ambidestro" {{ old('dominant_limb') == 'Ambidestro' ? 'selected' : '' }}>Ambidestro</option>
+                </select>
+                @error('dominant_limb')
+                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <!-- Social Media Information -->
+            <div class="md:col-span-2 mt-6">
+                <h2 class="text-lg font-medium text-gray-900 mb-4">Redes Sociais</h2>
+            </div>
+
+            <div>
+                <label for="instagram_url" class="block text-sm font-medium text-gray-700">Instagram</label>
+                <input type="url" name="instagram_url" id="instagram_url" value="{{ old('instagram_url') }}"
+                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="https://instagram.com/...">
+                @error('instagram_url')
+                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div>
+                <label for="tiktok_url" class="block text-sm font-medium text-gray-700">TikTok</label>
+                <input type="url" name="tiktok_url" id="tiktok_url" value="{{ old('tiktok_url') }}"
+                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="https://tiktok.com/@...">
+                @error('tiktok_url')
+                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div>
+                <label for="youtube_url" class="block text-sm font-medium text-gray-700">YouTube</label>
+                <input type="url" name="youtube_url" id="youtube_url" value="{{ old('youtube_url') }}"
+                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="https://youtube.com/...">
+                @error('youtube_url')
+                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div>
+                <label for="facebook_url" class="block text-sm font-medium text-gray-700">Facebook</label>
+                <input type="url" name="facebook_url" id="facebook_url" value="{{ old('facebook_url') }}"
+                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="https://facebook.com/...">
+                @error('facebook_url')
+                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div>
+                <label for="x_url" class="block text-sm font-medium text-gray-700">X (Twitter)</label>
+                <input type="url" name="x_url" id="x_url" value="{{ old('x_url') }}"
+                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="https://x.com/...">
+                @error('x_url')
+                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
             <!-- Guardian Information -->
             <div class="md:col-span-2 mt-6">
                 <h2 class="text-lg font-medium text-gray-900 mb-4">Informações do Responsável</h2>

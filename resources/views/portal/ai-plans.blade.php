@@ -319,12 +319,48 @@
 let currentFilter = 'all';
 
 function requestPlan(type) {
-    const goal = prompt("Qual o seu objetivo com este novo plano?");
-    if (goal === null) return; // Cancelled
+    const button = event.currentTarget;
+    const typeLabel = type === 'training' ? 'Treino' : 'Nutrição';
+    
+    Swal.fire({
+        title: 'Solicitar Novo Plano',
+        html: `
+            <div class="text-left mt-2">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Qual o seu objetivo com este novo plano de ${typeLabel}?</label>
+                <textarea id="swal-goal-input" class="swal2-textarea w-full px-4 py-3 bg-gray-50 dark:bg-[#1e293b] border border-gray-300 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none text-sm dark:text-white" rows="3" placeholder="Ex: Ganho de massa, perda de peso, preparo para competição..."></textarea>
+            </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'Solicitar Plano',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#2563eb',
+        cancelButtonColor: '#475569',
+        customClass: {
+            popup: 'rounded-3xl dark:bg-[#0f172a] border border-white/5 shadow-2xl',
+            title: 'text-gray-900 dark:text-white font-bold',
+            confirmButton: 'rounded-xl font-medium px-6 py-2.5',
+            cancelButton: 'rounded-xl font-medium px-6 py-2.5',
+            htmlContainer: 'px-0'
+        },
+        preConfirm: () => {
+            const goal = document.getElementById('swal-goal-input').value.trim();
+            if (!goal) {
+                Swal.showValidationMessage('Por favor, informe seu objetivo.');
+                return false;
+            }
+            return goal;
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const goal = result.value;
+            submitRequestPlan(type, goal, button);
+        }
+    });
+}
 
-    const button = event.target;
-    const originalText = button.textContent;
-    button.textContent = 'Enviando...';
+function submitRequestPlan(type, goal, button) {
+    const originalText = button.innerHTML;
+    button.innerHTML = '<svg class="animate-spin h-5 w-5 mr-2 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Enviando...';
     button.disabled = true;
 
     fetch(`/portal/ai-plans/request`, {
@@ -338,18 +374,49 @@ function requestPlan(type) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            alert(data.message);
-            location.reload();
+            Swal.fire({
+                title: 'Sucesso!',
+                text: data.message,
+                icon: 'success',
+                confirmButtonColor: '#2563eb',
+                customClass: {
+                    popup: 'rounded-3xl dark:bg-[#0f172a] border border-white/5 shadow-2xl',
+                    title: 'text-gray-900 dark:text-white font-bold',
+                    confirmButton: 'rounded-xl font-medium px-6 py-2.5',
+                }
+            }).then(() => {
+                location.reload();
+            });
         } else {
-            alert('Erro: ' + data.message);
+            Swal.fire({
+                title: 'Erro',
+                text: data.message,
+                icon: 'error',
+                confirmButtonColor: '#2563eb',
+                customClass: {
+                    popup: 'rounded-3xl dark:bg-[#0f172a] border border-white/5 shadow-2xl',
+                    title: 'text-gray-900 dark:text-white font-bold',
+                    confirmButton: 'rounded-xl font-medium px-6 py-2.5',
+                }
+            });
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('Erro ao solicitar plano');
+        Swal.fire({
+            title: 'Erro',
+            text: 'Ocorreu um erro ao solicitar o plano.',
+            icon: 'error',
+            confirmButtonColor: '#2563eb',
+            customClass: {
+                popup: 'rounded-3xl dark:bg-[#0f172a] border border-white/5 shadow-2xl',
+                title: 'text-gray-900 dark:text-white font-bold',
+                confirmButton: 'rounded-xl font-medium px-6 py-2.5',
+            }
+        });
     })
     .finally(() => {
-        button.textContent = originalText;
+        button.innerHTML = originalText;
         button.disabled = false;
     });
 }
