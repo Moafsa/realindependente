@@ -1,13 +1,15 @@
 @extends('layouts.admin')
 
-@section('title', 'Meu Extrato Financeiro')
+@section('title', auth()->user()->role === 'admin' ? 'Extrato de ' . $targetCoach->name : 'Meu Extrato Financeiro')
 
 @section('content')
 <div class="animate__animated animate__fadeIn">
     <!-- Header -->
     <div class="mb-12 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
         <div>
-            <h1 class="text-3xl font-black text-white tracking-tight">Meu Extrato Financeiro</h1>
+            <h1 class="text-3xl font-black text-white tracking-tight">
+                {{ auth()->user()->role === 'admin' ? 'Extrato Financeiro de ' . $targetCoach->name : 'Meu Extrato Financeiro' }}
+            </h1>
             <p class="text-gray-400 mt-2">Acompanhe seus rendimentos, bônus e histórico de transações em tempo real.</p>
         </div>
         

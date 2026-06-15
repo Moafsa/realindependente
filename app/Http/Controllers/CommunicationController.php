@@ -47,7 +47,7 @@ class CommunicationController extends Controller
 
             $athletes = $athleteQuery->with('user')
                 ->get()
-                ->map(function($a) use ($user, $isAdmin) {
+                ->map(function($a) use ($user, $isAdmin, $isCoach) {
                     // Count unread messages from this athlete to current user (or any admin pool)
                     $msgQuery = \App\Models\Message::where('sender_id', $a->user_id)
                         ->whereNull('read_at');

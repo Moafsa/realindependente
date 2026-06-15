@@ -234,29 +234,48 @@ class CoachController extends Controller
     /**
      * Ver extrato financeiro do treinador logado.
      */
-    public function extract()
+    public function extract(Request $request)
     {
         $user = auth()->user();
-        if ($user->role !== 'coach') abort(403);
+        
+        $targetUserId = null;
+        $targetCoach = null;
 
-        $transactions = \App\Models\CashFlow::where('recipient_id', $user->id)
+        if ($user->role === 'admin') {
+            $coachId = $request->query('coach_id');
+            if (!$coachId) {
+                return redirect()->route('admin.coaches.index')->with('error', 'Treinador não especificado.');
+            }
+            $targetCoach = \App\Models\User::find($coachId);
+            if (!$targetCoach || $targetCoach->role !== 'coach') {
+                return redirect()->route('admin.coaches.index')->with('error', 'Treinador inválido.');
+            }
+            $targetUserId = $coachId;
+        } elseif ($user->role === 'coach') {
+            $targetUserId = $user->id;
+            $targetCoach = $user;
+        } else {
+            abort(403);
+        }
+
+        $transactions = \App\Models\CashFlow::where('recipient_id', $targetUserId)
             ->orderBy('date', 'desc')
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
         $stats = [
-            'total_balance' => \App\Models\CashFlow::where('recipient_id', $user->id)
+            'total_balance' => \App\Models\CashFlow::where('recipient_id', $targetUserId)
                 ->selectRaw("SUM(CASE WHEN type = 'exit' THEN amount ELSE -amount END) as balance")
                 ->value('balance') ?? 0,
-            'entries' => \App\Models\CashFlow::where('recipient_id', $user->id)
+            'entries' => \App\Models\CashFlow::where('recipient_id', $targetUserId)
                 ->where('type', 'exit')
                 ->sum('amount'),
-            'exits' => \App\Models\CashFlow::where('recipient_id', $user->id)
+            'exits' => \App\Models\CashFlow::where('recipient_id', $targetUserId)
                 ->where('type', 'entry')
                 ->sum('amount'),
         ];
 
-        return view('admin.coaches.extract', compact('transactions', 'stats'));
+        return view('admin.coaches.extract', compact('transactions', 'stats', 'targetCoach'));
     }
 
     /**
