@@ -83,20 +83,60 @@
     <!-- Top Header -->
     <div class="max-w-7xl mx-auto pt-10 px-4 sm:px-6 lg:px-8">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            @php
+                $isNew = $athlete && $athlete->created_at && $athlete->created_at->diffInDays(now()) < 14 && ($stats['completed_trainings'] ?? 0) < 3;
+                
+                if ($isNew) {
+                    if (($stats['completed_trainings'] ?? 0) == 0) {
+                        $statusText = 'FASE DE INÍCIO';
+                        $statusColor = 'text-blue-400';
+                        $statusBg = 'bg-blue-400/10 border-blue-400/20';
+                        $iconColor = 'text-blue-400';
+                        $greetingText = 'Complete seu primeiro treino para iniciar as métricas.';
+                    } else {
+                        $statusText = 'EM AVALIAÇÃO';
+                        $statusColor = 'text-purple-400';
+                        $statusBg = 'bg-purple-400/10 border-purple-400/20';
+                        $iconColor = 'text-purple-400';
+                        $greetingText = 'Continue treinando para calibrar sua Inteligência Artificial.';
+                    }
+                } else {
+                    $performanceChange = $stats['performance_change'] ?? 0;
+                    if ($performanceChange > 5) {
+                        $statusText = 'EM ALTA PERFORMANCE';
+                        $statusColor = 'text-green-400';
+                        $statusBg = 'bg-green-400/10 border-green-400/20';
+                        $iconColor = 'text-green-400';
+                        $greetingText = 'Seu desempenho está <span class="text-green-400 underline decoration-2 underline-offset-4">evoluindo</span> constantemente.';
+                    } elseif ($performanceChange >= 0) {
+                        $statusText = 'EM EVOLUÇÃO';
+                        $statusColor = 'text-green-400';
+                        $statusBg = 'bg-green-400/10 border-green-400/20';
+                        $iconColor = 'text-green-400';
+                        $greetingText = 'Você está mantendo a constância nos treinamentos.';
+                    } else {
+                        $statusText = 'REQUER ATENÇÃO';
+                        $statusColor = 'text-yellow-400';
+                        $statusBg = 'bg-yellow-400/10 border-yellow-400/20';
+                        $iconColor = 'text-yellow-400';
+                        $greetingText = 'Foque nos próximos treinos para recuperar o ritmo.';
+                    }
+                }
+            @endphp
             <div class="animate-in fade-in slide-in-from-left duration-700">
                 <h1 class="text-5xl font-black tracking-tighter text-white mb-2 italic">
-                    OLÁ, <span class="text-green-400 text-glow">{{ strtoupper(explode(' ', $athlete->full_name ?? Auth::user()->name)[0]) }}</span>
+                    OLÁ, <span class="{{ $statusColor }} text-glow">{{ strtoupper(explode(' ', $athlete->full_name ?? Auth::user()->name)[0]) }}</span>
                 </h1>
-                <p class="text-gray-400 text-lg font-medium">Seu desempenho está <span class="text-green-400 underline decoration-2 underline-offset-4">evoluindo</span> constantemente.</p>
+                <p class="text-gray-400 text-lg font-medium">{!! $greetingText !!}</p>
             </div>
             <div class="flex items-center space-x-4 animate-in fade-in slide-in-from-right duration-700">
                 <div class="glass-card px-6 py-4 flex items-center space-x-4">
                     <div class="text-right">
                         <p class="text-[10px] text-gray-500 uppercase tracking-[0.2em] font-bold">Status Atual</p>
-                        <p class="text-sm font-black text-green-400">EM ALTA PERFORMANCE</p>
+                        <p class="text-sm font-black {{ $statusColor }}">{{ $statusText }}</p>
                     </div>
-                    <div class="w-12 h-12 rounded-2xl bg-green-400/10 flex items-center justify-center border border-green-400/20">
-                        <svg class="w-7 h-7 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    <div class="w-12 h-12 rounded-2xl {{ $statusBg }} flex items-center justify-center border">
+                        <svg class="w-7 h-7 {{ $iconColor }}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                     </div>
                 </div>
             </div>
