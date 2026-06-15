@@ -56,7 +56,7 @@
                 <div class="px-6 py-4 border-t border-white/5 space-y-3">
                     <div class="flex justify-between items-center">
                         <span class="text-[10px] font-black uppercase tracking-widest text-gray-500">Posição</span>
-                        <span class="text-xs text-white font-bold">{{ $athlete ? ($athlete->position ?? 'N/A') : 'Staff' }}</span>
+                        <span class="text-xs text-white font-bold text-right">{{ $athlete ? (is_array($athlete->positions) && count($athlete->positions) > 0 ? implode(', ', $athlete->positions) : ($athlete->position ?? 'N/A')) : 'Staff' }}</span>
                     </div>
                     <div class="flex justify-between items-center">
                         <span class="text-[10px] font-black uppercase tracking-widest text-gray-500">Documento</span>
@@ -129,6 +129,25 @@
                                 <input type="text" name="jersey_number" id="jersey_number" 
                                        value="{{ old('jersey_number', $athlete->jersey_number) }}"
                                        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Posições de Atuação (Selecione múltiplas)</label>
+                            <div class="grid grid-cols-2 md:grid-cols-3 gap-3 pt-2">
+                                @php
+                                    $allPositions = [
+                                        'Goleiro', 'Lateral Direito', 'Lateral Esquerdo', 
+                                        'Zagueiro', 'Volante', 'Meia Central', 
+                                        'Meia Atacante', 'Ponta Direita', 'Ponta Esquerda', 'Centroavante'
+                                    ];
+                                @endphp
+                                @foreach($allPositions as $pos)
+                                <label class="flex items-center p-3 bg-white/5 rounded-xl cursor-pointer hover:bg-white/10 transition-all border border-transparent has-[:checked]:border-blue-500 has-[:checked]:bg-blue-500/10">
+                                    <input type="checkbox" name="positions[]" value="{{ $pos }}" class="hidden" {{ is_array(old('positions', $athlete->positions)) && in_array($pos, old('positions', $athlete->positions)) ? 'checked' : '' }}>
+                                    <span class="text-sm font-semibold text-gray-300">{{ $pos }}</span>
+                                </label>
+                                @endforeach
                             </div>
                         </div>
 

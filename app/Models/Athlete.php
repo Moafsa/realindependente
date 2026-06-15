@@ -165,6 +165,14 @@ class Athlete extends Model
     }
 
     /**
+     * Get the dynamically calculated subcategory.
+     */
+    public function getSubcategoryAttribute($value)
+    {
+        return self::calculateSubcategory($this->birth_date) ?? $value;
+    }
+
+    /**
      * Calcula o percentual de conclusão do perfil.
      */
     public function getProfileCompletionPercentage()

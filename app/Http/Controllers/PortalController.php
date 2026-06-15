@@ -379,6 +379,8 @@ class PortalController extends Controller
             'full_name' => 'required|string|max:255',
             'birth_date' => 'required|date|before:today',
             'position' => 'nullable|string|max:255',
+            'positions' => 'nullable|array',
+            'positions.*' => 'string|max:255',
             'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
             'medical_certificate' => 'nullable|file|mimes:pdf,jpg,png,jpeg|max:5120',
             'bio' => 'nullable|string|max:1000',
@@ -398,31 +400,31 @@ class PortalController extends Controller
 
         // Handle profile picture upload
         if ($request->hasFile('profile_picture')) {
-            $path = $request->file('profile_picture')->storeOptimized('athletes', 'public');
+            $path = $request->file('profile_picture')->storeOptimized('athletes');
             $athlete->profile_picture_url = $path;
         }
 
         // Handle medical certificate upload
         if ($request->hasFile('medical_certificate')) {
-            $path = $request->file('medical_certificate')->storeOptimized('medical_certificates', 'public');
+            $path = $request->file('medical_certificate')->storeOptimized('medical_certificates');
             $athlete->medical_certificate_path = $path;
         }
 
         // Handle athlete document upload
         if ($request->hasFile('athlete_document')) {
-            $path = $request->file('athlete_document')->storeOptimized('athlete_documents', 'public');
+            $path = $request->file('athlete_document')->storeOptimized('athlete_documents');
             $athlete->athlete_document_path = $path;
         }
 
         // Handle residence proof upload
         if ($request->hasFile('residence_proof')) {
-            $path = $request->file('residence_proof')->storeOptimized('residence_proofs', 'public');
+            $path = $request->file('residence_proof')->storeOptimized('residence_proofs');
             $athlete->residence_proof_path = $path;
         }
 
         // Handle guardian document upload
         if ($request->hasFile('guardian_document_file')) {
-            $path = $request->file('guardian_document_file')->storeOptimized('guardian_documents', 'public');
+            $path = $request->file('guardian_document_file')->storeOptimized('guardian_documents');
             $athlete->guardian_document_path = $path;
         }
 
