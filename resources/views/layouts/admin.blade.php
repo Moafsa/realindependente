@@ -167,7 +167,7 @@
                                 <span id="total-notifications-text" class="text-[9px] bg-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded-full font-black uppercase tracking-widest">{{ $totalNotifications ?? 0 }} Novas</span>
                             </div>
                             <div class="max-h-96 overflow-y-auto custom-scrollbar">
-                                <a id="pending-plans-notification" href="{{ Route::has('admin.athletes.index') ? route('admin.athletes.index') : '#' }}" class="flex p-5 hover:bg-white/5 border-b border-white/5 transition-colors {{ ($pendingCount ?? 0) > 0 ? '' : 'hidden' }}">
+                                <a id="pending-plans-notification" href="{{ ($pendingCount ?? 0) === 1 && isset($lastPendingAthleteId) ? route('admin.athletes.show', $lastPendingAthleteId) . '#ai-plans' : (Route::has('admin.athletes.index') ? route('admin.athletes.index') : '#') }}" class="flex p-5 hover:bg-white/5 border-b border-white/5 transition-colors {{ ($pendingCount ?? 0) > 0 ? '' : 'hidden' }}">
                                     <div class="h-10 w-10 rounded-xl bg-orange-500/10 flex-shrink-0 flex items-center justify-center text-orange-500">
                                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                                     </div>

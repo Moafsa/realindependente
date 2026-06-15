@@ -97,15 +97,21 @@ class AppServiceProvider extends ServiceProvider
                     
                     // Tenant-specific counts
                     if (tenancy()->initialized) {
+                        $lastPendingAthleteId = null;
                         try {
-                            $pendingQuery = \App\Models\AiGeneratedContent::where('status', 'pending');
-                            if ($isCoach) {
-                                $coachTeams = \App\Models\Team::where('coach_id', $user->id)->pluck('id')->toArray();
-                                $pendingQuery->whereHas('athlete', function($q) use ($coachTeams) {
-                                    $q->whereIn('team_id', $coachTeams);
-                                });
+                            if ($isAdmin || $isCoach) {
+                                $pendingQuery = \App\Models\AiGeneratedContent::where('status', 'pending');
+                                if ($isCoach) {
+                                    $coachTeams = \App\Models\Team::where('coach_id', $user->id)->pluck('id')->toArray();
+                                    $pendingQuery->whereHas('athlete', function($q) use ($coachTeams) {
+                                        $q->whereIn('team_id', $coachTeams);
+                                    });
+                                }
+                                $pendingCount = $pendingQuery->count();
+                                if ($pendingCount === 1) {
+                                    $lastPendingAthleteId = $pendingQuery->first()?->athlete_id;
+                                }
                             }
-                            $pendingCount = $pendingQuery->count();
                         } catch (\Throwable $e) {}
 
                         try {
@@ -143,6 +149,7 @@ class AppServiceProvider extends ServiceProvider
                         'isAdmin' => $isAdmin,
                         'isCoach' => $isCoach,
                         'lastAthleteId' => $lastAthleteId,
+                        'lastPendingAthleteId' => $lastPendingAthleteId,
                     ]);
                 } catch (\Throwable $e) {
                     $view->with([
@@ -153,6 +160,7 @@ class AppServiceProvider extends ServiceProvider
                         'isAdmin' => false,
                         'isCoach' => false,
                         'lastAthleteId' => null,
+                        'lastPendingAthleteId' => null,
                     ]);
                 }
             }
